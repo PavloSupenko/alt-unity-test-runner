@@ -11,4 +11,10 @@
       <ProjectReference Include="..\TestsTreeParser\TestsTreeParser.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="TestsTreeTemplate.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

@@ -1,0 +1,21 @@
+{
+  "TestsRootNamespace": "Editor.AltUnity.Tests",
+  "Tests": [
+    {
+      "Test": "TopLevelSceneLoading",
+      "SubTests": [
+        {
+          "Test": "InfoButton",
+          "SubTests": [
+            {
+              "Test": "LanguageButton"
+            }
+          ]
+        },
+        {
+          "Test": "PurchaseButton"
+        }
+      ]
+    }
+  ]
+}
