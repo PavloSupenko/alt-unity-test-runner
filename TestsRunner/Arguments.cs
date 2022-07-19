@@ -1,6 +1,6 @@
 ﻿namespace TestsRunner;
 
-enum GeneralArguments
+public enum GeneralArguments
 {
     UnityEditorPath,
     ProjectPath,
@@ -10,10 +10,11 @@ enum GeneralArguments
     SkipPortForward,
     SkipRun,
     SkipTests,
-    RunOnDevice
+    RunOnDevice,
+    Help,
 }
 
-enum AndroidArguments
+public enum AndroidArguments
 {
     AndroidDebugBridgePath,
     TcpPort,

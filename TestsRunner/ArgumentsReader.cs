@@ -3,14 +3,19 @@
 public class ArgumentsReader<TArgsEnum> where TArgsEnum : Enum
 {
     private readonly Dictionary<TArgsEnum, string> @default;
-    private readonly Dictionary<TArgsEnum,string> commandLineValues;
+    private readonly Dictionary<TArgsEnum, string> commandLineValues;
+    private readonly Dictionary<TArgsEnum, string> descriptions;
+    private IReadOnlyDictionary<string, TArgsEnum> allCommandLineKeys;
 
     public ArgumentsReader(
         IEnumerable<string> commandLineArguments,
         IReadOnlyDictionary<string, TArgsEnum> commandLineKeys,
-        Dictionary<TArgsEnum, string> @default)
+        Dictionary<TArgsEnum, string> @default,
+        Dictionary<TArgsEnum, string> descriptions)
     {
+        this.descriptions = descriptions;
         this.@default = @default;
+        this.allCommandLineKeys = commandLineKeys;
         this.commandLineValues = ParseCommandLineArguments(commandLineArguments, commandLineKeys);
     }
 
@@ -49,5 +54,15 @@ public class ArgumentsReader<TArgsEnum> where TArgsEnum : Enum
 
             return null;
         }
+    }
+
+    public (string switchName, string description) GetHelp(TArgsEnum argument)
+    {
+        var switchName = allCommandLineKeys.First(key => key.Value.Equals(argument)).Key;
+        var description = descriptions.ContainsKey(argument)
+            ? descriptions.FirstOrDefault(key => key.Key.Equals(argument)).Value
+            : "*no description for this parameter*";
+
+        return (switchName, description);
     }
 }

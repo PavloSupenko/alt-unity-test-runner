@@ -1,22 +1,33 @@
-﻿using System.Diagnostics;
+﻿using TestsRunner.PlatformRunners;
 using TestsTreeParser.Tree;
-
 
 namespace TestsRunner;
 
 class Program
 {
+    private static readonly ITestsRunner AndroidTestsRunner = new AndroidTestsRunner();
+
     private static void Main(string[] args)
     {
-        var generalArgumentReader =
-            new ArgumentsReader<GeneralArguments>(args, ArgumentKeys.GeneralKeys, ArgumentKeys.GeneralDefaults);
+        var generalArgumentsReader =
+            new ArgumentsReader<GeneralArguments>(args, ArgumentKeys.GeneralKeys,
+                ArgumentKeys.GeneralDefaults, ArgumentKeys.GeneralDescriptions);
 
-        var androidArgumentReader =
-            new ArgumentsReader<AndroidArguments>(args, ArgumentKeys.AndroidKeys, ArgumentKeys.AndroidDefaults);
+        var androidArgumentsReader =
+            new ArgumentsReader<AndroidArguments>(args, ArgumentKeys.AndroidKeys,
+                ArgumentKeys.AndroidDefaults, ArgumentKeys.AndroidDescriptions);
+
+        if (generalArgumentsReader[GeneralArguments.Help].Equals("true"))
+        {
+            ShowHelp(generalArgumentsReader, "==== General parameters: ====");
+            ShowHelp(androidArgumentsReader, "\n==== Android parameters: ====");
+            Console.WriteLine();
+            return;
+        }
 
         try
         {
-            ExecuteAndroidTests(generalArgumentReader, androidArgumentReader);
+            ExecuteAndroidTests(generalArgumentsReader, androidArgumentsReader);
         }
         catch (Exception exception)
         {
@@ -24,173 +35,95 @@ class Program
         }
     }
 
-    private static void ExecuteAndroidTests(ArgumentsReader<GeneralArguments> generalArgumentReader,
-        ArgumentsReader<AndroidArguments> androidArgumentReader)
+    private static void ExecuteAndroidTests(ArgumentsReader<GeneralArguments> generalArgumentsReader,
+        ArgumentsReader<AndroidArguments> androidArgumentsReader)
     {
-        if (!IsDeviceConnected(
-                adbPath: androidArgumentReader[AndroidArguments.AndroidDebugBridgePath],
-                deviceNumberString: generalArgumentReader[GeneralArguments.RunOnDevice],
-                out string deviceId))
+        if (!AndroidTestsRunner.IsDeviceConnected(
+                adbPath: androidArgumentsReader[AndroidArguments.AndroidDebugBridgePath],
+                deviceNumberString: generalArgumentsReader[GeneralArguments.RunOnDevice],
+                out var deviceId))
             return;
 
-        if (generalArgumentReader[GeneralArguments.SkipInstall].Equals("false"))
+        if (generalArgumentsReader[GeneralArguments.SkipInstall].Equals("false"))
         {
-            ReinstallApplication(
-                adbPath: androidArgumentReader[AndroidArguments.AndroidDebugBridgePath],
-                apkPath: androidArgumentReader[AndroidArguments.ApkPath],
+            AndroidTestsRunner.ReinstallApplication(
+                adbPath: androidArgumentsReader[AndroidArguments.AndroidDebugBridgePath],
+                apkPath: androidArgumentsReader[AndroidArguments.ApkPath],
                 deviceId: deviceId);
         }
 
-        if (generalArgumentReader[GeneralArguments.SkipPortForward].Equals("false"))
+        if (generalArgumentsReader[GeneralArguments.SkipPortForward].Equals("false"))
         {
-            SetupPortForwarding(
-                adbPath: androidArgumentReader[AndroidArguments.AndroidDebugBridgePath],
-                tcpPort: androidArgumentReader[AndroidArguments.TcpPort],
+            AndroidTestsRunner.SetupPortForwarding(
+                adbPath: androidArgumentsReader[AndroidArguments.AndroidDebugBridgePath],
+                tcpPort: androidArgumentsReader[AndroidArguments.TcpPort],
                 deviceId: deviceId);
         }
 
-        if (generalArgumentReader[GeneralArguments.SkipRun].Equals("false"))
+        if (generalArgumentsReader[GeneralArguments.SkipRun].Equals("false"))
         {
-            RunApplication(
-                adbPath: androidArgumentReader[AndroidArguments.AndroidDebugBridgePath],
-                bundle: androidArgumentReader[AndroidArguments.Bundle],
+            AndroidTestsRunner.RunApplication(
+                adbPath: androidArgumentsReader[AndroidArguments.AndroidDebugBridgePath],
+                bundle: androidArgumentsReader[AndroidArguments.Bundle],
                 deviceId: deviceId);
 
             Thread.Sleep(10000);
         }
 
-        if (generalArgumentReader[GeneralArguments.SkipTests].Equals("false"))
+        if (generalArgumentsReader[GeneralArguments.SkipTests].Equals("false"))
         {
-            RunTests(
-                unityPath: generalArgumentReader[GeneralArguments.UnityEditorPath],
-                projectPath: generalArgumentReader[GeneralArguments.ProjectPath],
-                testsTreeFilePath: generalArgumentReader[GeneralArguments.TestsTree],
-                pathToLogFile: generalArgumentReader[GeneralArguments.LogFilePath]);
+            ParseTestsTree(
+                testsTreeJsonPath: generalArgumentsReader[GeneralArguments.TestsTree]);
+
+            AndroidTestsRunner.RunTests(
+                unityPath: generalArgumentsReader[GeneralArguments.UnityEditorPath],
+                projectPath: generalArgumentsReader[GeneralArguments.ProjectPath],
+                testsTreeFilePath: generalArgumentsReader[GeneralArguments.TestsTree],
+                pathToLogFile: generalArgumentsReader[GeneralArguments.LogFilePath]);
 
             DrawTestsTreeResult(
-                testsTreeFilePath: generalArgumentReader[GeneralArguments.TestsTree],
-                pathToLogFile: generalArgumentReader[GeneralArguments.LogFilePath]);
+                testsTreeJsonPath: generalArgumentsReader[GeneralArguments.TestsTree],
+                logFilePath: generalArgumentsReader[GeneralArguments.LogFilePath]);
         }
     }
 
-    private static bool IsDeviceConnected(string adbPath, string deviceNumberString, out string deviceId)
+    private static void ParseTestsTree(string testsTreeJsonPath)
     {
-        var arguments = $"devices";
-        Console.WriteLine($"Executing command: {adbPath} {arguments}");
+        var testsTree = TestsTree.DeserializeTree(testsTreeJsonPath);
+        var testsList = testsTree.GetTestsInvocationList();
 
-        var resultsStrings = GetProcessOutput(StartProcess(adbPath, arguments)).ToList();
+        foreach (var testName in testsList)
+            Console.WriteLine(testName);
+    }
 
-        var devices = resultsStrings
-            .Where(line => !string.IsNullOrEmpty(line) && !line.StartsWith("List "))
-            .Select(line => line.Split('\t')[0])
-            .ToList();
+    private static void DrawTestsTreeResult(string testsTreeJsonPath, string logFilePath)
+    {
+        var tokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        while (!File.Exists(logFilePath) && !tokenSource.IsCancellationRequested)
+            Thread.Sleep(100);
 
-        if (!devices.Any())
+        while (!IsFileReady(logFilePath) && !tokenSource.IsCancellationRequested)
+            Thread.Sleep(100);
+
+        if (tokenSource.IsCancellationRequested)
         {
-            Console.WriteLine("No devices connected to execute tests.");
-            deviceId = string.Empty;
-            return false;
+            Console.WriteLine("- Not correct file path");
+            return;
         }
 
-        var deviceNumber = int.Parse(deviceNumberString);
-
-
-        Console.WriteLine("Device ID's found:");
-        foreach (var id in devices)
-            Console.WriteLine(id);
-
-        if (devices.Count < deviceNumber)
+        var testsTree = TestsTree.DeserializeTree(testsTreeJsonPath);
+        foreach (var testResult in testsTree.GetTestResultsFromLogFile(logFilePath))
         {
-            Console.WriteLine("Not enough devices to execute with target device number: {0}.", deviceNumber);
-            deviceId = string.Empty;
-            return false;
+            Console.WriteLine((testResult.Passed ? "+ " : "- ") + testResult.TestNamePrintLine);
         }
-
-        deviceId = devices[deviceNumber - 1];
-        return true;
-    }
-
-    private static void ReinstallApplication(string adbPath, string apkPath, string deviceId)
-    {
-        // var ps = PowerShell.Create();
-        // var command = $"&'{adbPath}' -s {deviceId} install -r -g -d \"{apkPath}\"";
-        // Console.WriteLine($"Executing command on ps: {command}");
-        //
-        // ps.AddScript(command);
-        // ps.Invoke();
-    }
-
-    private static void SetupPortForwarding(string adbPath, string tcpPort, string deviceId)
-    {
-        // var ps = PowerShell.Create();
-        // var command1 = $"&'{adbPath}' -s {deviceId} forward --remove-all";
-        // var command2 = $"&'{adbPath}' forward tcp:{tcpPort} tcp:{tcpPort}";
-        // Console.WriteLine($"Executing command 1 on ps: {command1}");
-        // Console.WriteLine($"Executing command 2 on ps: {command2}");
-        //
-        // ps.AddScript(command1);
-        // ps.AddScript(command2);
-        // ps.Invoke();
-    }
-
-    private static void RunApplication(string adbPath, string bundle, string deviceId)
-    {
-        // var ps = PowerShell.Create();
-        // var command = $"&'{adbPath}' -s {deviceId} shell am start -n {bundle}/com.unity3d.player.UnityPlayerActivity";
-        // Console.WriteLine($"Executing command on ps: {command}");
-        //
-        // ps.AddScript(command);
-        // ps.Invoke();
-    }
-
-    private static void RunTests(string unityPath, string projectPath, string testsTreeFilePath, string pathToLogFile)
-    {
-        // var ps = PowerShell.Create();
-        // var testsTree = TestsTree.DeserializeTree(testsTreeFilePath);
-        // var testsList = testsTree.GetTestsInvocationList();
-        //
-        // var command =
-        //     $"&'{unityPath}' -projectPath \"{projectPath}\" -executeMethod Editor.AltUnity.AltUnityTestRunnerCustom.RunTestFromCommandLine " +
-        //     $"-tests {string.Join(" ", testsList)} -logFile \"{pathToLogFile}\" -batchmode -quit";
-        //
-        // Console.WriteLine($"Executing command on ps: {command}");
-        //
-        // ps.AddScript(command);
-        // ps.Invoke();
-    }
-
-    private static void DrawTestsTreeResult(string testsTreeFilePath, string pathToLogFile)
-    {
-        // Thread.Sleep(10000);
-        //
-        // while (!File.Exists(pathToLogFile))
-        //     Thread.Sleep(100);
-        //
-        // Console.WriteLine("Log files detected at path: {0}.", pathToLogFile);
-        //
-        // while (!IsFileReady(pathToLogFile))
-        //     Thread.Sleep(100);
-        //
-        // Console.WriteLine("Log files filled at path: {0}.", pathToLogFile);
-        // Console.WriteLine("Tests passing hierarchy:\n");
-        //
-        // var testsTree = TestsTree.DeserializeTree(testsTreeFilePath);
-        //
-        // foreach (var testResult in testsTree.GetTestResultsFromLogFile(pathToLogFile))
-        // {
-        //     Console.ForegroundColor = testResult.Passed ? ConsoleColor.Yellow : ConsoleColor.DarkRed;
-        //     Console.WriteLine(testResult.TestNamePrintLine);
-        // }
-        //
-        // Console.WriteLine();
     }
 
     private static bool IsFileReady(string filename)
     {
         try
         {
-            using (FileStream inputStream = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.None))
-                return inputStream.Length > 0;
+            using var inputStream = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.None);
+            return inputStream.Length > 0;
         }
         catch (Exception)
         {
@@ -198,42 +131,14 @@ class Program
         }
     }
 
-    private static Process StartProcess(string processPath, string arguments)
+    private static void ShowHelp<TArgsEnum>(ArgumentsReader<TArgsEnum> argumentsReader, string header) where TArgsEnum : Enum
     {
-        var process = new Process();
-
-        var startInfo = new ProcessStartInfo
+        Console.WriteLine(header);
+        foreach (TArgsEnum argumentValue in Enum.GetValues(typeof(TArgsEnum)))
         {
-            CreateNoWindow = true,
-            WindowStyle = ProcessWindowStyle.Minimized,
-            UseShellExecute = false,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            FileName = processPath,
-            Arguments = arguments
-        };
-
-        process.StartInfo = startInfo;
-        process.Start();
-
-        return process;
-    }
-
-    private static IEnumerable<string> GetProcessOutput(Process process)
-    {
-        var output = new List<string>();
-
-        while (!process.StandardOutput.EndOfStream)
-        {
-            var line = process.StandardOutput.ReadLine();
-
-            if (line.Length > 0)
-                output.Add(line);
+            var argumentHelp = argumentsReader.GetHelp(argumentValue);
+            Console.WriteLine($"    [{argumentHelp.switchName}]  —  {argumentHelp.description}");
+            Console.WriteLine($"        value:{argumentsReader[argumentValue]}");
         }
-
-        process.WaitForExit();
-        process.StandardError.ReadToEnd();
-
-        return output;
     }
 }

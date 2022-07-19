@@ -14,6 +14,8 @@ static class ArgumentKeys
         ["-skip-port-forward"] = GeneralArguments.SkipPortForward,
         ["-skip-run"] = GeneralArguments.SkipRun,
         ["-skip-tests"] = GeneralArguments.SkipTests,
+
+        ["-help"] = GeneralArguments.Help,
     };
 
     public static readonly Dictionary<string, AndroidArguments> AndroidKeys = new()
@@ -36,6 +38,8 @@ static class ArgumentKeys
         [GeneralArguments.SkipPortForward] = "false",
         [GeneralArguments.SkipRun] = "false",
         [GeneralArguments.SkipTests] = "false",
+
+        [GeneralArguments.Help] = "false",
     };
 
     public static readonly Dictionary<AndroidArguments, string> AndroidDefaults = new()
@@ -44,5 +48,29 @@ static class ArgumentKeys
         [AndroidArguments.AndroidDebugBridgePath] = "D:\\Unity Editors\\2020.3.30f1\\Editor\\Data\\PlaybackEngines\\AndroidPlayer\\SDK\\platform-tools\\adb.exe",
         [AndroidArguments.ApkPath] = "D:\\_prjGitHub\\bini-acad-drawing\\bini-acad-drawing\\artifacts\\AltUnit\\bini-acad-drawing.google.develop.apk",
         [AndroidArguments.Bundle] = "com.binibambini.acad.drawing",
+    };
+
+    public static readonly Dictionary<GeneralArguments, string> GeneralDescriptions = new()
+    {
+        [GeneralArguments.ProjectPath] = "Path to Unity project. Value: string",
+        [GeneralArguments.UnityEditorPath] = "Path to Unity editor. Value: string",
+        [GeneralArguments.TestsTree] = "Path to tests tree template json file. Value: string",
+        [GeneralArguments.LogFilePath] = "Path to Unity log file. Value: string",
+        [GeneralArguments.RunOnDevice] = "Number of device to run tests on. Values: [1..n]",
+
+        [GeneralArguments.SkipInstall] = "skip application reinstalling. Values [true/false]",
+        [GeneralArguments.SkipPortForward] = "skip port forwarding. Values [true/false]",
+        [GeneralArguments.SkipRun] = "skip running (or opening if it's already ran) application on device. Values [true/false]",
+        [GeneralArguments.SkipTests] = "skip running tests. Values [true/false]",
+
+        [GeneralArguments.Help] = "show help. Values [true/false]",
+    };
+
+    public static readonly Dictionary<AndroidArguments, string> AndroidDescriptions = new()
+    {
+        [AndroidArguments.TcpPort] = "port to set up port forwarding. Values [13000, 13001, 13002,...n]",
+        [AndroidArguments.AndroidDebugBridgePath] = "adb path. Value: string",
+        [AndroidArguments.ApkPath] = "apk path. Value: string",
+        [AndroidArguments.Bundle] = "bundle. Value: string",
     };
 }
