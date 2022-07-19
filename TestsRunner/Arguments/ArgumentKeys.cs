@@ -30,7 +30,6 @@ static class ArgumentKeys
 
     public static readonly Dictionary<string, IosArguments> IosKeys = new()
     {
-        ["-xcrun"] = IosArguments.XcodeRunPath,
         ["-tcp"] = IosArguments.TcpPort,
         ["-ipa"] = IosArguments.IpaPath,
         ["-bundle"] = IosArguments.Bundle,
@@ -65,7 +64,6 @@ static class ArgumentKeys
     public static readonly Dictionary<IosArguments, string> IosDefaults = new()
     {
         [IosArguments.TcpPort] = "13000",
-        [IosArguments.XcodeRunPath] = "xcrun",
         [IosArguments.IpaPath] = "bini-acad-drawing.google.apple.ipa",
         [IosArguments.Bundle] = "com.binibambini.acad.drawing",
     };
@@ -99,7 +97,6 @@ static class ArgumentKeys
     public static readonly Dictionary<IosArguments, string> IosDescriptions = new()
     {
         [IosArguments.TcpPort] = "port to set up port forwarding. Values [13000, 13001, 13002,...n]",
-        [IosArguments.XcodeRunPath] = "xcrun path. Value: string",
         [IosArguments.IpaPath] = "ipa path. Value: string",
         [IosArguments.Bundle] = "bundle. Value: string",
     };

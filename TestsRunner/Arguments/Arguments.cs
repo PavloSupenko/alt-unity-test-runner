@@ -25,7 +25,6 @@ public enum AndroidArguments
 
 public enum IosArguments
 {
-    XcodeRunPath,
     TcpPort,
     IpaPath,
     Bundle

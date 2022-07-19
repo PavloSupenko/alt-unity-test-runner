@@ -19,28 +19,25 @@ public class IosTestRunner : ITestsRunner<IosArguments>
 
     public bool IsDeviceConnected(out string deviceId) =>
         IsDeviceConnected(
-            xcrunPath: iosArgumentsReader[IosArguments.XcodeRunPath],
             deviceNumberString: generalArgumentsReader[GeneralArguments.RunOnDevice],
             deviceId: out deviceId);
 
     public void ReinstallApplication(string deviceId) =>
         ReinstallApplication(
-            adbPath: iosArgumentsReader[IosArguments.XcodeRunPath],
-            apkPath: iosArgumentsReader[IosArguments.IpaPath],
-            deviceId: deviceId);
+            ipaPath: iosArgumentsReader[IosArguments.IpaPath],
+            deviceId: deviceId,
+            bundle: iosArgumentsReader[IosArguments.Bundle]);
 
     public void SetupPortForwarding(string deviceId) =>
         SetupPortForwarding(
-            adbPath: iosArgumentsReader[IosArguments.XcodeRunPath],
             tcpPort: iosArgumentsReader[IosArguments.TcpPort],
             deviceId: deviceId);
 
     public void RunApplication(string deviceId, int sleepSeconds) =>
         RunApplication(
-            adbPath: iosArgumentsReader[IosArguments.XcodeRunPath],
             bundle: iosArgumentsReader[IosArguments.Bundle],
             deviceId: deviceId,
-            sleepSeconds: sleepSeconds);
+            sleepSeconds: 10);
 
     public void RunTests() =>
         RunTests(
@@ -49,8 +46,9 @@ public class IosTestRunner : ITestsRunner<IosArguments>
             testsTreeFilePath: generalArgumentsReader[GeneralArguments.TestsTree],
             pathToLogFile: generalArgumentsReader[GeneralArguments.LogFilePath]);
 
-    private bool IsDeviceConnected(string xcrunPath, string deviceNumberString, out string deviceId)
+    private bool IsDeviceConnected(string deviceNumberString, out string deviceId)
     {
+        var xcrunPath = "xcrun";
         var arguments = $"xctrace list devices";
         Console.WriteLine($"Executing command: {xcrunPath} {arguments}");
 
@@ -92,50 +90,45 @@ public class IosTestRunner : ITestsRunner<IosArguments>
         return true;
     }
 
-    private void ReinstallApplication(string adbPath, string apkPath, string deviceId)
+    private void ReinstallApplication(string ipaPath, string deviceId, string bundle)
     {
-        // var arguments = $"-s {deviceId} install -r -g -d \"{apkPath}\"";
-        // Console.WriteLine($"Executing command: {adbPath} {arguments}");
-        // processRunner.PrintProcessOutput(processRunner.StartProcess(adbPath, arguments));
+        var deviceInstaller = "ideviceinstaller";
+
+        var uninstallArguments = $"-u {deviceId} -U {bundle}";
+        var installArguments = $"-u {deviceId} -i \"{ipaPath}\"";
+
+        Console.WriteLine($"Executing command: {deviceInstaller} {uninstallArguments}");
+        processRunner.PrintProcessOutput(processRunner.StartProcess(deviceInstaller, uninstallArguments));
+
+        Console.WriteLine($"Executing command: {deviceInstaller} {installArguments}");
+        processRunner.PrintProcessOutput(processRunner.StartProcess(deviceInstaller, installArguments));
     }
 
-    private void SetupPortForwarding(string adbPath, string tcpPort, string deviceId)
+    private void SetupPortForwarding(string tcpPort, string deviceId)
     {
-        // ResetPortForwarding(adbPath, deviceId);
-        // InstallPortForwarding(adbPath, tcpPort, deviceId);
+        var proxyPath = "iproxy";
+        var arguments = $"-u {deviceId} {tcpPort}:{tcpPort}";
+        Console.WriteLine($"Executing command: {proxyPath} {arguments}");
+        processRunner.PrintProcessOutput(processRunner.StartProcess(proxyPath, arguments));
     }
 
-    private void ResetPortForwarding(string adbPath, string deviceId)
+    private void RunApplication(string bundle, string deviceId, int sleepSeconds)
     {
-        var arguments = $"-s {deviceId} forward --remove-all";
+        var arguments = $"-s {deviceId} shell am start -n {bundle}/com.unity3d.player.UnityPlayerActivity";
         Console.WriteLine($"Executing command: {adbPath} {arguments}");
         processRunner.PrintProcessOutput(processRunner.StartProcess(adbPath, arguments));
-    }
-
-    private void InstallPortForwarding(string adbPath, string tcpPort, string deviceId)
-    {
-        var arguments = $"-s {deviceId} forward tcp:{tcpPort} tcp:{tcpPort}";
-        Console.WriteLine($"Executing command: {adbPath} {arguments}");
-        processRunner.PrintProcessOutput(processRunner.StartProcess(adbPath, arguments));
-    }
-
-    private void RunApplication(string adbPath, string bundle, string deviceId, int sleepSeconds)
-    {
-        // var arguments = $"-s {deviceId} shell am start -n {bundle}/com.unity3d.player.UnityPlayerActivity";
-        // Console.WriteLine($"Executing command: {adbPath} {arguments}");
-        // processRunner.PrintProcessOutput(processRunner.StartProcess(adbPath, arguments));
-        // Thread.Sleep(TimeSpan.FromSeconds(sleepSeconds));
+        Thread.Sleep(TimeSpan.FromSeconds(sleepSeconds));
     }
 
     private void RunTests(string unityPath, string projectPath, string testsTreeFilePath, string pathToLogFile)
     {
-        // var testsTree = TestsTree.DeserializeTree(testsTreeFilePath);
-        // var testsList = testsTree.GetTestsInvocationList();
-        //
-        // var arguments = $"-projectPath \"{projectPath}\" -executeMethod Editor.AltUnity.AltUnityTestRunnerCustom.RunTestFromCommandLine " +
-        //                 $"-tests {string.Join(" ", testsList)} -logFile \"{pathToLogFile}\" -batchmode -quit";
-        //
-        // Console.WriteLine($"Executing command: {unityPath} {arguments}");
-        // processRunner.PrintProcessOutput(processRunner.StartProcess(unityPath, arguments));
+        var testsTree = TestsTree.DeserializeTree(testsTreeFilePath);
+        var testsList = testsTree.GetTestsInvocationList();
+
+        var arguments = $"-projectPath \"{projectPath}\" -executeMethod Editor.AltUnity.AltUnityTestRunnerCustom.RunTestFromCommandLine " +
+                        $"-tests {string.Join(" ", testsList)} -logFile \"{pathToLogFile}\" -batchmode -quit";
+
+        Console.WriteLine($"Executing command: {unityPath} {arguments}");
+        processRunner.PrintProcessOutput(processRunner.StartProcess(unityPath, arguments));
     }
 }
