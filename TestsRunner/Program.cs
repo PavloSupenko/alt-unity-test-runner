@@ -1,11 +1,13 @@
-﻿using TestsRunner.PlatformRunners;
+﻿using TestsRunner.Arguments;
+using TestsRunner.PlatformRunners;
 using TestsTreeParser.Tree;
 
 namespace TestsRunner;
 
 class Program
 {
-    private static readonly ITestsRunner AndroidTestsRunner = new AndroidTestsRunner();
+    private static readonly ITestsRunner<AndroidArguments> AndroidTestsRunner = new AndroidTestsRunner();
+    private static readonly ITestsRunner<IosArguments> IosTestsRunner = new IosTestRunner();
 
     private static void Main(string[] args)
     {
@@ -17,17 +19,35 @@ class Program
             new ArgumentsReader<AndroidArguments>(args, ArgumentKeys.AndroidKeys,
                 ArgumentKeys.AndroidDefaults, ArgumentKeys.AndroidDescriptions);
 
+        var iosArgumentsReader =
+            new ArgumentsReader<IosArguments>(args, ArgumentKeys.IosKeys,
+                ArgumentKeys.IosDefaults, ArgumentKeys.IosDescriptions);
+
+        AndroidTestsRunner.Initialize(generalArgumentsReader, androidArgumentsReader);
+        IosTestsRunner.Initialize(generalArgumentsReader, iosArgumentsReader);
+
         if (generalArgumentsReader[GeneralArguments.Help].Equals("true"))
         {
             ShowHelp(generalArgumentsReader, "==== General parameters: ====");
-            ShowHelp(androidArgumentsReader, "\n==== Android parameters: ====");
+            ShowHelp(androidArgumentsReader, "==== Android parameters: ====");
+            ShowHelp(iosArgumentsReader, "==== iOS parameters: ====");
             Console.WriteLine();
             return;
         }
 
         try
         {
-            ExecuteAndroidTests(generalArgumentsReader, androidArgumentsReader);
+            var platform = generalArgumentsReader[GeneralArguments.Platform];
+
+            switch (platform)
+            {
+                case "android":
+                    ExecuteTests(AndroidTestsRunner, generalArgumentsReader);
+                    break;
+                case "ios":
+                    ExecuteTests(IosTestsRunner, generalArgumentsReader);
+                    break;
+            }
         }
         catch (Exception exception)
         {
@@ -35,52 +55,24 @@ class Program
         }
     }
 
-    private static void ExecuteAndroidTests(ArgumentsReader<GeneralArguments> generalArgumentsReader,
-        ArgumentsReader<AndroidArguments> androidArgumentsReader)
+    private static void ExecuteTests<TArgsEnum>(ITestsRunner<TArgsEnum> testRunner, ArgumentsReader<GeneralArguments> generalArgumentsReader) where TArgsEnum : Enum
     {
-        if (!AndroidTestsRunner.IsDeviceConnected(
-                adbPath: androidArgumentsReader[AndroidArguments.AndroidDebugBridgePath],
-                deviceNumberString: generalArgumentsReader[GeneralArguments.RunOnDevice],
-                out var deviceId))
+        if (!testRunner.IsDeviceConnected(out var deviceId))
             return;
 
         if (generalArgumentsReader[GeneralArguments.SkipInstall].Equals("false"))
-        {
-            AndroidTestsRunner.ReinstallApplication(
-                adbPath: androidArgumentsReader[AndroidArguments.AndroidDebugBridgePath],
-                apkPath: androidArgumentsReader[AndroidArguments.ApkPath],
-                deviceId: deviceId);
-        }
+            testRunner.ReinstallApplication(deviceId: deviceId);
 
         if (generalArgumentsReader[GeneralArguments.SkipPortForward].Equals("false"))
-        {
-            AndroidTestsRunner.SetupPortForwarding(
-                adbPath: androidArgumentsReader[AndroidArguments.AndroidDebugBridgePath],
-                tcpPort: androidArgumentsReader[AndroidArguments.TcpPort],
-                deviceId: deviceId);
-        }
+            testRunner.SetupPortForwarding(deviceId: deviceId);
 
         if (generalArgumentsReader[GeneralArguments.SkipRun].Equals("false"))
-        {
-            AndroidTestsRunner.RunApplication(
-                adbPath: androidArgumentsReader[AndroidArguments.AndroidDebugBridgePath],
-                bundle: androidArgumentsReader[AndroidArguments.Bundle],
-                deviceId: deviceId);
-
-            Thread.Sleep(10000);
-        }
+            testRunner.RunApplication(deviceId: deviceId, sleepSeconds: 10);
 
         if (generalArgumentsReader[GeneralArguments.SkipTests].Equals("false"))
         {
-            ParseTestsTree(
-                testsTreeJsonPath: generalArgumentsReader[GeneralArguments.TestsTree]);
-
-            AndroidTestsRunner.RunTests(
-                unityPath: generalArgumentsReader[GeneralArguments.UnityEditorPath],
-                projectPath: generalArgumentsReader[GeneralArguments.ProjectPath],
-                testsTreeFilePath: generalArgumentsReader[GeneralArguments.TestsTree],
-                pathToLogFile: generalArgumentsReader[GeneralArguments.LogFilePath]);
-
+            ParseTestsTree(testsTreeJsonPath: generalArgumentsReader[GeneralArguments.TestsTree]);
+            testRunner.RunTests();
             DrawTestsTreeResult(
                 testsTreeJsonPath: generalArgumentsReader[GeneralArguments.TestsTree],
                 logFilePath: generalArgumentsReader[GeneralArguments.LogFilePath]);

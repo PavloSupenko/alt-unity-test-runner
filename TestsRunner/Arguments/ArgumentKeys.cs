@@ -1,10 +1,12 @@
-﻿namespace TestsRunner;
+﻿namespace TestsRunner.Arguments;
 
 static class ArgumentKeys
 {
     public static readonly Dictionary<string, GeneralArguments> GeneralKeys = new()
     {
         ["-project"] = GeneralArguments.ProjectPath,
+        ["-platform"] = GeneralArguments.Platform,
+
         ["-unity"] = GeneralArguments.UnityEditorPath,
         ["-logFile"] = GeneralArguments.LogFilePath,
         ["-tests"] = GeneralArguments.TestsTree,
@@ -26,8 +28,18 @@ static class ArgumentKeys
         ["-bundle"] = AndroidArguments.Bundle,
     };
 
+    public static readonly Dictionary<string, IosArguments> IosKeys = new()
+    {
+        ["-xcrun"] = IosArguments.XcodeRunPath,
+        ["-tcp"] = IosArguments.TcpPort,
+        ["-ipa"] = IosArguments.IpaPath,
+        ["-bundle"] = IosArguments.Bundle,
+    };
+
     public static readonly Dictionary<GeneralArguments, string> GeneralDefaults = new()
     {
+        [GeneralArguments.Platform] = "android",
+
         [GeneralArguments.ProjectPath] = "D:\\_prjGitHub\\bini-acad-drawing\\bini-acad-drawing\\src\\acad-bini-drawing",
         [GeneralArguments.UnityEditorPath] = "D:\\Unity Editors\\2020.3.30f1\\Editor\\Unity.exe",
         [GeneralArguments.TestsTree] = "TestsTreeTemplate.json",
@@ -50,13 +62,23 @@ static class ArgumentKeys
         [AndroidArguments.Bundle] = "com.binibambini.acad.drawing",
     };
 
+    public static readonly Dictionary<IosArguments, string> IosDefaults = new()
+    {
+        [IosArguments.TcpPort] = "13000",
+        [IosArguments.XcodeRunPath] = "xcrun",
+        [IosArguments.IpaPath] = "bini-acad-drawing.google.apple.ipa",
+        [IosArguments.Bundle] = "com.binibambini.acad.drawing",
+    };
+
     public static readonly Dictionary<GeneralArguments, string> GeneralDescriptions = new()
     {
-        [GeneralArguments.ProjectPath] = "Path to Unity project. Value: string",
-        [GeneralArguments.UnityEditorPath] = "Path to Unity editor. Value: string",
-        [GeneralArguments.TestsTree] = "Path to tests tree template json file. Value: string",
-        [GeneralArguments.LogFilePath] = "Path to Unity log file. Value: string",
-        [GeneralArguments.RunOnDevice] = "Number of device to run tests on. Values: [1..n]",
+        [GeneralArguments.Platform] = "test platform. Values [ios/android]",
+
+        [GeneralArguments.ProjectPath] = "path to Unity project. Value: string",
+        [GeneralArguments.UnityEditorPath] = "path to Unity editor. Value: string",
+        [GeneralArguments.TestsTree] = "path to tests tree template json file. Value: string",
+        [GeneralArguments.LogFilePath] = "path to Unity log file. Value: string",
+        [GeneralArguments.RunOnDevice] = "number of device to run tests on. Values: [1..n]",
 
         [GeneralArguments.SkipInstall] = "skip application reinstalling. Values [true/false]",
         [GeneralArguments.SkipPortForward] = "skip port forwarding. Values [true/false]",
@@ -72,5 +94,13 @@ static class ArgumentKeys
         [AndroidArguments.AndroidDebugBridgePath] = "adb path. Value: string",
         [AndroidArguments.ApkPath] = "apk path. Value: string",
         [AndroidArguments.Bundle] = "bundle. Value: string",
+    };
+
+    public static readonly Dictionary<IosArguments, string> IosDescriptions = new()
+    {
+        [IosArguments.TcpPort] = "port to set up port forwarding. Values [13000, 13001, 13002,...n]",
+        [IosArguments.XcodeRunPath] = "xcrun path. Value: string",
+        [IosArguments.IpaPath] = "ipa path. Value: string",
+        [IosArguments.Bundle] = "bundle. Value: string",
     };
 }

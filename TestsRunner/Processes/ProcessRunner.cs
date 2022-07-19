@@ -5,6 +5,16 @@ namespace TestsRunner.Processes;
 
 public class ProcessRunner
 {
+    public void PrintProcessOutput(Process process)
+    {
+        var resultsStrings = GetProcessOutput(process).ToList();
+
+        foreach (var line in resultsStrings)
+            Console.WriteLine(line);
+
+        Console.WriteLine();
+    }
+
     public IEnumerable<string> GetProcessOutput(Process process)
     {
         var output = new List<string>();

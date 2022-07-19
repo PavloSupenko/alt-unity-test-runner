@@ -1,11 +1,11 @@
-﻿namespace TestsRunner;
+﻿namespace TestsRunner.Arguments;
 
 public class ArgumentsReader<TArgsEnum> where TArgsEnum : Enum
 {
     private readonly Dictionary<TArgsEnum, string> @default;
     private readonly Dictionary<TArgsEnum, string> commandLineValues;
     private readonly Dictionary<TArgsEnum, string> descriptions;
-    private IReadOnlyDictionary<string, TArgsEnum> allCommandLineKeys;
+    private readonly IReadOnlyDictionary<string, TArgsEnum> allCommandLineKeys;
 
     public ArgumentsReader(
         IEnumerable<string> commandLineArguments,

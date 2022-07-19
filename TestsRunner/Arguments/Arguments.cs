@@ -1,7 +1,8 @@
-﻿namespace TestsRunner;
+﻿namespace TestsRunner.Arguments;
 
 public enum GeneralArguments
 {
+    Platform,
     UnityEditorPath,
     ProjectPath,
     TestsTree,
@@ -19,5 +20,13 @@ public enum AndroidArguments
     AndroidDebugBridgePath,
     TcpPort,
     ApkPath,
+    Bundle
+}
+
+public enum IosArguments
+{
+    XcodeRunPath,
+    TcpPort,
+    IpaPath,
     Bundle
 }
