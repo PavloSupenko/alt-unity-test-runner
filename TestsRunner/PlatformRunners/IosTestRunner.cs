@@ -35,7 +35,7 @@ public class IosTestRunner : ITestsRunner<IosArguments>
 
     public void RunApplication(string deviceId, int sleepSeconds) =>
         RunApplication(
-            bundle: iosArgumentsReader[IosArguments.Bundle],
+            ipaPath: iosArgumentsReader[IosArguments.IpaPath],
             deviceId: deviceId,
             sleepSeconds: 10);
 
@@ -112,11 +112,19 @@ public class IosTestRunner : ITestsRunner<IosArguments>
         processRunner.PrintProcessOutput(processRunner.StartProcess(proxyPath, arguments));
     }
 
-    private void RunApplication(string bundle, string deviceId, int sleepSeconds)
+    private void RunApplication(string ipaPath, string deviceId, int sleepSeconds)
     {
-        var arguments = $"-s {deviceId} shell am start -n {bundle}/com.unity3d.player.UnityPlayerActivity";
-        Console.WriteLine($"Executing command: {adbPath} {arguments}");
-        processRunner.PrintProcessOutput(processRunner.StartProcess(adbPath, arguments));
+        // Unpack .ipa file
+        // todo: We need .app file with "developer" export method. For export fastlane can be used and for getting
+        // todo: .app instead of .ipa too.
+
+        // Run application
+        var iosDeploy = "ios-deploy";
+
+        // -L — just start and exit lldb | -m — just run without installing | -i — device to work with
+        var arguments = $"-i {deviceId} -b {appPath} -m -L";
+        Console.WriteLine($"Executing command: {iosDeploy} {arguments}");
+        processRunner.PrintProcessOutput(processRunner.StartProcess(iosDeploy, arguments));
         Thread.Sleep(TimeSpan.FromSeconds(sleepSeconds));
     }
 
@@ -130,5 +138,29 @@ public class IosTestRunner : ITestsRunner<IosArguments>
 
         Console.WriteLine($"Executing command: {unityPath} {arguments}");
         processRunner.PrintProcessOutput(processRunner.StartProcess(unityPath, arguments));
+    }
+
+    private void ReinstallApplicationUsingIDeviceInstaller(string ipaPath, string deviceId, string bundle)
+    {
+        var deviceInstaller = "ideviceinstaller";
+
+        var uninstallArguments = $"-u {deviceId} -U {bundle}";
+        var installArguments = $"-u {deviceId} -i \"{ipaPath}\"";
+
+        Console.WriteLine($"Executing command: {deviceInstaller} {uninstallArguments}");
+        processRunner.PrintProcessOutput(processRunner.StartProcess(deviceInstaller, uninstallArguments));
+
+        Console.WriteLine($"Executing command: {deviceInstaller} {installArguments}");
+        processRunner.PrintProcessOutput(processRunner.StartProcess(deviceInstaller, installArguments));
+    }
+
+    private void ReinstallApplicationUsingIosDeploy(string appPath, string deviceId)
+    {
+        var iosDeploy = "ios-deploy";
+
+        // -r — remove app before installing to clear all data | -i — device to work with
+        var installArguments = $"-i {deviceId} -b \"{appPath}\" -r";
+        Console.WriteLine($"Executing command: {iosDeploy} {installArguments}");
+        processRunner.PrintProcessOutput(processRunner.StartProcess(iosDeploy, installArguments));
     }
 }
