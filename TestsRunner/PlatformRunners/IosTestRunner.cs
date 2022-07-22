@@ -122,9 +122,9 @@ public class IosTestRunner : ITestsRunner<IosArguments>
         var iosDeploy = "ios-deploy";
 
         // -L — just start and exit lldb | -m — just run without installing | -i — device to work with
-        var arguments = $"-i {deviceId} -b {appPath} -m -L";
-        Console.WriteLine($"Executing command: {iosDeploy} {arguments}");
-        processRunner.PrintProcessOutput(processRunner.StartProcess(iosDeploy, arguments));
+        //var arguments = $"-i {deviceId} -b {appPath} -m -L";
+        //Console.WriteLine($"Executing command: {iosDeploy} {arguments}");
+        //processRunner.PrintProcessOutput(processRunner.StartProcess(iosDeploy, arguments));
         Thread.Sleep(TimeSpan.FromSeconds(sleepSeconds));
     }
 
