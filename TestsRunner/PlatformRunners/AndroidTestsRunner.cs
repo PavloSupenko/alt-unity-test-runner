@@ -128,7 +128,7 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
         
         var arguments = $"--address 127.0.0.1 --port 4723 --base-path /wd/hub";
         Console.WriteLine($"Executing command: {process} {arguments}");
-        processRunner.PrintProcessOutput(processRunner.StartProcess(process, arguments, variables));
+        processRunner.StartProcess(process, arguments, variables);
     }
 
     private void InitializeAppiumDriver(string apkPath, string bundle)
