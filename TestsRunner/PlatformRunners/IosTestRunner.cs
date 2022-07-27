@@ -1,15 +1,18 @@
+using OpenQA.Selenium.Appium.iOS;
+using Shared.Processes;
 using TestsRunner.Arguments;
-using TestsRunner.Processes;
 using TestsTreeParser.Tree;
 
 
 namespace TestsRunner.PlatformRunners;
 
-public class IosTestRunner : ITestsRunner<IosArguments>
+public class IosTestRunner : ITestsRunner<IosArguments, IOSDriver<IOSElement>>
 {
     private readonly ProcessRunner processRunner = new();
     private ArgumentsReader<GeneralArguments> generalArgumentsReader;
     private ArgumentsReader<IosArguments> iosArgumentsReader;
+
+    public IOSDriver<IOSElement> Driver { get; private set; }
 
     public void Initialize(ArgumentsReader<GeneralArguments> generalArgumentsReader, ArgumentsReader<IosArguments> platformArgumentsReader)
     {
@@ -22,16 +25,15 @@ public class IosTestRunner : ITestsRunner<IosArguments>
             deviceNumberString: generalArgumentsReader[GeneralArguments.RunOnDevice],
             deviceId: out deviceId);
 
-    public void ReinstallApplication(string deviceId) =>
-        ReinstallApplication(
-            ipaPath: iosArgumentsReader[IosArguments.IpaPath],
-            deviceId: deviceId,
-            bundle: iosArgumentsReader[IosArguments.Bundle]);
-
     public void SetupPortForwarding(string deviceId) =>
         SetupPortForwarding(
             tcpPort: iosArgumentsReader[IosArguments.TcpPort],
             deviceId: deviceId);
+
+    public void InitializeAppiumDriver()
+    {
+        throw new NotImplementedException();
+    }
 
     public void RunApplication(string deviceId, int sleepSeconds) =>
         RunApplication(
@@ -88,20 +90,6 @@ public class IosTestRunner : ITestsRunner<IosArguments>
 
         deviceId = devices[deviceNumber - 1];
         return true;
-    }
-
-    private void ReinstallApplication(string ipaPath, string deviceId, string bundle)
-    {
-        var deviceInstaller = "ideviceinstaller";
-
-        var uninstallArguments = $"-u {deviceId} -U {bundle}";
-        var installArguments = $"-u {deviceId} -i \"{ipaPath}\"";
-
-        Console.WriteLine($"Executing command: {deviceInstaller} {uninstallArguments}");
-        processRunner.PrintProcessOutput(processRunner.StartProcess(deviceInstaller, uninstallArguments));
-
-        Console.WriteLine($"Executing command: {deviceInstaller} {installArguments}");
-        processRunner.PrintProcessOutput(processRunner.StartProcess(deviceInstaller, installArguments));
     }
 
     private void SetupPortForwarding(string tcpPort, string deviceId)

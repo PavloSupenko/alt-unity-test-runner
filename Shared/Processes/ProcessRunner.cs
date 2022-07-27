@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 
 
-namespace TestsRunner.Processes;
+namespace Shared.Processes;
 
 public class ProcessRunner
 {
@@ -33,7 +33,7 @@ public class ProcessRunner
         return output;
     }
 
-    public Process StartProcess(string processPath, string arguments)
+    public Process StartProcess(string processPath, string arguments, Dictionary<string, string>? variables = null)
     {
         var process = new Process();
 
@@ -47,6 +47,12 @@ public class ProcessRunner
             FileName = processPath,
             Arguments = arguments
         };
+
+        if (variables != null)
+        {
+            foreach (var variable in variables) 
+                startInfo.EnvironmentVariables[variable.Key] = variable.Value;
+        }
 
         process.StartInfo = startInfo;
         process.Start();

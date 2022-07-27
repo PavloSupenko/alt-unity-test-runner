@@ -6,7 +6,6 @@ public enum GeneralArguments
     UnityEditorPath,
     ProjectPath,
     TestsTree,
-    SkipInstall,
     LogFilePath,
     SkipPortForward,
     SkipRun,
@@ -18,6 +17,8 @@ public enum GeneralArguments
 public enum AndroidArguments
 {
     AndroidDebugBridgePath,
+    AndroidHomePath,
+    JavaHomePath,
     TcpPort,
     ApkPath,
     Bundle

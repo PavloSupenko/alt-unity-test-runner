@@ -1,4 +1,9 @@
-﻿using TestsRunner.Arguments;
+﻿using OpenQA.Selenium.Appium;
+using OpenQA.Selenium.Appium.Android;
+using OpenQA.Selenium.Appium.Enums;
+using OpenQA.Selenium.Appium.iOS;
+using Shared.Processes;
+using TestsRunner.Arguments;
 using TestsRunner.PlatformRunners;
 using TestsTreeParser.Tree;
 
@@ -6,8 +11,8 @@ namespace TestsRunner;
 
 class Program
 {
-    private static readonly ITestsRunner<AndroidArguments> AndroidTestsRunner = new AndroidTestsRunner();
-    private static readonly ITestsRunner<IosArguments> IosTestsRunner = new IosTestRunner();
+    private static readonly ITestsRunner<AndroidArguments, AndroidDriver<AndroidElement>> AndroidTestsRunner = new AndroidTestsRunner();
+    private static readonly ITestsRunner<IosArguments, IOSDriver<IOSElement>> IosTestsRunner = new IosTestRunner();
 
     private static void Main(string[] args)
     {
@@ -55,13 +60,10 @@ class Program
         }
     }
 
-    private static void ExecuteTests<TArgsEnum>(ITestsRunner<TArgsEnum> testRunner, ArgumentsReader<GeneralArguments> generalArgumentsReader) where TArgsEnum : Enum
+    private static void ExecuteTests<TArgsEnum, TDriver>(ITestsRunner<TArgsEnum, TDriver> testRunner, ArgumentsReader<GeneralArguments> generalArgumentsReader) where TArgsEnum : Enum
     {
         if (!testRunner.IsDeviceConnected(out var deviceId))
             return;
-
-        if (generalArgumentsReader[GeneralArguments.SkipInstall].Equals("false"))
-            testRunner.ReinstallApplication(deviceId: deviceId);
 
         if (generalArgumentsReader[GeneralArguments.SkipPortForward].Equals("false"))
             testRunner.SetupPortForwarding(deviceId: deviceId);
@@ -71,7 +73,7 @@ class Program
 
         if (generalArgumentsReader[GeneralArguments.SkipTests].Equals("false"))
         {
-            ParseTestsTree(testsTreeJsonPath: generalArgumentsReader[GeneralArguments.TestsTree]);
+            PrintParsedTestsTree(testsTreeJsonPath: generalArgumentsReader[GeneralArguments.TestsTree]);
             testRunner.RunTests();
             DrawTestsTreeResult(
                 testsTreeJsonPath: generalArgumentsReader[GeneralArguments.TestsTree],
@@ -79,7 +81,7 @@ class Program
         }
     }
 
-    private static void ParseTestsTree(string testsTreeJsonPath)
+    private static void PrintParsedTestsTree(string testsTreeJsonPath)
     {
         var testsTree = TestsTree.DeserializeTree(testsTreeJsonPath);
         var testsList = testsTree.GetTestsInvocationList();
