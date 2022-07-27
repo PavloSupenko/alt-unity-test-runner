@@ -1,8 +1,5 @@
-﻿using OpenQA.Selenium.Appium;
-using OpenQA.Selenium.Appium.Android;
-using OpenQA.Selenium.Appium.Enums;
+﻿using OpenQA.Selenium.Appium.Android;
 using OpenQA.Selenium.Appium.iOS;
-using Shared.Processes;
 using TestsRunner.Arguments;
 using TestsRunner.PlatformRunners;
 using TestsTreeParser.Tree;
