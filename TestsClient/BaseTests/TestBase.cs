@@ -21,28 +21,25 @@ public abstract class TestBase
         altUnityDriver.Stop();
     }
 
-    public void Initialize(AltUnityDriver driver)
-    {
-        altUnityDriver = driver;
-    }
-
     public abstract void Enter();
     public abstract void Exit();
 
+    // todo: GetPNGScreenshot break test down by casting exceptions at runtime sometimes with no logic to understand.
+    // todo: Suggest to save screenshots from appium driver
     protected void SaveScreenshot(string testName, string actionName)
     {
-        var screenshotPath = Path.Combine("..", "..", "artifacts", "Tests", "Screenshots", testName);
-        var screenshotName = actionName + ".png";
-
-        if (!Directory.Exists(screenshotPath))
-            Directory.CreateDirectory(screenshotPath);
-
-        altUnityDriver.GetPNGScreenshot(Path.Combine(screenshotPath, screenshotName));
+        // var screenshotPath = Path.Combine("..", "..", "artifacts", "Tests", "Screenshots", testName);
+        // var screenshotName = actionName + ".png";
+        //
+        // if (!Directory.Exists(screenshotPath))
+        //     Directory.CreateDirectory(screenshotPath);
+        //
+        // altUnityDriver.GetPNGScreenshot(Path.Combine(screenshotPath, screenshotName));
     }
 
     protected void SaveScreenshot(string actionName)
     {
-        var testName = GetType().Name;
-        SaveScreenshot(testName, actionName);
+        // var testName = GetType().Name;
+        // SaveScreenshot(testName, actionName);
     }
 }

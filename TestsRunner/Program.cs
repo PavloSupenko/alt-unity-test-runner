@@ -41,8 +41,6 @@ class Program
 
         try
         {
-            
-            
             switch (generalArgumentsReader[GeneralArguments.Platform])
             {
                 case "android":

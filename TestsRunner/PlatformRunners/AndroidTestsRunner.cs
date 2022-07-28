@@ -143,6 +143,9 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
     private void InitializeAppiumDriver(string apkPath, string bundle)
     {
         AppiumOptions capabilities = new AppiumOptions();
+        
+        // Disable timeout session disabling
+        capabilities.AddAdditionalCapability(MobileCapabilityType.NewCommandTimeout, 0);
         capabilities.AddAdditionalCapability(MobileCapabilityType.PlatformName, "Android");
         capabilities.AddAdditionalCapability("appPackage", bundle);
         capabilities.AddAdditionalCapability(MobileCapabilityType.App, apkPath);
@@ -153,7 +156,6 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
 
         driver = new AndroidDriver<AndroidElement>(new Uri("http://127.0.0.1:4723/wd/hub"), capabilities);
         driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
-        driver.LaunchApp();
     }
 
     private void RunTests(string testsTreeFilePath, string consoleRunnerPath)
