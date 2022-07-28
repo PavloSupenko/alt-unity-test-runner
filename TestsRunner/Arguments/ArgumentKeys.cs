@@ -4,19 +4,18 @@ static class ArgumentKeys
 {
     public static readonly Dictionary<string, GeneralArguments> GeneralKeys = new()
     {
-        ["--project"] = GeneralArguments.ProjectPath,
         ["--platform"] = GeneralArguments.Platform,
 
-        ["--unity"] = GeneralArguments.UnityEditorPath,
-        ["--logFile"] = GeneralArguments.LogFilePath,
         ["--tests"] = GeneralArguments.TestsTree,
         ["--run-on-device"] = GeneralArguments.RunOnDevice,
+        ["--nunit-console"] = GeneralArguments.NUnitConsoleApplicationPath,
 
         ["--skip-port-forward"] = GeneralArguments.SkipPortForward,
         ["--skip-run"] = GeneralArguments.SkipRun,
         ["--skip-tests"] = GeneralArguments.SkipTests,
 
         ["--help"] = GeneralArguments.Help,
+        ["--defaults"] = GeneralArguments.Defaults,
     };
 
     public static readonly Dictionary<string, AndroidArguments> AndroidKeys = new()
@@ -38,19 +37,18 @@ static class ArgumentKeys
 
     public static readonly Dictionary<GeneralArguments, string> GeneralDefaults = new()
     {
-        [GeneralArguments.Platform] = "android",
+        [GeneralArguments.Platform] = "none",
 
-        [GeneralArguments.ProjectPath] = "D:\\_prjGitHub\\bini-acad-drawing\\bini-acad-drawing\\src\\acad-bini-drawing",
-        [GeneralArguments.UnityEditorPath] = "D:\\Unity Editors\\2020.3.30f1\\Editor\\Unity.exe",
         [GeneralArguments.TestsTree] = "TestsTreeTemplate.json",
-        [GeneralArguments.LogFilePath] = "D:\\Unity Editors\\2020.3.30f1\\Editor\\testsLogFile.log",
         [GeneralArguments.RunOnDevice] = "1",
+        [GeneralArguments.NUnitConsoleApplicationPath] = "none",
 
         [GeneralArguments.SkipPortForward] = "false",
         [GeneralArguments.SkipRun] = "false",
         [GeneralArguments.SkipTests] = "false",
 
         [GeneralArguments.Help] = "false",
+        [GeneralArguments.Defaults] = "false",
     };
 
     public static readonly Dictionary<AndroidArguments, string> AndroidDefaults = new()
@@ -74,17 +72,16 @@ static class ArgumentKeys
     {
         [GeneralArguments.Platform] = "test platform. Values [ios/android]",
 
-        [GeneralArguments.ProjectPath] = "path to Unity project. Value: string",
-        [GeneralArguments.UnityEditorPath] = "path to Unity editor. Value: string",
         [GeneralArguments.TestsTree] = "path to tests tree template json file. Value: string",
-        [GeneralArguments.LogFilePath] = "path to Unity log file. Value: string",
         [GeneralArguments.RunOnDevice] = "number of device to run tests on. Values: [1..n]",
+        [GeneralArguments.NUnitConsoleApplicationPath] = "path to console application to run NUnitv3+ tests. Value: string",
 
         [GeneralArguments.SkipPortForward] = "skip port forwarding. Values [true/false]",
         [GeneralArguments.SkipRun] = "skip running (or opening if it's already ran) application on device. Values [true/false]",
         [GeneralArguments.SkipTests] = "skip running tests. Values [true/false]",
 
         [GeneralArguments.Help] = "show help. Values [true/false]",
+        [GeneralArguments.Defaults] = "add default values info to help commands. Only used with --help command. Values [true/false]",
     };
 
     public static readonly Dictionary<AndroidArguments, string> AndroidDescriptions = new()

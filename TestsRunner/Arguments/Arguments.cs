@@ -3,15 +3,17 @@
 public enum GeneralArguments
 {
     Platform,
-    UnityEditorPath,
-    ProjectPath,
     TestsTree,
-    LogFilePath,
+    RunOnDevice,
+    
+    NUnitConsoleApplicationPath,
+    
     SkipPortForward,
     SkipRun,
     SkipTests,
-    RunOnDevice,
+    
     Help,
+    Defaults,
 }
 
 public enum AndroidArguments

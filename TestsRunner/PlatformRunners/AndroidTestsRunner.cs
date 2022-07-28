@@ -44,10 +44,8 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
 
     public void RunTests() =>
         RunTests(
-            unityPath: generalArgumentsReader[GeneralArguments.UnityEditorPath],
-            projectPath: generalArgumentsReader[GeneralArguments.ProjectPath],
             testsTreeFilePath: generalArgumentsReader[GeneralArguments.TestsTree],
-            pathToLogFile: generalArgumentsReader[GeneralArguments.LogFilePath]);
+            consoleRunnerPath: generalArgumentsReader[GeneralArguments.NUnitConsoleApplicationPath]);
 
     private bool IsDeviceConnected(string adbPath, string deviceNumberString, out string deviceId)
     {
@@ -147,15 +145,16 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
         Driver.LaunchApp();
     }
 
-    private void RunTests(string unityPath, string projectPath, string testsTreeFilePath, string pathToLogFile)
+    private void RunTests(string testsTreeFilePath, string consoleRunnerPath)
     {
         var testsTree = TestsTree.DeserializeTree(testsTreeFilePath);
         var testsList = testsTree.GetTestsInvocationList();
 
-        var arguments = $"-projectPath \"{projectPath}\" -executeMethod Editor.AltUnity.AltUnityTestRunnerCustom.RunTestFromCommandLine " +
-                        $"-tests {string.Join(" ", testsList)} -logFile \"{pathToLogFile}\" -batchmode -quit";
-
-        Console.WriteLine($"Executing command: {unityPath} {arguments}");
-        processRunner.PrintProcessOutput(processRunner.StartProcess(unityPath, arguments));
+        foreach (var testName in testsList)
+        {
+            var arguments = $"--test={testName} TestsClient.dll";
+            Console.WriteLine($"Executing command: {consoleRunnerPath} {arguments}");
+            processRunner.PrintProcessOutput(processRunner.StartProcess(consoleRunnerPath, arguments));
+        }
     }
 }

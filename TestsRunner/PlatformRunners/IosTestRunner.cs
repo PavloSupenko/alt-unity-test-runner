@@ -42,11 +42,7 @@ public class IosTestRunner : ITestsRunner<IosArguments, IOSDriver<IOSElement>>
             sleepSeconds: 10);
 
     public void RunTests() =>
-        RunTests(
-            unityPath: generalArgumentsReader[GeneralArguments.UnityEditorPath],
-            projectPath: generalArgumentsReader[GeneralArguments.ProjectPath],
-            testsTreeFilePath: generalArgumentsReader[GeneralArguments.TestsTree],
-            pathToLogFile: generalArgumentsReader[GeneralArguments.LogFilePath]);
+        RunTests(testsTreeFilePath: generalArgumentsReader[GeneralArguments.TestsTree]);
 
     private bool IsDeviceConnected(string deviceNumberString, out string deviceId)
     {
@@ -116,16 +112,16 @@ public class IosTestRunner : ITestsRunner<IosArguments, IOSDriver<IOSElement>>
         Thread.Sleep(TimeSpan.FromSeconds(sleepSeconds));
     }
 
-    private void RunTests(string unityPath, string projectPath, string testsTreeFilePath, string pathToLogFile)
+    private void RunTests(string testsTreeFilePath)
     {
         var testsTree = TestsTree.DeserializeTree(testsTreeFilePath);
         var testsList = testsTree.GetTestsInvocationList();
 
-        var arguments = $"-projectPath \"{projectPath}\" -executeMethod Editor.AltUnity.AltUnityTestRunnerCustom.RunTestFromCommandLine " +
-                        $"-tests {string.Join(" ", testsList)} -logFile \"{pathToLogFile}\" -batchmode -quit";
-
-        Console.WriteLine($"Executing command: {unityPath} {arguments}");
-        processRunner.PrintProcessOutput(processRunner.StartProcess(unityPath, arguments));
+        // var arguments = $"-projectPath \"{projectPath}\" -executeMethod Editor.AltUnity.AltUnityTestRunnerCustom.RunTestFromCommandLine " +
+        //                 $"-tests {string.Join(" ", testsList)} -logFile \"{pathToLogFile}\" -batchmode -quit";
+        //
+        // Console.WriteLine($"Executing command: {unityPath} {arguments}");
+        // processRunner.PrintProcessOutput(processRunner.StartProcess(unityPath, arguments));
     }
 
     private void ReinstallApplicationUsingIDeviceInstaller(string ipaPath, string deviceId, string bundle)

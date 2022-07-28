@@ -30,9 +30,10 @@ class Program
 
         if (generalArgumentsReader[GeneralArguments.Help].Equals("true"))
         {
-            ShowHelp(generalArgumentsReader, "==== General parameters: ====");
-            ShowHelp(androidArgumentsReader, "==== Android parameters: ====");
-            ShowHelp(iosArgumentsReader, "==== iOS parameters: ====");
+            var showDefaults = generalArgumentsReader[GeneralArguments.Defaults].Equals("true");
+            ShowHelp(generalArgumentsReader, "==== General parameters: ====", showDefaults);
+            ShowHelp(androidArgumentsReader, "==== Android parameters: ====", showDefaults);
+            ShowHelp(iosArgumentsReader, "==== iOS parameters: ====", showDefaults);
             Console.WriteLine();
             return;
         }
@@ -48,6 +49,9 @@ class Program
                     break;
                 case "ios":
                     ExecuteTests(IosTestsRunner, generalArgumentsReader);
+                    break;
+                default:
+                    Console.WriteLine("No platform. Exit from application");
                     break;
             }
         }
@@ -72,9 +76,7 @@ class Program
         {
             PrintParsedTestsTree(testsTreeJsonPath: generalArgumentsReader[GeneralArguments.TestsTree]);
             testRunner.RunTests();
-            DrawTestsTreeResult(
-                testsTreeJsonPath: generalArgumentsReader[GeneralArguments.TestsTree],
-                logFilePath: generalArgumentsReader[GeneralArguments.LogFilePath]);
+            DrawTestsTreeResult(testsTreeJsonPath: generalArgumentsReader[GeneralArguments.TestsTree]);
         }
     }
 
@@ -87,49 +89,34 @@ class Program
             Console.WriteLine(testName);
     }
 
-    private static void DrawTestsTreeResult(string testsTreeJsonPath, string logFilePath)
+    private static void DrawTestsTreeResult(string testsTreeJsonPath)
     {
-        var tokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-        while (!File.Exists(logFilePath) && !tokenSource.IsCancellationRequested)
-            Thread.Sleep(100);
-
-        while (!IsFileReady(logFilePath) && !tokenSource.IsCancellationRequested)
-            Thread.Sleep(100);
-
-        if (tokenSource.IsCancellationRequested)
-        {
-            Console.WriteLine("- Not correct file path");
-            return;
-        }
-
-        var testsTree = TestsTree.DeserializeTree(testsTreeJsonPath);
-        foreach (var testResult in testsTree.GetTestResultsFromLogFile(logFilePath))
-        {
-            Console.WriteLine((testResult.Passed ? "+ " : "- ") + testResult.TestNamePrintLine);
-        }
+        // var tokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        //
+        // if (tokenSource.IsCancellationRequested)
+        // {
+        //     Console.WriteLine("- Not correct file path");
+        //     return;
+        // }
+        //
+        // var testsTree = TestsTree.DeserializeTree(testsTreeJsonPath);
+        // foreach (var testResult in testsTree.GetTestResultsFromLogFile(logFilePath))
+        // {
+        //     Console.WriteLine((testResult.Passed ? "+ " : "- ") + testResult.TestNamePrintLine);
+        // }
     }
 
-    private static bool IsFileReady(string filename)
-    {
-        try
-        {
-            using var inputStream = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.None);
-            return inputStream.Length > 0;
-        }
-        catch (Exception)
-        {
-            return false;
-        }
-    }
-
-    private static void ShowHelp<TArgsEnum>(ArgumentsReader<TArgsEnum> argumentsReader, string header) where TArgsEnum : Enum
+    private static void ShowHelp<TArgsEnum>(ArgumentsReader<TArgsEnum> argumentsReader, string header, bool showDefaults) 
+        where TArgsEnum : Enum
     {
         Console.WriteLine(header);
         foreach (TArgsEnum argumentValue in Enum.GetValues(typeof(TArgsEnum)))
         {
             var argumentHelp = argumentsReader.GetHelp(argumentValue);
             Console.WriteLine($"    [{argumentHelp.switchName}]  —  {argumentHelp.description}");
-            Console.WriteLine($"        value:{argumentsReader[argumentValue]}");
+            
+            if (showDefaults)
+                Console.WriteLine($"        default value:{argumentsReader[argumentValue]}");
         }
     }
 }
