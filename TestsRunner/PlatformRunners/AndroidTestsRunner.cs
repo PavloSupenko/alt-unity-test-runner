@@ -168,7 +168,7 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
             new FileStreamOptions()
             {
                 Access = FileAccess.Write,
-                Mode = FileMode.CreateNew
+                Mode = FileMode.OpenOrCreate
             });
 
         foreach (var testName in testsList)
@@ -202,6 +202,8 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
 
     private void DrawTestsTreeResult(TestsTree tree, Dictionary<string, bool> testsSuccessStatus)
     {
+        Console.WriteLine("\nTests results:");
+        
         var currentIndent = 1;
         foreach (var testName in tree.GetTestsInvocationList())
         {
@@ -220,6 +222,10 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
 
             if (!isEnterTest)
                 currentIndent -= 4;
+            
+            Console.WriteLine(testPrintLine.ToString());
         }
+        
+        Console.WriteLine();
     }
 }
