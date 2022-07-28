@@ -1,10 +1,9 @@
 ﻿using System.Threading;
 using Altom.AltUnityDriver;
 using NUnit.Framework;
-using TestsClient.BaseTests;
 
 
-namespace TestsClient.Tests;
+namespace TestsClient;
 
 public class InfoButton : TestBase
 {

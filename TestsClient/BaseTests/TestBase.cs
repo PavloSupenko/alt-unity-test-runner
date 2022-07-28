@@ -1,11 +1,9 @@
-﻿using System;
-using System.IO;
-using System.Threading;
+﻿using System.IO;
 using Altom.AltUnityDriver;
 using NUnit.Framework;
 
 
-namespace TestsClient.BaseTests;
+namespace TestsClient;
 
 public abstract class TestBase
 {
@@ -15,7 +13,6 @@ public abstract class TestBase
     public void SetUp()
     {
         altUnityDriver = new AltUnityDriver();
-        Thread.Sleep(TimeSpan.FromSeconds(5f));
     }
 
     [OneTimeTearDown]

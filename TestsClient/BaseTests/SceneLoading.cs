@@ -3,7 +3,7 @@ using System.Threading;
 using NUnit.Framework;
 
 
-namespace TestsClient.BaseTests;
+namespace TestsClient;
 
 public class SceneLoading : TestBase
 {

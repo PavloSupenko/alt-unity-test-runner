@@ -1,8 +1,7 @@
 using System;
-using TestsClient.BaseTests;
 
 
-namespace TestsClient.Tests;
+namespace TestsClient;
 
 public class TopLevelSceneLoading : SceneLoading
 {
