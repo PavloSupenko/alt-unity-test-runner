@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Threading;
 using Altom.AltUnityDriver;
 using NUnit.Framework;
 
@@ -12,19 +14,14 @@ public abstract class TestBase
     [OneTimeSetUp]
     public void SetUp()
     {
-        // AltUnityPortForwarding.ForwardAndroid();
-        // AltUnityPortForwarding.ForwardIos();
-        
         altUnityDriver = new AltUnityDriver();
+        Thread.Sleep(TimeSpan.FromSeconds(5f));
     }
 
     [OneTimeTearDown]
     public void TearDown()
     {
         altUnityDriver.Stop();
-        
-        // AltUnityPortForwarding.RemoveForwardAndroid();
-        // AltUnityPortForwarding.KillAllIproxyProcess();
     }
 
     public void Initialize(AltUnityDriver driver)
