@@ -35,6 +35,7 @@ class Program
             ShowHelp(androidArgumentsReader, "==== Android parameters: ====", showDefaults);
             ShowHelp(iosArgumentsReader, "==== iOS parameters: ====", showDefaults);
             Console.WriteLine();
+            
             return;
         }
 
@@ -68,9 +69,12 @@ class Program
 
         if (generalArgumentsReader[GeneralArguments.SkipPortForward].Equals("false"))
             testRunner.SetupPortForwarding(deviceId: deviceId);
+        
+        if (generalArgumentsReader[GeneralArguments.SkipServerRun].Equals("false"))
+            testRunner.RunAppiumServer();
 
-        if (generalArgumentsReader[GeneralArguments.SkipRun].Equals("false"))
-            testRunner.RunApplication(deviceId: deviceId, sleepSeconds: 10);
+        if (generalArgumentsReader[GeneralArguments.SkipSessionRun].Equals("false"))
+            testRunner.RunAppiumSession(deviceId: deviceId, sleepSeconds: 10);
 
         if (generalArgumentsReader[GeneralArguments.SkipTests].Equals("false"))
         {

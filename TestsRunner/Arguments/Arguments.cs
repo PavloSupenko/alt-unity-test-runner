@@ -9,7 +9,8 @@ public enum GeneralArguments
     NUnitConsoleApplicationPath,
     
     SkipPortForward,
-    SkipRun,
+    SkipServerRun,
+    SkipSessionRun,
     SkipTests,
     
     Help,

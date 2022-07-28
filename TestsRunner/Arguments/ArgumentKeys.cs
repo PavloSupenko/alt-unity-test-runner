@@ -11,7 +11,8 @@ static class ArgumentKeys
         ["--nunit-console"] = GeneralArguments.NUnitConsoleApplicationPath,
 
         ["--skip-port-forward"] = GeneralArguments.SkipPortForward,
-        ["--skip-run"] = GeneralArguments.SkipRun,
+        ["--skip-server-run"] = GeneralArguments.SkipServerRun,
+        ["--skip-session-run"] = GeneralArguments.SkipSessionRun,
         ["--skip-tests"] = GeneralArguments.SkipTests,
 
         ["--help"] = GeneralArguments.Help,
@@ -44,7 +45,8 @@ static class ArgumentKeys
         [GeneralArguments.NUnitConsoleApplicationPath] = "none",
 
         [GeneralArguments.SkipPortForward] = "false",
-        [GeneralArguments.SkipRun] = "false",
+        [GeneralArguments.SkipServerRun] = "false",
+        [GeneralArguments.SkipSessionRun] = "false",
         [GeneralArguments.SkipTests] = "false",
 
         [GeneralArguments.Help] = "false",
@@ -77,7 +79,9 @@ static class ArgumentKeys
         [GeneralArguments.NUnitConsoleApplicationPath] = "path to console application to run NUnitv3+ tests. Value: string",
 
         [GeneralArguments.SkipPortForward] = "skip port forwarding. Values [true/false]",
-        [GeneralArguments.SkipRun] = "skip running (or opening if it's already ran) application on device. Values [true/false]",
+        [GeneralArguments.SkipServerRun] = "skip running (or opening if it's already ran) application on device. Values [true/false]",
+        [GeneralArguments.SkipSessionRun] = "skip installing and running application with initialization of appium session. " +
+                                            "Warning: tests that use appium API will not run. Values [true/false]",
         [GeneralArguments.SkipTests] = "skip running tests. Values [true/false]",
 
         [GeneralArguments.Help] = "show help. Values [true/false]",

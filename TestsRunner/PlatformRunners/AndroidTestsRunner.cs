@@ -34,10 +34,13 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
             tcpPort: androidArgumentsReader[AndroidArguments.TcpPort],
             deviceId: deviceId);
 
-    public void RunApplication(string deviceId, int sleepSeconds) =>
-        RunApplication(
+    public void RunAppiumServer() =>
+        RunAppiumServer(
             javaHome: androidArgumentsReader[AndroidArguments.JavaHomePath],
-            androidHome: androidArgumentsReader[AndroidArguments.AndroidHomePath],
+            androidHome: androidArgumentsReader[AndroidArguments.AndroidHomePath]);
+
+    public void RunAppiumSession(string deviceId, int sleepSeconds) =>
+        RunAppiumSession(
             apkPath: androidArgumentsReader[AndroidArguments.ApkPath],
             bundle: androidArgumentsReader[AndroidArguments.Bundle],
             sleepSecondsAfterLaunch: sleepSeconds);
@@ -105,10 +108,8 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
         processRunner.PrintProcessOutput(processRunner.StartProcess(adbPath, arguments));
     }
 
-    private void RunApplication(string javaHome, string androidHome, string apkPath, string bundle, int sleepSecondsAfterLaunch)
+    private void RunAppiumSession(string apkPath, string bundle, int sleepSecondsAfterLaunch)
     {
-        RunAppiumServer(javaHome, androidHome);
-        Thread.Sleep(TimeSpan.FromSeconds(5));
         InitializeAppiumDriver(apkPath, bundle);
         Thread.Sleep(TimeSpan.FromSeconds(sleepSecondsAfterLaunch));
     }
@@ -127,6 +128,7 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
         var arguments = $"--address 127.0.0.1 --port 4723 --base-path /wd/hub";
         Console.WriteLine($"Executing command: {process} {arguments}");
         processRunner.StartProcess(process, arguments, variables);
+        Thread.Sleep(TimeSpan.FromSeconds(5));
     }
 
     private void InitializeAppiumDriver(string apkPath, string bundle)

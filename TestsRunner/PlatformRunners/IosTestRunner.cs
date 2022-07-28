@@ -30,13 +30,11 @@ public class IosTestRunner : ITestsRunner<IosArguments, IOSDriver<IOSElement>>
             tcpPort: iosArgumentsReader[IosArguments.TcpPort],
             deviceId: deviceId);
 
-    public void InitializeAppiumDriver()
-    {
-        throw new NotImplementedException();
-    }
+    public void RunAppiumServer() =>
+        RunAppiumServer(null, null);
 
-    public void RunApplication(string deviceId, int sleepSeconds) =>
-        RunApplication(
+    public void RunAppiumSession(string deviceId, int sleepSeconds) =>
+        RunAppiumSession(
             ipaPath: iosArgumentsReader[IosArguments.IpaPath],
             deviceId: deviceId,
             sleepSeconds: 10);
@@ -95,8 +93,25 @@ public class IosTestRunner : ITestsRunner<IosArguments, IOSDriver<IOSElement>>
         Console.WriteLine($"Executing command: {proxyPath} {arguments}");
         processRunner.PrintProcessOutput(processRunner.StartProcess(proxyPath, arguments));
     }
+    
+    private void RunAppiumServer(string javaHome, string androidHome)
+    {
+        // var processRunner = new ProcessRunner();
+        // var process = "appium";
+        //
+        // var variables = new Dictionary<string, string>()
+        // {
+        //     ["JAVA_HOME"] = javaHome,
+        //     ["ANDROID_HOME"] = androidHome,
+        // };
+        //
+        // var arguments = $"--address 127.0.0.1 --port 4723 --base-path /wd/hub";
+        // Console.WriteLine($"Executing command: {process} {arguments}");
+        // processRunner.StartProcess(process, arguments, variables);
+        // Thread.Sleep(TimeSpan.FromSeconds(5));
+    }
 
-    private void RunApplication(string ipaPath, string deviceId, int sleepSeconds)
+    private void RunAppiumSession(string ipaPath, string deviceId, int sleepSeconds)
     {
         // Unpack .ipa file
         // todo: We need .app file with "developer" export method. For export fastlane can be used and for getting
