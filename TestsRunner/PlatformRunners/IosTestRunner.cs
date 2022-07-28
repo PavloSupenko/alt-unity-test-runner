@@ -1,7 +1,9 @@
+using System.Diagnostics;
+using OpenQA.Selenium.Appium;
+using OpenQA.Selenium.Appium.Enums;
 using OpenQA.Selenium.Appium.iOS;
 using Shared.Processes;
 using TestsRunner.Arguments;
-using TestsTreeParser.Tree;
 
 
 namespace TestsRunner.PlatformRunners;
@@ -11,8 +13,8 @@ public class IosTestRunner : ITestsRunner<IosArguments, IOSDriver<IOSElement>>
     private readonly ProcessRunner processRunner = new();
     private ArgumentsReader<GeneralArguments> generalArgumentsReader;
     private ArgumentsReader<IosArguments> iosArgumentsReader;
-
-    public IOSDriver<IOSElement> Driver { get; private set; }
+    private IOSDriver<IOSElement> driver;
+    private Process appiumServerProcess;
 
     public void Initialize(ArgumentsReader<GeneralArguments> generalArgumentsReader, ArgumentsReader<IosArguments> platformArgumentsReader)
     {
@@ -25,32 +27,39 @@ public class IosTestRunner : ITestsRunner<IosArguments, IOSDriver<IOSElement>>
             deviceNumberString: generalArgumentsReader[GeneralArguments.RunOnDevice],
             deviceId: out deviceId);
 
-    public void SetupPortForwarding(string deviceId) =>
-        SetupPortForwarding(
-            tcpPort: iosArgumentsReader[IosArguments.TcpPort],
-            deviceId: deviceId);
-
-    public void RunAppiumServer() =>
-        RunAppiumServer(null, null);
-
-    public void StopAppiumServer()
+    public void SetupPortForwarding(string deviceId, string tcpLocalPort, string tcpDevicePort)
     {
-        throw new NotImplementedException();
+        var proxyPath = "iproxy";
+        var arguments = $"-u {deviceId} {tcpLocalPort}:{tcpDevicePort}";
+        Console.WriteLine($"Executing command: {proxyPath} {arguments}");
+        processRunner.PrintProcessOutput(processRunner.StartProcess(proxyPath, arguments));
     }
+
+    public void RunAppiumServer()
+    {
+        var process = "appium";
+        var arguments = $"--address 127.0.0.1 --port 4723 --base-path /wd/hub";
+        Console.WriteLine($"Executing command: {process} {arguments}");
+        processRunner.StartProcess(process, arguments);
+        Thread.Sleep(TimeSpan.FromSeconds(5));
+    }
+
+    public void StopAppiumServer() => 
+        appiumServerProcess?.Kill();
 
     public void RunAppiumSession(string deviceId, int sleepSeconds) =>
         RunAppiumSession(
             ipaPath: iosArgumentsReader[IosArguments.IpaPath],
             deviceId: deviceId,
-            sleepSeconds: 10);
+            deviceName: iosArgumentsReader[IosArguments.DeviceName],
+            platformVersion: iosArgumentsReader[IosArguments.PlatformVersion],
+            teamId: iosArgumentsReader[IosArguments.TeamId],
+            signingId: iosArgumentsReader[IosArguments.SigningId]);
 
     public void StopAppiumSession()
     {
         throw new NotImplementedException();
     }
-
-    public void RunTests() =>
-        RunTests(testsTreeFilePath: generalArgumentsReader[GeneralArguments.TestsTree]);
 
     private bool IsDeviceConnected(string deviceNumberString, out string deviceId)
     {
@@ -96,80 +105,24 @@ public class IosTestRunner : ITestsRunner<IosArguments, IOSDriver<IOSElement>>
         return true;
     }
 
-    private void SetupPortForwarding(string tcpPort, string deviceId)
+    private void RunAppiumSession(string ipaPath, string deviceId, string deviceName, string platformVersion, string teamId, string signingId)
     {
-        var proxyPath = "iproxy";
-        var arguments = $"-u {deviceId} {tcpPort}:{tcpPort}";
-        Console.WriteLine($"Executing command: {proxyPath} {arguments}");
-        processRunner.PrintProcessOutput(processRunner.StartProcess(proxyPath, arguments));
-    }
-    
-    private void RunAppiumServer(string javaHome, string androidHome)
-    {
-        // var processRunner = new ProcessRunner();
-        // var process = "appium";
-        //
-        // var variables = new Dictionary<string, string>()
-        // {
-        //     ["JAVA_HOME"] = javaHome,
-        //     ["ANDROID_HOME"] = androidHome,
-        // };
-        //
-        // var arguments = $"--address 127.0.0.1 --port 4723 --base-path /wd/hub";
-        // Console.WriteLine($"Executing command: {process} {arguments}");
-        // processRunner.StartProcess(process, arguments, variables);
-        // Thread.Sleep(TimeSpan.FromSeconds(5));
-    }
-
-    private void RunAppiumSession(string ipaPath, string deviceId, int sleepSeconds)
-    {
-        // Unpack .ipa file
-        // todo: We need .app file with "developer" export method. For export fastlane can be used and for getting
-        // todo: .app instead of .ipa too.
-
-        // Run application
-        var iosDeploy = "ios-deploy";
-
-        // -L — just start and exit lldb | -m — just run without installing | -i — device to work with
-        //var arguments = $"-i {deviceId} -b {appPath} -m -L";
-        //Console.WriteLine($"Executing command: {iosDeploy} {arguments}");
-        //processRunner.PrintProcessOutput(processRunner.StartProcess(iosDeploy, arguments));
-        Thread.Sleep(TimeSpan.FromSeconds(sleepSeconds));
-    }
-
-    private void RunTests(string testsTreeFilePath)
-    {
-        var testsTree = TestsTree.DeserializeTree(testsTreeFilePath);
-        var testsList = testsTree.GetTestsInvocationList();
-
-        // var arguments = $"-projectPath \"{projectPath}\" -executeMethod Editor.AltUnity.AltUnityTestRunnerCustom.RunTestFromCommandLine " +
-        //                 $"-tests {string.Join(" ", testsList)} -logFile \"{pathToLogFile}\" -batchmode -quit";
-        //
-        // Console.WriteLine($"Executing command: {unityPath} {arguments}");
-        // processRunner.PrintProcessOutput(processRunner.StartProcess(unityPath, arguments));
-    }
-
-    private void ReinstallApplicationUsingIDeviceInstaller(string ipaPath, string deviceId, string bundle)
-    {
-        var deviceInstaller = "ideviceinstaller";
-
-        var uninstallArguments = $"-u {deviceId} -U {bundle}";
-        var installArguments = $"-u {deviceId} -i \"{ipaPath}\"";
-
-        Console.WriteLine($"Executing command: {deviceInstaller} {uninstallArguments}");
-        processRunner.PrintProcessOutput(processRunner.StartProcess(deviceInstaller, uninstallArguments));
-
-        Console.WriteLine($"Executing command: {deviceInstaller} {installArguments}");
-        processRunner.PrintProcessOutput(processRunner.StartProcess(deviceInstaller, installArguments));
-    }
-
-    private void ReinstallApplicationUsingIosDeploy(string appPath, string deviceId)
-    {
-        var iosDeploy = "ios-deploy";
-
-        // -r — remove app before installing to clear all data | -i — device to work with
-        var installArguments = $"-i {deviceId} -b \"{appPath}\" -r";
-        Console.WriteLine($"Executing command: {iosDeploy} {installArguments}");
-        processRunner.PrintProcessOutput(processRunner.StartProcess(iosDeploy, installArguments));
+        AppiumOptions capabilities = new AppiumOptions();
+        
+        // Disable timeout session disabling
+        capabilities.AddAdditionalCapability(MobileCapabilityType.NewCommandTimeout, 0);
+        
+        capabilities.AddAdditionalCapability(MobileCapabilityType.PlatformName, "iOS");
+        capabilities.AddAdditionalCapability(MobileCapabilityType.App, ipaPath);
+        capabilities.AddAdditionalCapability(MobileCapabilityType.AutomationName, "XCUITest");
+        capabilities.AddAdditionalCapability(MobileCapabilityType.DeviceName, deviceName);
+        capabilities.AddAdditionalCapability(MobileCapabilityType.PlatformVersion, platformVersion);
+        capabilities.AddAdditionalCapability(MobileCapabilityType.Udid, deviceId);
+        capabilities.AddAdditionalCapability("appium:xcodeOrgId", teamId);
+        capabilities.AddAdditionalCapability("appium:xcodeSigningId", signingId);
+        capabilities.AddAdditionalCapability("appium:showXcodeLog", true);
+        
+        driver = new IOSDriver<IOSElement>(new Uri("http://127.0.0.1:4723/wd/hub"), capabilities);
+        driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
     }
 }

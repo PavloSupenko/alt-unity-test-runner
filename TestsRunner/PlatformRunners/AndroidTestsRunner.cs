@@ -1,11 +1,9 @@
 ﻿using System.Diagnostics;
-using System.Text;
 using OpenQA.Selenium.Appium;
 using OpenQA.Selenium.Appium.Android;
 using OpenQA.Selenium.Appium.Enums;
 using Shared.Processes;
 using TestsRunner.Arguments;
-using TestsTreeParser.Tree;
 
 
 namespace TestsRunner.PlatformRunners;
@@ -17,8 +15,6 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
     private ArgumentsReader<AndroidArguments> androidArgumentsReader;
     private AndroidDriver<AndroidElement> driver;
     private Process appiumServerProcess;
-
-    public AndroidDriver<AndroidElement> Driver => driver;
 
     public void Initialize(ArgumentsReader<GeneralArguments> generalArgumentsReader, ArgumentsReader<AndroidArguments> platformArgumentsReader)
     {
@@ -32,10 +28,11 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
             deviceNumberString: generalArgumentsReader[GeneralArguments.RunOnDevice],
             deviceId: out deviceId);
 
-    public void SetupPortForwarding(string deviceId) =>
+    public void SetupPortForwarding(string deviceId, string tcpLocalPort, string tcpDevicePort) =>
         SetupPortForwarding(
             adbPath: androidArgumentsReader[AndroidArguments.AndroidDebugBridgePath],
-            tcpPort: androidArgumentsReader[AndroidArguments.TcpPort],
+            tcpLocalPort: tcpLocalPort,
+            tcpDevicePort: tcpDevicePort,
             deviceId: deviceId);
 
     public void RunAppiumServer() =>
@@ -55,12 +52,6 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
 
     public void StopAppiumSession() => 
         driver?.Quit();
-
-    public void RunTests() =>
-        RunTests(
-            testsTreeFilePath: generalArgumentsReader[GeneralArguments.TestsTree],
-            consoleRunnerPath: generalArgumentsReader[GeneralArguments.NUnitConsoleApplicationPath],
-            systemLog: generalArgumentsReader[GeneralArguments.TestSystemOutputLogFilePath]);
 
     private bool IsDeviceConnected(string adbPath, string deviceNumberString, out string deviceId)
     {
@@ -100,10 +91,10 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
         return true;
     }
 
-    private void SetupPortForwarding(string adbPath, string tcpPort, string deviceId)
+    private void SetupPortForwarding(string adbPath, string tcpLocalPort, string tcpDevicePort, string deviceId)
     {
         ResetPortForwarding(adbPath, deviceId);
-        InstallPortForwarding(adbPath, tcpPort, deviceId);
+        InstallPortForwarding(adbPath, tcpLocalPort, tcpDevicePort, deviceId);
     }
 
     private void ResetPortForwarding(string adbPath, string deviceId)
@@ -113,9 +104,9 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
         processRunner.PrintProcessOutput(processRunner.StartProcess(adbPath, arguments));
     }
 
-    private void InstallPortForwarding(string adbPath, string tcpPort, string deviceId)
+    private void InstallPortForwarding(string adbPath, string tcpLocalPort, string tcpDevicePort, string deviceId)
     {
-        var arguments = $"-s {deviceId} forward tcp:{tcpPort} tcp:{tcpPort}";
+        var arguments = $"-s {deviceId} forward tcp:{tcpLocalPort} tcp:{tcpDevicePort}";
         Console.WriteLine($"Executing command: {adbPath} {arguments}");
         processRunner.PrintProcessOutput(processRunner.StartProcess(adbPath, arguments));
     }
@@ -128,9 +119,7 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
 
     private void RunAppiumServer(string javaHome, string androidHome)
     {
-        var processRunner = new ProcessRunner();
         var process = "appium";
-
         var variables = new Dictionary<string, string>()
         {
             ["JAVA_HOME"] = javaHome,
@@ -156,76 +145,5 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
         
         driver = new AndroidDriver<AndroidElement>(new Uri("http://127.0.0.1:4723/wd/hub"), capabilities);
         driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
-    }
-
-    private void RunTests(string testsTreeFilePath, string consoleRunnerPath, string systemLog)
-    {
-        TestsTree testsTree = TestsTree.DeserializeTree(testsTreeFilePath);
-        List<string> testsList = testsTree.GetTestsInvocationList();
-        Dictionary<string, bool> testsStatus = new Dictionary<string, bool>();
-
-        using StreamWriter sw = new StreamWriter(systemLog,
-            new FileStreamOptions()
-            {
-                Access = FileAccess.Write,
-                Mode = FileMode.OpenOrCreate
-            });
-
-        foreach (var testName in testsList)
-        {
-            var arguments = $"--test={testName} --teamcity TestsClient.dll";
-            var systemOutput = processRunner
-                .GetProcessOutput(processRunner.StartProcess(consoleRunnerPath, arguments))
-                .ToList();
-
-            foreach (var outputLine in systemOutput) 
-                sw.WriteLine(outputLine);
-            
-            sw.WriteLine();
-            testsStatus.Add(testName, IsTestSuccess(systemOutput));
-        }
-        
-        sw.Close();
-        
-        DrawTestsTreeResult(TestsTree.DeserializeTree(testsTreeFilePath), testsStatus);
-    }
-
-    private bool IsTestSuccess(IEnumerable<string> logText)
-    {
-        var testResultLine = logText.FirstOrDefault(line => line.Contains("Overall result"));
-
-        if (string.IsNullOrEmpty(testResultLine))
-            return false;
-
-        return testResultLine.Contains("Passed");
-    }
-
-    private void DrawTestsTreeResult(TestsTree tree, Dictionary<string, bool> testsSuccessStatus)
-    {
-        Console.WriteLine("\nTests results:");
-        
-        var currentIndent = 1;
-        foreach (var testName in tree.GetTestsInvocationList())
-        {
-            var testPrintLine = new StringBuilder();
-            var isTestSuccess = testsSuccessStatus[testName];
-            var isEnterTest = testName.EndsWith(".Enter");
-
-            if (isEnterTest)
-                currentIndent += 4;
-
-            testPrintLine.Append(isTestSuccess ? "+ " : "- ");
-            for (int i = 0; i < currentIndent; i++)
-                testPrintLine.Append(" ");
-
-            testPrintLine.Append($"|_{testName}");
-
-            if (!isEnterTest)
-                currentIndent -= 4;
-            
-            Console.WriteLine(testPrintLine.ToString());
-        }
-        
-        Console.WriteLine();
     }
 }

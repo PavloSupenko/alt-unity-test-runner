@@ -5,16 +5,14 @@ namespace TestsRunner.PlatformRunners;
 
 public interface ITestsRunner<TArgsEnum, out TDriver> where TArgsEnum : Enum
 {
-    TDriver Driver { get; }
     void Initialize(ArgumentsReader<GeneralArguments> generalArguments, ArgumentsReader<TArgsEnum> platformArguments);
     
     bool IsDeviceConnected(out string deviceId);
-    void SetupPortForwarding(string deviceId);
+    void SetupPortForwarding(string deviceId, string tcpLocalPort, string tcpDevicePort);
     
     void RunAppiumServer();
     void StopAppiumServer();
+    
     void RunAppiumSession(string deviceId, int sleepSeconds);
     void StopAppiumSession();
-    
-    void RunTests();
 }

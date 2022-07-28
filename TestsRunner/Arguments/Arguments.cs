@@ -6,6 +6,9 @@ public enum GeneralArguments
     TestsTree,
     RunOnDevice,
     
+    LocalPort,
+    DevicePort,
+    
     NUnitConsoleApplicationPath,
     TestSystemOutputLogFilePath,
     
@@ -23,14 +26,15 @@ public enum AndroidArguments
     AndroidDebugBridgePath,
     AndroidHomePath,
     JavaHomePath,
-    TcpPort,
     ApkPath,
     Bundle
 }
 
 public enum IosArguments
 {
-    TcpPort,
     IpaPath,
-    Bundle
+    DeviceName,
+    PlatformVersion,
+    TeamId,
+    SigningId,
 }

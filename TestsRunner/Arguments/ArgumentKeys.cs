@@ -10,6 +10,9 @@ static class ArgumentKeys
         ["--run-on-device"] = GeneralArguments.RunOnDevice,
         ["--nunit-console"] = GeneralArguments.NUnitConsoleApplicationPath,
         ["--log"] = GeneralArguments.TestSystemOutputLogFilePath,
+        
+        ["--port-local"] = GeneralArguments.LocalPort,
+        ["--port-device"] = GeneralArguments.DevicePort,
 
         ["--skip-port-forward"] = GeneralArguments.SkipPortForward,
         ["--skip-server-run"] = GeneralArguments.SkipServerRun,
@@ -25,16 +28,17 @@ static class ArgumentKeys
         ["--adb"] = AndroidArguments.AndroidDebugBridgePath,
         ["--android-home"] = AndroidArguments.AndroidHomePath,
         ["--java-home"] = AndroidArguments.JavaHomePath,
-        ["--tcp"] = AndroidArguments.TcpPort,
         ["--apk"] = AndroidArguments.ApkPath,
         ["--bundle"] = AndroidArguments.Bundle,
     };
 
     public static readonly Dictionary<string, IosArguments> IosKeys = new()
     {
-        ["--tcp"] = IosArguments.TcpPort,
         ["--ipa"] = IosArguments.IpaPath,
-        ["--bundle"] = IosArguments.Bundle,
+        ["--device-name"] = IosArguments.DeviceName,
+        ["--ios-version"] = IosArguments.PlatformVersion,
+        ["--signing-id"] = IosArguments.SigningId,
+        ["--team-id"] = IosArguments.TeamId,
     };
 
     public static readonly Dictionary<GeneralArguments, string> GeneralDefaults = new()
@@ -45,6 +49,9 @@ static class ArgumentKeys
         [GeneralArguments.RunOnDevice] = "1",
         [GeneralArguments.NUnitConsoleApplicationPath] = "none",
         [GeneralArguments.TestSystemOutputLogFilePath] = "tests-log.log",
+        
+        [GeneralArguments.LocalPort] = "13000",
+        [GeneralArguments.DevicePort] = "13000",
 
         [GeneralArguments.SkipPortForward] = "false",
         [GeneralArguments.SkipServerRun] = "false",
@@ -57,7 +64,6 @@ static class ArgumentKeys
 
     public static readonly Dictionary<AndroidArguments, string> AndroidDefaults = new()
     {
-        [AndroidArguments.TcpPort] = "13000",
         [AndroidArguments.AndroidDebugBridgePath] = "D:\\Unity Editors\\2020.3.30f1\\Editor\\Data\\PlaybackEngines\\AndroidPlayer\\SDK\\platform-tools\\adb.exe",
         [AndroidArguments.AndroidHomePath] = "D:\\Unity Editors\\2020.3.30f1\\Editor\\Data\\PlaybackEngines\\AndroidPlayer\\SDK",
         [AndroidArguments.JavaHomePath] = "C:\\Program Files\\Java\\jre1.8.0_321",
@@ -67,9 +73,11 @@ static class ArgumentKeys
 
     public static readonly Dictionary<IosArguments, string> IosDefaults = new()
     {
-        [IosArguments.TcpPort] = "13000",
         [IosArguments.IpaPath] = "bini-acad-drawing.google.apple.ipa",
-        [IosArguments.Bundle] = "com.binibambini.acad.drawing",
+        [IosArguments.DeviceName] = "Pavlo’s iPhone",
+        [IosArguments.PlatformVersion] = "14.2",
+        [IosArguments.SigningId] = "Apple Development",
+        [IosArguments.TeamId] = "J86B8Y8A5P",
     };
 
     public static readonly Dictionary<GeneralArguments, string> GeneralDescriptions = new()
@@ -81,6 +89,9 @@ static class ArgumentKeys
         [GeneralArguments.NUnitConsoleApplicationPath] = "path to console application to run NUnitv3+ tests. Value: string",
         
         [GeneralArguments.TestSystemOutputLogFilePath] = "file to save NUnit output logs. Value: string",
+        
+        [GeneralArguments.LocalPort] = "local machine port to set up port forwarding. Values [13000, 13001, 13002,...n]",
+        [GeneralArguments.DevicePort] = "connected device port to set up port forwarding. Values [13000, 13001, 13002,...n]",
 
         [GeneralArguments.SkipPortForward] = "skip port forwarding. Values [true/false]",
         [GeneralArguments.SkipServerRun] = "skip running (or opening if it's already ran) application on device. Values [true/false]",
@@ -94,7 +105,6 @@ static class ArgumentKeys
 
     public static readonly Dictionary<AndroidArguments, string> AndroidDescriptions = new()
     {
-        [AndroidArguments.TcpPort] = "port to set up port forwarding. Values [13000, 13001, 13002,...n]",
         [AndroidArguments.AndroidDebugBridgePath] = "adb path. Value: string",
         [AndroidArguments.AndroidHomePath] = "android SDK directory path. Value: string",
         [AndroidArguments.JavaHomePath] = "java home path. Value: string",
@@ -104,8 +114,6 @@ static class ArgumentKeys
 
     public static readonly Dictionary<IosArguments, string> IosDescriptions = new()
     {
-        [IosArguments.TcpPort] = "port to set up port forwarding. Values [13000, 13001, 13002,...n]",
         [IosArguments.IpaPath] = "ipa path. Value: string",
-        [IosArguments.Bundle] = "bundle. Value: string",
     };
 }
