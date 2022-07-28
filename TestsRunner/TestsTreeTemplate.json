@@ -1,5 +1,5 @@
 {
-  "TestsRootNamespace": "TestsClient.Tests",
+  "TestsRootNamespace": "TestsClient",
   "Tests": [
     {
       "Test": "TopLevelSceneLoading",
