@@ -105,9 +105,11 @@ class Program
         var testsTree = TestsTree.DeserializeTree(testsTreeJsonPath);
         var testsList = testsTree.GetTestsInvocationList();
 
-        Console.WriteLine("Order of tests to be run parsed from tree file:");
+        Console.WriteLine("\nOrder of tests to be run parsed from tree file:");
         foreach (var testName in testsList)
             Console.WriteLine(testName);
+        
+        Console.WriteLine();
     }
 
     private static void ShowHelp<TArgsEnum>(ArgumentsReader<TArgsEnum> argumentsReader, string header, bool showDefaults) 

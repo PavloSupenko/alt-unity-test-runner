@@ -174,7 +174,6 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
         foreach (var testName in testsList)
         {
             var arguments = $"--test={testName} --teamcity TestsClient.dll";
-            Console.WriteLine($"Executing command: {consoleRunnerPath} {arguments}");
             var systemOutput = processRunner
                 .GetProcessOutput(processRunner.StartProcess(consoleRunnerPath, arguments))
                 .ToList();
@@ -188,7 +187,7 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
         
         sw.Close();
         
-        DrawTestsTreeResult(testsTreeFilePath, testsStatus);
+        DrawTestsTreeResult(TestsTree.DeserializeTree(testsTreeFilePath), testsStatus);
     }
 
     private bool IsTestSuccess(IEnumerable<string> logText)
@@ -201,27 +200,8 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
         return testResultLine.Contains("Passed");
     }
 
-    private void DrawTestsTreeResult(string testsTreeFilePath, Dictionary<string, bool> testsSuccessStatus)
+    private void DrawTestsTreeResult(TestsTree tree, Dictionary<string, bool> testsSuccessStatus)
     {
-        var tokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-        
-        if (tokenSource.IsCancellationRequested)
-        {
-            Console.WriteLine("- Not correct file path");
-            return;
-        }
-        
-        var testsTree = TestsTree.DeserializeTree(testsTreeFilePath);
-        foreach (var testResult in GetTestResultsFromTestsOutput(testsTree, testsSuccessStatus))
-        {
-            Console.WriteLine((testResult.Passed ? "+ " : "- ") + testResult.TestNamePrintLine);
-        }
-    }
-
-    private List<TestResultData> GetTestResultsFromTestsOutput(TestsTree tree, Dictionary<string, bool> testsSuccessStatus)
-    {
-        var testsData = new List<TestResultData>();
-
         var currentIndent = 1;
         foreach (var testName in tree.GetTestsInvocationList())
         {
@@ -232,6 +212,7 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
             if (isEnterTest)
                 currentIndent += 4;
 
+            testPrintLine.Append(isTestSuccess ? "+ " : "- ");
             for (int i = 0; i < currentIndent; i++)
                 testPrintLine.Append(" ");
 
@@ -239,10 +220,6 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
 
             if (!isEnterTest)
                 currentIndent -= 4;
-
-            testsData.Add(new TestResultData(testPrintLine.ToString(), isTestSuccess));
         }
-
-        return testsData;
     }
 }
