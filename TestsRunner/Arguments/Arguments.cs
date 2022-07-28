@@ -7,6 +7,7 @@ public enum GeneralArguments
     RunOnDevice,
     
     NUnitConsoleApplicationPath,
+    TestSystemOutputLogFilePath,
     
     SkipPortForward,
     SkipServerRun,

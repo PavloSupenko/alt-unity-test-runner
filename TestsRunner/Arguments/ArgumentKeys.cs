@@ -9,6 +9,7 @@ static class ArgumentKeys
         ["--tests"] = GeneralArguments.TestsTree,
         ["--run-on-device"] = GeneralArguments.RunOnDevice,
         ["--nunit-console"] = GeneralArguments.NUnitConsoleApplicationPath,
+        ["--log"] = GeneralArguments.TestSystemOutputLogFilePath,
 
         ["--skip-port-forward"] = GeneralArguments.SkipPortForward,
         ["--skip-server-run"] = GeneralArguments.SkipServerRun,
@@ -43,6 +44,7 @@ static class ArgumentKeys
         [GeneralArguments.TestsTree] = "TestsTreeTemplate.json",
         [GeneralArguments.RunOnDevice] = "1",
         [GeneralArguments.NUnitConsoleApplicationPath] = "none",
+        [GeneralArguments.TestSystemOutputLogFilePath] = "tests-log.log",
 
         [GeneralArguments.SkipPortForward] = "false",
         [GeneralArguments.SkipServerRun] = "false",
@@ -77,6 +79,8 @@ static class ArgumentKeys
         [GeneralArguments.TestsTree] = "path to tests tree template json file. Value: string",
         [GeneralArguments.RunOnDevice] = "number of device to run tests on. Values: [1..n]",
         [GeneralArguments.NUnitConsoleApplicationPath] = "path to console application to run NUnitv3+ tests. Value: string",
+        
+        [GeneralArguments.TestSystemOutputLogFilePath] = "file to save NUnit output logs. Value: string",
 
         [GeneralArguments.SkipPortForward] = "skip port forwarding. Values [true/false]",
         [GeneralArguments.SkipServerRun] = "skip running (or opening if it's already ran) application on device. Values [true/false]",

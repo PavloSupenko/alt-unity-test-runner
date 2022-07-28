@@ -97,7 +97,6 @@ class Program
         {
             PrintParsedTestsTree(testsTreeJsonPath: generalArgumentsReader[GeneralArguments.TestsTree]);
             testRunner.RunTests();
-            DrawTestsTreeResult(testsTreeJsonPath: generalArgumentsReader[GeneralArguments.TestsTree]);
         }
     }
 
@@ -106,25 +105,9 @@ class Program
         var testsTree = TestsTree.DeserializeTree(testsTreeJsonPath);
         var testsList = testsTree.GetTestsInvocationList();
 
+        Console.WriteLine("Order of tests to be run parsed from tree file:");
         foreach (var testName in testsList)
             Console.WriteLine(testName);
-    }
-
-    private static void DrawTestsTreeResult(string testsTreeJsonPath)
-    {
-        // var tokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-        //
-        // if (tokenSource.IsCancellationRequested)
-        // {
-        //     Console.WriteLine("- Not correct file path");
-        //     return;
-        // }
-        //
-        // var testsTree = TestsTree.DeserializeTree(testsTreeJsonPath);
-        // foreach (var testResult in testsTree.GetTestResultsFromLogFile(logFilePath))
-        // {
-        //     Console.WriteLine((testResult.Passed ? "+ " : "- ") + testResult.TestNamePrintLine);
-        // }
     }
 
     private static void ShowHelp<TArgsEnum>(ArgumentsReader<TArgsEnum> argumentsReader, string header, bool showDefaults) 
