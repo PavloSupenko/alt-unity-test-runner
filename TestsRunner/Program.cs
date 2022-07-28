@@ -41,9 +41,9 @@ class Program
 
         try
         {
-            var platform = generalArgumentsReader[GeneralArguments.Platform];
-
-            switch (platform)
+            
+            
+            switch (generalArgumentsReader[GeneralArguments.Platform])
             {
                 case "android":
                     ExecuteTests(AndroidTestsRunner, generalArgumentsReader);
@@ -52,7 +52,7 @@ class Program
                     ExecuteTests(IosTestsRunner, generalArgumentsReader);
                     break;
                 default:
-                    Console.WriteLine("No platform. Exit from application");
+                    Console.WriteLine("Platform key needed to run test session. Exit from application.");
                     break;
             }
         }
@@ -60,6 +60,25 @@ class Program
         {
             Console.WriteLine("Something went wrong. Exception: {0}", exception.ToString());
         }
+        finally
+        {
+            // todo: write a little bit properly and safe
+            switch (generalArgumentsReader[GeneralArguments.Platform])
+            {
+                case "android":
+                    StopSession(AndroidTestsRunner);
+                    break;
+                case "ios":
+                    StopSession(IosTestsRunner);
+                    break;
+            }
+        }
+    }
+
+    private static void StopSession<TArgsEnum, TDriver>(ITestsRunner<TArgsEnum, TDriver> testRunner) where TArgsEnum : Enum
+    {
+        testRunner.StopAppiumServer();
+        testRunner.StopAppiumSession();
     }
 
     private static void ExecuteTests<TArgsEnum, TDriver>(ITestsRunner<TArgsEnum, TDriver> testRunner, ArgumentsReader<GeneralArguments> generalArgumentsReader) where TArgsEnum : Enum

@@ -10,7 +10,11 @@ public interface ITestsRunner<TArgsEnum, out TDriver> where TArgsEnum : Enum
     
     bool IsDeviceConnected(out string deviceId);
     void SetupPortForwarding(string deviceId);
+    
     void RunAppiumServer();
+    void StopAppiumServer();
     void RunAppiumSession(string deviceId, int sleepSeconds);
+    void StopAppiumSession();
+    
     void RunTests();
 }

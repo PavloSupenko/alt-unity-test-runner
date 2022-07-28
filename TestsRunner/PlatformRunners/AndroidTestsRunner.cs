@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium.Appium;
+﻿using System.Diagnostics;
+using OpenQA.Selenium.Appium;
 using OpenQA.Selenium.Appium.Android;
 using OpenQA.Selenium.Appium.Enums;
 using Shared.Processes;
@@ -13,8 +14,10 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
     private readonly ProcessRunner processRunner = new();
     private ArgumentsReader<GeneralArguments> generalArgumentsReader;
     private ArgumentsReader<AndroidArguments> androidArgumentsReader;
+    private AndroidDriver<AndroidElement> driver;
+    private Process appiumServerProcess;
 
-    public AndroidDriver<AndroidElement> Driver { get; private set; }
+    public AndroidDriver<AndroidElement> Driver => driver;
 
     public void Initialize(ArgumentsReader<GeneralArguments> generalArgumentsReader, ArgumentsReader<AndroidArguments> platformArgumentsReader)
     {
@@ -39,11 +42,17 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
             javaHome: androidArgumentsReader[AndroidArguments.JavaHomePath],
             androidHome: androidArgumentsReader[AndroidArguments.AndroidHomePath]);
 
+    public void StopAppiumServer() => 
+        appiumServerProcess?.Kill();
+
     public void RunAppiumSession(string deviceId, int sleepSeconds) =>
         RunAppiumSession(
             apkPath: androidArgumentsReader[AndroidArguments.ApkPath],
             bundle: androidArgumentsReader[AndroidArguments.Bundle],
             sleepSecondsAfterLaunch: sleepSeconds);
+
+    public void StopAppiumSession() => 
+        driver?.Quit();
 
     public void RunTests() =>
         RunTests(
@@ -127,7 +136,7 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
         
         var arguments = $"--address 127.0.0.1 --port 4723 --base-path /wd/hub";
         Console.WriteLine($"Executing command: {process} {arguments}");
-        processRunner.StartProcess(process, arguments, variables);
+        appiumServerProcess = processRunner.StartProcess(process, arguments, variables);
         Thread.Sleep(TimeSpan.FromSeconds(5));
     }
 
@@ -142,9 +151,9 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
         // capabilities.AddAdditionalCapability(MobileCapabilityType.DeviceName, "Android Device");
         // capabilities.AddAdditionalCapability("appActivity", "com.instagram.android.activity.MainTabActivity");
 
-        Driver = new AndroidDriver<AndroidElement>(new Uri("http://127.0.0.1:4723/wd/hub"), capabilities);
-        Driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
-        Driver.LaunchApp();
+        driver = new AndroidDriver<AndroidElement>(new Uri("http://127.0.0.1:4723/wd/hub"), capabilities);
+        driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
+        driver.LaunchApp();
     }
 
     private void RunTests(string testsTreeFilePath, string consoleRunnerPath)

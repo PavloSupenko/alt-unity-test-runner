@@ -33,11 +33,21 @@ public class IosTestRunner : ITestsRunner<IosArguments, IOSDriver<IOSElement>>
     public void RunAppiumServer() =>
         RunAppiumServer(null, null);
 
+    public void StopAppiumServer()
+    {
+        throw new NotImplementedException();
+    }
+
     public void RunAppiumSession(string deviceId, int sleepSeconds) =>
         RunAppiumSession(
             ipaPath: iosArgumentsReader[IosArguments.IpaPath],
             deviceId: deviceId,
             sleepSeconds: 10);
+
+    public void StopAppiumSession()
+    {
+        throw new NotImplementedException();
+    }
 
     public void RunTests() =>
         RunTests(testsTreeFilePath: generalArgumentsReader[GeneralArguments.TestsTree]);
