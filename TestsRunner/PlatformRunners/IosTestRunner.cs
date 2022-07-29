@@ -1,6 +1,9 @@
+using System.Diagnostics;
+using OpenQA.Selenium.Appium;
+using OpenQA.Selenium.Appium.Enums;
+using OpenQA.Selenium.Appium.iOS;
+using Shared.Processes;
 using TestsRunner.Arguments;
-using TestsRunner.Processes;
-using TestsTreeParser.Tree;
 
 
 namespace TestsRunner.PlatformRunners;
@@ -8,45 +11,50 @@ namespace TestsRunner.PlatformRunners;
 public class IosTestRunner : ITestsRunner<IosArguments>
 {
     private readonly ProcessRunner processRunner = new();
-    private ArgumentsReader<GeneralArguments> generalArgumentsReader;
     private ArgumentsReader<IosArguments> iosArgumentsReader;
+    private IOSDriver<IOSElement> driver;
+    private Process appiumServerProcess;
 
-    public void Initialize(ArgumentsReader<GeneralArguments> generalArgumentsReader, ArgumentsReader<IosArguments> platformArgumentsReader)
-    {
-        this.generalArgumentsReader = generalArgumentsReader;
-        this.iosArgumentsReader = platformArgumentsReader;
-    }
+    
+    public void Initialize(ArgumentsReader<IosArguments> platformArgumentsReader) => 
+        iosArgumentsReader = platformArgumentsReader;
 
-    public bool IsDeviceConnected(out string deviceId) =>
-        IsDeviceConnected(
-            deviceNumberString: generalArgumentsReader[GeneralArguments.RunOnDevice],
+    public bool IsDeviceConnected(string deviceNumber, out string deviceId) =>
+        GetConnectedDevice(
+            deviceNumberString: deviceNumber,
             deviceId: out deviceId);
 
-    public void ReinstallApplication(string deviceId) =>
-        ReinstallApplication(
-            ipaPath: iosArgumentsReader[IosArguments.IpaPath],
+    public void SetupPortForwarding(string deviceId, string tcpLocalPort, string tcpDevicePort)
+    {
+        var proxyPath = "iproxy";
+        var arguments = $"-u {deviceId} {tcpLocalPort}:{tcpDevicePort}";
+        Console.WriteLine($"Executing command: {proxyPath} {arguments}");
+        processRunner.StartProcess(proxyPath, arguments);
+        Thread.Sleep(TimeSpan.FromSeconds(2));
+    }
+
+    public void RunAppiumServer()
+    {
+        var process = "appium";
+        var arguments = $"--address 127.0.0.1 --port 4723 --base-path /wd/hub";
+        Console.WriteLine($"Executing command: {process} {arguments}");
+        processRunner.StartProcess(process, arguments);
+        Thread.Sleep(TimeSpan.FromSeconds(5));
+    }
+
+    public void StopAppiumServer() => 
+        appiumServerProcess?.Kill();
+
+    public void RunAppiumSession(string deviceId, string buildPath, int sleepSeconds) =>
+        RunAppiumSession(
+            ipaPath: buildPath,
             deviceId: deviceId,
-            bundle: iosArgumentsReader[IosArguments.Bundle]);
+            deviceName: iosArgumentsReader[IosArguments.DeviceName],
+            platformVersion: iosArgumentsReader[IosArguments.PlatformVersion],
+            teamId: iosArgumentsReader[IosArguments.TeamId],
+            signingId: iosArgumentsReader[IosArguments.SigningId]);
 
-    public void SetupPortForwarding(string deviceId) =>
-        SetupPortForwarding(
-            tcpPort: iosArgumentsReader[IosArguments.TcpPort],
-            deviceId: deviceId);
-
-    public void RunApplication(string deviceId, int sleepSeconds) =>
-        RunApplication(
-            bundle: iosArgumentsReader[IosArguments.Bundle],
-            deviceId: deviceId,
-            sleepSeconds: 10);
-
-    public void RunTests() =>
-        RunTests(
-            unityPath: generalArgumentsReader[GeneralArguments.UnityEditorPath],
-            projectPath: generalArgumentsReader[GeneralArguments.ProjectPath],
-            testsTreeFilePath: generalArgumentsReader[GeneralArguments.TestsTree],
-            pathToLogFile: generalArgumentsReader[GeneralArguments.LogFilePath]);
-
-    private bool IsDeviceConnected(string deviceNumberString, out string deviceId)
+    private bool GetConnectedDevice(string deviceNumberString, out string deviceId)
     {
         var xcrunPath = "xcrun";
         var arguments = $"xctrace list devices";
@@ -90,45 +98,27 @@ public class IosTestRunner : ITestsRunner<IosArguments>
         return true;
     }
 
-    private void ReinstallApplication(string ipaPath, string deviceId, string bundle)
+    private void RunAppiumSession(string ipaPath, string deviceId, string deviceName, string platformVersion, string teamId, string signingId)
     {
-        var deviceInstaller = "ideviceinstaller";
-
-        var uninstallArguments = $"-u {deviceId} -U {bundle}";
-        var installArguments = $"-u {deviceId} -i \"{ipaPath}\"";
-
-        Console.WriteLine($"Executing command: {deviceInstaller} {uninstallArguments}");
-        processRunner.PrintProcessOutput(processRunner.StartProcess(deviceInstaller, uninstallArguments));
-
-        Console.WriteLine($"Executing command: {deviceInstaller} {installArguments}");
-        processRunner.PrintProcessOutput(processRunner.StartProcess(deviceInstaller, installArguments));
+        AppiumOptions capabilities = new AppiumOptions();
+        
+        // Disable timeout session disabling
+        capabilities.AddAdditionalCapability(MobileCapabilityType.NewCommandTimeout, 0);
+        
+        capabilities.AddAdditionalCapability(MobileCapabilityType.PlatformName, "iOS");
+        capabilities.AddAdditionalCapability(MobileCapabilityType.App, ipaPath);
+        capabilities.AddAdditionalCapability(MobileCapabilityType.AutomationName, "XCUITest");
+        capabilities.AddAdditionalCapability(MobileCapabilityType.DeviceName, deviceName);
+        capabilities.AddAdditionalCapability(MobileCapabilityType.PlatformVersion, platformVersion);
+        capabilities.AddAdditionalCapability(MobileCapabilityType.Udid, deviceId);
+        capabilities.AddAdditionalCapability("appium:xcodeOrgId", teamId);
+        capabilities.AddAdditionalCapability("appium:xcodeSigningId", signingId);
+        capabilities.AddAdditionalCapability("appium:showXcodeLog", true);
+        
+        driver = new IOSDriver<IOSElement>(new Uri("http://127.0.0.1:4723/wd/hub"), capabilities);
+        driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
     }
 
-    private void SetupPortForwarding(string tcpPort, string deviceId)
-    {
-        var proxyPath = "iproxy";
-        var arguments = $"-u {deviceId} {tcpPort}:{tcpPort}";
-        Console.WriteLine($"Executing command: {proxyPath} {arguments}");
-        processRunner.PrintProcessOutput(processRunner.StartProcess(proxyPath, arguments));
-    }
-
-    private void RunApplication(string bundle, string deviceId, int sleepSeconds)
-    {
-        var arguments = $"-s {deviceId} shell am start -n {bundle}/com.unity3d.player.UnityPlayerActivity";
-        Console.WriteLine($"Executing command: {adbPath} {arguments}");
-        processRunner.PrintProcessOutput(processRunner.StartProcess(adbPath, arguments));
-        Thread.Sleep(TimeSpan.FromSeconds(sleepSeconds));
-    }
-
-    private void RunTests(string unityPath, string projectPath, string testsTreeFilePath, string pathToLogFile)
-    {
-        var testsTree = TestsTree.DeserializeTree(testsTreeFilePath);
-        var testsList = testsTree.GetTestsInvocationList();
-
-        var arguments = $"-projectPath \"{projectPath}\" -executeMethod Editor.AltUnity.AltUnityTestRunnerCustom.RunTestFromCommandLine " +
-                        $"-tests {string.Join(" ", testsList)} -logFile \"{pathToLogFile}\" -batchmode -quit";
-
-        Console.WriteLine($"Executing command: {unityPath} {arguments}");
-        processRunner.PrintProcessOutput(processRunner.StartProcess(unityPath, arguments));
-    }
+    public void StopAppiumSession() => 
+        driver?.Quit();
 }

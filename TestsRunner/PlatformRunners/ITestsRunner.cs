@@ -5,10 +5,14 @@ namespace TestsRunner.PlatformRunners;
 
 public interface ITestsRunner<TArgsEnum> where TArgsEnum : Enum
 {
-    void Initialize(ArgumentsReader<GeneralArguments> generalArguments, ArgumentsReader<TArgsEnum> platformArguments);
-    bool IsDeviceConnected(out string deviceId);
-    void ReinstallApplication(string deviceId);
-    void SetupPortForwarding(string deviceId);
-    void RunApplication(string deviceId, int sleepSeconds);
-    void RunTests();
+    void Initialize(ArgumentsReader<TArgsEnum> platformArguments);
+    
+    bool IsDeviceConnected(string deviceNumber, out string deviceId);
+    void SetupPortForwarding(string deviceId, string tcpLocalPort, string tcpDevicePort);
+    
+    void RunAppiumServer();
+    void StopAppiumServer();
+    
+    void RunAppiumSession(string deviceId, string buildPath, int sleepSeconds);
+    void StopAppiumSession();
 }

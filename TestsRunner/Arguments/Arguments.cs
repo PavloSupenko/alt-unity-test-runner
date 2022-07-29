@@ -3,29 +3,38 @@
 public enum GeneralArguments
 {
     Platform,
-    UnityEditorPath,
-    ProjectPath,
     TestsTree,
-    SkipInstall,
-    LogFilePath,
-    SkipPortForward,
-    SkipRun,
-    SkipTests,
     RunOnDevice,
+    BuildPath,
+    
+    LocalPort,
+    DevicePort,
+    
+    NUnitConsoleApplicationPath,
+    NUnitTestsAssemblyPath,
+    TestSystemOutputLogFilePath,
+    
+    SkipPortForward,
+    SkipServerRun,
+    SkipSessionRun,
+    SkipTests,
+    
     Help,
+    Defaults,
 }
 
 public enum AndroidArguments
 {
     AndroidDebugBridgePath,
-    TcpPort,
-    ApkPath,
+    AndroidHomePath,
+    JavaHomePath,
     Bundle
 }
 
 public enum IosArguments
 {
-    TcpPort,
-    IpaPath,
-    Bundle
+    DeviceName,
+    PlatformVersion,
+    TeamId,
+    SigningId,
 }

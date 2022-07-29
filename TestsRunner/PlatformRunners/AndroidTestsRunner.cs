@@ -1,6 +1,9 @@
-﻿using TestsRunner.Arguments;
-using TestsRunner.Processes;
-using TestsTreeParser.Tree;
+﻿using System.Diagnostics;
+using OpenQA.Selenium.Appium;
+using OpenQA.Selenium.Appium.Android;
+using OpenQA.Selenium.Appium.Enums;
+using Shared.Processes;
+using TestsRunner.Arguments;
 
 
 namespace TestsRunner.PlatformRunners;
@@ -8,46 +11,44 @@ namespace TestsRunner.PlatformRunners;
 public class AndroidTestsRunner : ITestsRunner<AndroidArguments>
 {
     private readonly ProcessRunner processRunner = new();
-    private ArgumentsReader<GeneralArguments> generalArgumentsReader;
     private ArgumentsReader<AndroidArguments> androidArgumentsReader;
+    private AndroidDriver<AndroidElement> driver;
+    private Process appiumServerProcess;
+    
+    
+    public void Initialize(ArgumentsReader<AndroidArguments> platformArgumentsReader) => 
+        androidArgumentsReader = platformArgumentsReader;
 
-    public void Initialize(ArgumentsReader<GeneralArguments> generalArgumentsReader, ArgumentsReader<AndroidArguments> platformArgumentsReader)
-    {
-        this.generalArgumentsReader = generalArgumentsReader;
-        this.androidArgumentsReader = platformArgumentsReader;
-    }
-
-    public bool IsDeviceConnected(out string deviceId) =>
+    public bool IsDeviceConnected(string deviceNumber, out string deviceId) =>
         IsDeviceConnected(
             adbPath: androidArgumentsReader[AndroidArguments.AndroidDebugBridgePath],
-            deviceNumberString: generalArgumentsReader[GeneralArguments.RunOnDevice],
+            deviceNumberString: deviceNumber,
             deviceId: out deviceId);
 
-    public void ReinstallApplication(string deviceId) =>
-        ReinstallApplication(
-            adbPath: androidArgumentsReader[AndroidArguments.AndroidDebugBridgePath],
-            apkPath: androidArgumentsReader[AndroidArguments.ApkPath],
-            deviceId: deviceId);
-
-    public void SetupPortForwarding(string deviceId) =>
+    public void SetupPortForwarding(string deviceId, string tcpLocalPort, string tcpDevicePort) =>
         SetupPortForwarding(
             adbPath: androidArgumentsReader[AndroidArguments.AndroidDebugBridgePath],
-            tcpPort: androidArgumentsReader[AndroidArguments.TcpPort],
+            tcpLocalPort: tcpLocalPort,
+            tcpDevicePort: tcpDevicePort,
             deviceId: deviceId);
 
-    public void RunApplication(string deviceId, int sleepSeconds) =>
-        RunApplication(
-            adbPath: androidArgumentsReader[AndroidArguments.AndroidDebugBridgePath],
-            bundle: androidArgumentsReader[AndroidArguments.Bundle],
-            deviceId: deviceId,
-            sleepSeconds: sleepSeconds);
+    public void RunAppiumServer() =>
+        RunAppiumServer(
+            javaHome: androidArgumentsReader[AndroidArguments.JavaHomePath],
+            androidHome: androidArgumentsReader[AndroidArguments.AndroidHomePath]);
 
-    public void RunTests() =>
-        RunTests(
-            unityPath: generalArgumentsReader[GeneralArguments.UnityEditorPath],
-            projectPath: generalArgumentsReader[GeneralArguments.ProjectPath],
-            testsTreeFilePath: generalArgumentsReader[GeneralArguments.TestsTree],
-            pathToLogFile: generalArgumentsReader[GeneralArguments.LogFilePath]);
+    public void StopAppiumServer() => 
+        appiumServerProcess?.Kill();
+
+    public void RunAppiumSession(string deviceId, string buildPath, int sleepSeconds) =>
+        RunAppiumSession(
+            apkPath: buildPath,
+            bundle: androidArgumentsReader[AndroidArguments.Bundle],
+            sleepSecondsAfterLaunch: sleepSeconds,
+            deviceId: deviceId);
+
+    public void StopAppiumSession() => 
+        driver?.Quit();
 
     private bool IsDeviceConnected(string adbPath, string deviceNumberString, out string deviceId)
     {
@@ -87,17 +88,10 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments>
         return true;
     }
 
-    private void ReinstallApplication(string adbPath, string apkPath, string deviceId)
-    {
-        var arguments = $"-s {deviceId} install -r -g -d \"{apkPath}\"";
-        Console.WriteLine($"Executing command: {adbPath} {arguments}");
-        processRunner.PrintProcessOutput(processRunner.StartProcess(adbPath, arguments));
-    }
-
-    private void SetupPortForwarding(string adbPath, string tcpPort, string deviceId)
+    private void SetupPortForwarding(string adbPath, string tcpLocalPort, string tcpDevicePort, string deviceId)
     {
         ResetPortForwarding(adbPath, deviceId);
-        InstallPortForwarding(adbPath, tcpPort, deviceId);
+        InstallPortForwarding(adbPath, tcpLocalPort, tcpDevicePort, deviceId);
     }
 
     private void ResetPortForwarding(string adbPath, string deviceId)
@@ -107,30 +101,46 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments>
         processRunner.PrintProcessOutput(processRunner.StartProcess(adbPath, arguments));
     }
 
-    private void InstallPortForwarding(string adbPath, string tcpPort, string deviceId)
+    private void InstallPortForwarding(string adbPath, string tcpLocalPort, string tcpDevicePort, string deviceId)
     {
-        var arguments = $"-s {deviceId} forward tcp:{tcpPort} tcp:{tcpPort}";
+        var arguments = $"-s {deviceId} forward tcp:{tcpLocalPort} tcp:{tcpDevicePort}";
         Console.WriteLine($"Executing command: {adbPath} {arguments}");
         processRunner.PrintProcessOutput(processRunner.StartProcess(adbPath, arguments));
     }
 
-    private void RunApplication(string adbPath, string bundle, string deviceId, int sleepSeconds)
+    private void RunAppiumSession(string apkPath, string bundle, string deviceId, int sleepSecondsAfterLaunch)
     {
-        var arguments = $"-s {deviceId} shell am start -n {bundle}/com.unity3d.player.UnityPlayerActivity";
-        Console.WriteLine($"Executing command: {adbPath} {arguments}");
-        processRunner.PrintProcessOutput(processRunner.StartProcess(adbPath, arguments));
-        Thread.Sleep(TimeSpan.FromSeconds(sleepSeconds));
+        InitializeAppiumDriver(apkPath, bundle, deviceId);
+        Thread.Sleep(TimeSpan.FromSeconds(sleepSecondsAfterLaunch));
     }
 
-    private void RunTests(string unityPath, string projectPath, string testsTreeFilePath, string pathToLogFile)
+    private void RunAppiumServer(string javaHome, string androidHome)
     {
-        var testsTree = TestsTree.DeserializeTree(testsTreeFilePath);
-        var testsList = testsTree.GetTestsInvocationList();
+        var process = "appium";
+        var variables = new Dictionary<string, string>()
+        {
+            ["JAVA_HOME"] = javaHome,
+            ["ANDROID_HOME"] = androidHome,
+        };
+        
+        var arguments = $"--address 127.0.0.1 --port 4723 --base-path /wd/hub";
+        Console.WriteLine($"Executing command: {process} {arguments}");
+        appiumServerProcess = processRunner.StartProcess(process, arguments, variables);
+        Thread.Sleep(TimeSpan.FromSeconds(5));
+    }
 
-        var arguments = $"-projectPath \"{projectPath}\" -executeMethod Editor.AltUnity.AltUnityTestRunnerCustom.RunTestFromCommandLine " +
-                        $"-tests {string.Join(" ", testsList)} -logFile \"{pathToLogFile}\" -batchmode -quit";
-
-        Console.WriteLine($"Executing command: {unityPath} {arguments}");
-        processRunner.PrintProcessOutput(processRunner.StartProcess(unityPath, arguments));
+    private void InitializeAppiumDriver(string apkPath, string bundle, string deviceId)
+    {
+        AppiumOptions capabilities = new AppiumOptions();
+        
+        // Disable timeout session disabling
+        capabilities.AddAdditionalCapability(MobileCapabilityType.NewCommandTimeout, 0);
+        capabilities.AddAdditionalCapability(MobileCapabilityType.PlatformName, "Android");
+        capabilities.AddAdditionalCapability("appPackage", bundle);
+        capabilities.AddAdditionalCapability(MobileCapabilityType.App, apkPath);
+        capabilities.AddAdditionalCapability(MobileCapabilityType.Udid, deviceId);
+        
+        driver = new AndroidDriver<AndroidElement>(new Uri("http://127.0.0.1:4723/wd/hub"), capabilities);
+        driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
     }
 }
