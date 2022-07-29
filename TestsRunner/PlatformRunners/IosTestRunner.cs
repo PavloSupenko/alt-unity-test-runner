@@ -15,6 +15,7 @@ public class IosTestRunner : ITestsRunner<IosArguments>
     private IOSDriver<IOSElement> driver;
     private Process appiumServerProcess;
 
+    
     public void Initialize(ArgumentsReader<IosArguments> platformArgumentsReader) => 
         iosArgumentsReader = platformArgumentsReader;
 
@@ -28,7 +29,8 @@ public class IosTestRunner : ITestsRunner<IosArguments>
         var proxyPath = "iproxy";
         var arguments = $"-u {deviceId} {tcpLocalPort}:{tcpDevicePort}";
         Console.WriteLine($"Executing command: {proxyPath} {arguments}");
-        processRunner.PrintProcessOutput(processRunner.StartProcess(proxyPath, arguments));
+        processRunner.StartProcess(proxyPath, arguments);
+        Thread.Sleep(TimeSpan.FromSeconds(2));
     }
 
     public void RunAppiumServer()

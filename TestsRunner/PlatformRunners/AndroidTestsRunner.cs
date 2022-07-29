@@ -14,7 +14,8 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments>
     private ArgumentsReader<AndroidArguments> androidArgumentsReader;
     private AndroidDriver<AndroidElement> driver;
     private Process appiumServerProcess;
-
+    
+    
     public void Initialize(ArgumentsReader<AndroidArguments> platformArgumentsReader) => 
         androidArgumentsReader = platformArgumentsReader;
 
