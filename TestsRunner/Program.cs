@@ -1,6 +1,4 @@
 ﻿using System.Text;
-using OpenQA.Selenium.Appium.Android;
-using OpenQA.Selenium.Appium.iOS;
 using Shared.Processes;
 using TestsRunner.Arguments;
 using TestsRunner.PlatformRunners;
@@ -107,7 +105,8 @@ class Program
             RunTests(
                 testsTreeFilePath: generalArgumentsReader[GeneralArguments.TestsTree],
                 consoleRunnerPath: generalArgumentsReader[GeneralArguments.NUnitConsoleApplicationPath],
-                systemLog: generalArgumentsReader[GeneralArguments.TestSystemOutputLogFilePath]);
+                systemLog: generalArgumentsReader[GeneralArguments.TestSystemOutputLogFilePath], 
+                testAssembly: generalArgumentsReader[GeneralArguments.NUnitTestsAssemblyPath]);
         }
     }
 
@@ -137,7 +136,8 @@ class Program
         }
     }
 
-    private static void RunTests(string testsTreeFilePath, string consoleRunnerPath, string systemLog)
+    private static void RunTests(string testsTreeFilePath, string consoleRunnerPath, 
+        string systemLog, string testAssembly)
     {
         ProcessRunner processRunner = new ProcessRunner();
         TestsTree testsTree = TestsTree.DeserializeTree(testsTreeFilePath);
@@ -154,7 +154,7 @@ class Program
         foreach (var testName in testsList)
         {
             Console.WriteLine($"Executing test: {testName}");
-            var arguments = $"--test={testName} --teamcity TestsClient.dll";
+            var arguments = $"--test={testName} --teamcity {testAssembly}";
             var systemOutput = processRunner
                 .GetProcessOutput(processRunner.StartProcess(consoleRunnerPath, arguments))
                 .ToList();
