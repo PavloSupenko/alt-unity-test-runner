@@ -8,23 +8,19 @@ using TestsRunner.Arguments;
 
 namespace TestsRunner.PlatformRunners;
 
-public class IosTestRunner : ITestsRunner<IosArguments, IOSDriver<IOSElement>>
+public class IosTestRunner : ITestsRunner<IosArguments>
 {
     private readonly ProcessRunner processRunner = new();
-    private ArgumentsReader<GeneralArguments> generalArgumentsReader;
     private ArgumentsReader<IosArguments> iosArgumentsReader;
     private IOSDriver<IOSElement> driver;
     private Process appiumServerProcess;
 
-    public void Initialize(ArgumentsReader<GeneralArguments> generalArgumentsReader, ArgumentsReader<IosArguments> platformArgumentsReader)
-    {
-        this.generalArgumentsReader = generalArgumentsReader;
-        this.iosArgumentsReader = platformArgumentsReader;
-    }
+    public void Initialize(ArgumentsReader<IosArguments> platformArgumentsReader) => 
+        iosArgumentsReader = platformArgumentsReader;
 
-    public bool IsDeviceConnected(out string deviceId) =>
-        IsDeviceConnected(
-            deviceNumberString: generalArgumentsReader[GeneralArguments.RunOnDevice],
+    public bool IsDeviceConnected(string deviceNumber, out string deviceId) =>
+        GetConnectedDevice(
+            deviceNumberString: deviceNumber,
             deviceId: out deviceId);
 
     public void SetupPortForwarding(string deviceId, string tcpLocalPort, string tcpDevicePort)
@@ -47,21 +43,16 @@ public class IosTestRunner : ITestsRunner<IosArguments, IOSDriver<IOSElement>>
     public void StopAppiumServer() => 
         appiumServerProcess?.Kill();
 
-    public void RunAppiumSession(string deviceId, int sleepSeconds) =>
+    public void RunAppiumSession(string deviceId, string buildPath, int sleepSeconds) =>
         RunAppiumSession(
-            ipaPath: iosArgumentsReader[IosArguments.IpaPath],
+            ipaPath: buildPath,
             deviceId: deviceId,
             deviceName: iosArgumentsReader[IosArguments.DeviceName],
             platformVersion: iosArgumentsReader[IosArguments.PlatformVersion],
             teamId: iosArgumentsReader[IosArguments.TeamId],
             signingId: iosArgumentsReader[IosArguments.SigningId]);
 
-    public void StopAppiumSession()
-    {
-        throw new NotImplementedException();
-    }
-
-    private bool IsDeviceConnected(string deviceNumberString, out string deviceId)
+    private bool GetConnectedDevice(string deviceNumberString, out string deviceId)
     {
         var xcrunPath = "xcrun";
         var arguments = $"xctrace list devices";
@@ -125,4 +116,7 @@ public class IosTestRunner : ITestsRunner<IosArguments, IOSDriver<IOSElement>>
         driver = new IOSDriver<IOSElement>(new Uri("http://127.0.0.1:4723/wd/hub"), capabilities);
         driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
     }
+
+    public void StopAppiumSession() => 
+        driver?.Quit();
 }

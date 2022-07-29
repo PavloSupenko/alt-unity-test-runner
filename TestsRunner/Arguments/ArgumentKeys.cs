@@ -5,10 +5,12 @@ static class ArgumentKeys
     public static readonly Dictionary<string, GeneralArguments> GeneralKeys = new()
     {
         ["--platform"] = GeneralArguments.Platform,
+        ["--build"] = GeneralArguments.BuildPath,
 
         ["--tests"] = GeneralArguments.TestsTree,
         ["--run-on-device"] = GeneralArguments.RunOnDevice,
         ["--nunit-console"] = GeneralArguments.NUnitConsoleApplicationPath,
+        ["--nunit-assembly"] = GeneralArguments.NUnitTestsAssemblyPath,
         ["--log"] = GeneralArguments.TestSystemOutputLogFilePath,
         
         ["--port-local"] = GeneralArguments.LocalPort,
@@ -28,13 +30,11 @@ static class ArgumentKeys
         ["--adb"] = AndroidArguments.AndroidDebugBridgePath,
         ["--android-home"] = AndroidArguments.AndroidHomePath,
         ["--java-home"] = AndroidArguments.JavaHomePath,
-        ["--apk"] = AndroidArguments.ApkPath,
         ["--bundle"] = AndroidArguments.Bundle,
     };
 
     public static readonly Dictionary<string, IosArguments> IosKeys = new()
     {
-        ["--ipa"] = IosArguments.IpaPath,
         ["--device-name"] = IosArguments.DeviceName,
         ["--ios-version"] = IosArguments.PlatformVersion,
         ["--signing-id"] = IosArguments.SigningId,
@@ -67,13 +67,11 @@ static class ArgumentKeys
         [AndroidArguments.AndroidDebugBridgePath] = "D:\\Unity Editors\\2020.3.30f1\\Editor\\Data\\PlaybackEngines\\AndroidPlayer\\SDK\\platform-tools\\adb.exe",
         [AndroidArguments.AndroidHomePath] = "D:\\Unity Editors\\2020.3.30f1\\Editor\\Data\\PlaybackEngines\\AndroidPlayer\\SDK",
         [AndroidArguments.JavaHomePath] = "C:\\Program Files\\Java\\jre1.8.0_321",
-        [AndroidArguments.ApkPath] = "D:\\_prjGitHub\\bini-acad-drawing\\bini-acad-drawing\\artifacts\\AltUnit\\bini-acad-drawing.google.develop.apk",
         [AndroidArguments.Bundle] = "com.binibambini.acad.drawing",
     };
 
     public static readonly Dictionary<IosArguments, string> IosDefaults = new()
     {
-        [IosArguments.IpaPath] = "bini-acad-drawing.google.apple.ipa",
         [IosArguments.DeviceName] = "Pavlo’s iPhone",
         [IosArguments.PlatformVersion] = "14.2",
         [IosArguments.SigningId] = "Apple Development",
@@ -83,10 +81,12 @@ static class ArgumentKeys
     public static readonly Dictionary<GeneralArguments, string> GeneralDescriptions = new()
     {
         [GeneralArguments.Platform] = "test platform. Values [ios/android]",
+        [GeneralArguments.BuildPath] = "path to .apk for android / .ipa or .app for iOS. Value: string",
 
         [GeneralArguments.TestsTree] = "path to tests tree template json file. Value: string",
         [GeneralArguments.RunOnDevice] = "number of device to run tests on. Values: [1..n]",
         [GeneralArguments.NUnitConsoleApplicationPath] = "path to console application to run NUnitv3+ tests. Value: string",
+        [GeneralArguments.NUnitTestsAssemblyPath] = "path to console tests assembly. Value: string",
         
         [GeneralArguments.TestSystemOutputLogFilePath] = "file to save NUnit output logs. Value: string",
         
@@ -105,15 +105,16 @@ static class ArgumentKeys
 
     public static readonly Dictionary<AndroidArguments, string> AndroidDescriptions = new()
     {
-        [AndroidArguments.AndroidDebugBridgePath] = "adb path. Value: string",
         [AndroidArguments.AndroidHomePath] = "android SDK directory path. Value: string",
         [AndroidArguments.JavaHomePath] = "java home path. Value: string",
-        [AndroidArguments.ApkPath] = "apk path. Value: string",
         [AndroidArguments.Bundle] = "bundle. Value: string",
     };
 
     public static readonly Dictionary<IosArguments, string> IosDescriptions = new()
     {
-        [IosArguments.IpaPath] = "ipa path. Value: string",
+        [IosArguments.DeviceName] = "device name. Value: string",
+        [IosArguments.PlatformVersion] = "version of iOS. Value: string",
+        [IosArguments.SigningId] = "signing id. Value: string",
+        [IosArguments.TeamId] = "team id. Value: string",
     };
 }

@@ -8,24 +8,20 @@ using TestsRunner.Arguments;
 
 namespace TestsRunner.PlatformRunners;
 
-public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<AndroidElement>>
+public class AndroidTestsRunner : ITestsRunner<AndroidArguments>
 {
     private readonly ProcessRunner processRunner = new();
-    private ArgumentsReader<GeneralArguments> generalArgumentsReader;
     private ArgumentsReader<AndroidArguments> androidArgumentsReader;
     private AndroidDriver<AndroidElement> driver;
     private Process appiumServerProcess;
 
-    public void Initialize(ArgumentsReader<GeneralArguments> generalArgumentsReader, ArgumentsReader<AndroidArguments> platformArgumentsReader)
-    {
-        this.generalArgumentsReader = generalArgumentsReader;
-        this.androidArgumentsReader = platformArgumentsReader;
-    }
+    public void Initialize(ArgumentsReader<AndroidArguments> platformArgumentsReader) => 
+        androidArgumentsReader = platformArgumentsReader;
 
-    public bool IsDeviceConnected(out string deviceId) =>
+    public bool IsDeviceConnected(string deviceNumber, out string deviceId) =>
         IsDeviceConnected(
             adbPath: androidArgumentsReader[AndroidArguments.AndroidDebugBridgePath],
-            deviceNumberString: generalArgumentsReader[GeneralArguments.RunOnDevice],
+            deviceNumberString: deviceNumber,
             deviceId: out deviceId);
 
     public void SetupPortForwarding(string deviceId, string tcpLocalPort, string tcpDevicePort) =>
@@ -43,9 +39,9 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments, AndroidDriver<A
     public void StopAppiumServer() => 
         appiumServerProcess?.Kill();
 
-    public void RunAppiumSession(string deviceId, int sleepSeconds) =>
+    public void RunAppiumSession(string deviceId, string buildPath, int sleepSeconds) =>
         RunAppiumSession(
-            apkPath: androidArgumentsReader[AndroidArguments.ApkPath],
+            apkPath: buildPath,
             bundle: androidArgumentsReader[AndroidArguments.Bundle],
             sleepSecondsAfterLaunch: sleepSeconds,
             deviceId: deviceId);

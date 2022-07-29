@@ -10,8 +10,8 @@ namespace TestsRunner;
 
 class Program
 {
-    private static readonly ITestsRunner<AndroidArguments, AndroidDriver<AndroidElement>> AndroidTestsRunner = new AndroidTestsRunner();
-    private static readonly ITestsRunner<IosArguments, IOSDriver<IOSElement>> IosTestsRunner = new IosTestRunner();
+    private static readonly ITestsRunner<AndroidArguments> AndroidTestsRunner = new AndroidTestsRunner();
+    private static readonly ITestsRunner<IosArguments> IosTestsRunner = new IosTestRunner();
 
     private static void Main(string[] args)
     {
@@ -27,8 +27,8 @@ class Program
             new ArgumentsReader<IosArguments>(args, ArgumentKeys.IosKeys,
                 ArgumentKeys.IosDefaults, ArgumentKeys.IosDescriptions);
 
-        AndroidTestsRunner.Initialize(generalArgumentsReader, androidArgumentsReader);
-        IosTestsRunner.Initialize(generalArgumentsReader, iosArgumentsReader);
+        AndroidTestsRunner.Initialize(androidArgumentsReader);
+        IosTestsRunner.Initialize(iosArgumentsReader);
 
         if (generalArgumentsReader[GeneralArguments.Help].Equals("true"))
         {
@@ -75,15 +75,15 @@ class Program
         }
     }
 
-    private static void StopSession<TArgsEnum, TDriver>(ITestsRunner<TArgsEnum, TDriver> testRunner) where TArgsEnum : Enum
+    private static void StopSession<TArgsEnum>(ITestsRunner<TArgsEnum> testRunner) where TArgsEnum : Enum
     {
         testRunner.StopAppiumServer();
         testRunner.StopAppiumSession();
     }
 
-    private static void ExecuteTests<TArgsEnum, TDriver>(ITestsRunner<TArgsEnum, TDriver> testRunner, ArgumentsReader<GeneralArguments> generalArgumentsReader) where TArgsEnum : Enum
+    private static void ExecuteTests<TArgsEnum>(ITestsRunner<TArgsEnum> testRunner, ArgumentsReader<GeneralArguments> generalArgumentsReader) where TArgsEnum : Enum
     {
-        if (!testRunner.IsDeviceConnected(out var deviceId))
+        if (!testRunner.IsDeviceConnected(generalArgumentsReader[GeneralArguments.RunOnDevice], out var deviceId))
             return;
 
         if (generalArgumentsReader[GeneralArguments.SkipPortForward].Equals("false"))
@@ -96,7 +96,10 @@ class Program
             testRunner.RunAppiumServer();
 
         if (generalArgumentsReader[GeneralArguments.SkipSessionRun].Equals("false"))
-            testRunner.RunAppiumSession(deviceId: deviceId, sleepSeconds: 10);
+            testRunner.RunAppiumSession(
+                deviceId: deviceId, 
+                buildPath: generalArgumentsReader[GeneralArguments.BuildPath],
+                sleepSeconds: 10);
 
         if (generalArgumentsReader[GeneralArguments.SkipTests].Equals("false"))
         {
