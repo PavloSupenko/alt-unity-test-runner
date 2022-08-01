@@ -154,9 +154,10 @@ class Program
         foreach (var testName in testsList)
         {
             Console.WriteLine($"Executing test: {testName}");
-            var arguments = $"--test={testName} --teamcity {testAssembly}";
+            var process = "dotnet";
+            var arguments = $"{consoleRunnerPath} --test={testName} --teamcity {testAssembly}";
             var systemOutput = processRunner
-                .GetProcessOutput(processRunner.StartProcess(consoleRunnerPath, arguments))
+                .GetProcessOutput(processRunner.StartProcess(process, arguments))
                 .ToList();
 
             foreach (var outputLine in systemOutput) 
