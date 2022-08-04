@@ -13,6 +13,6 @@ public interface ITestsRunner<TArgsEnum> where TArgsEnum : Enum
     void RunAppiumServer();
     void StopAppiumServer();
     
-    void RunAppiumSession(string deviceId, string buildPath, int sleepSeconds);
+    void RunAppiumSession(string deviceId, string buildPath, string bundle, int sleepSeconds);
     void StopAppiumSession();
 }

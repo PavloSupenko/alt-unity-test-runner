@@ -96,6 +96,7 @@ class Program
         if (generalArgumentsReader[GeneralArguments.SkipSessionRun].Equals("false"))
             testRunner.RunAppiumSession(
                 deviceId: deviceId, 
+                bundle: generalArgumentsReader[GeneralArguments.Bundle],
                 buildPath: generalArgumentsReader[GeneralArguments.BuildPath],
                 sleepSeconds: 10);
 

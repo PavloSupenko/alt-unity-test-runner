@@ -45,10 +45,11 @@ public class IosTestRunner : ITestsRunner<IosArguments>
     public void StopAppiumServer() => 
         appiumServerProcess?.Kill();
 
-    public void RunAppiumSession(string deviceId, string buildPath, int sleepSeconds) =>
+    public void RunAppiumSession(string deviceId, string buildPath, string bundle, int sleepSeconds) =>
         RunAppiumSession(
             ipaPath: buildPath,
             deviceId: deviceId,
+            bundle: bundle,
             deviceName: iosArgumentsReader[IosArguments.DeviceName],
             platformVersion: iosArgumentsReader[IosArguments.PlatformVersion],
             teamId: iosArgumentsReader[IosArguments.TeamId],
@@ -98,7 +99,7 @@ public class IosTestRunner : ITestsRunner<IosArguments>
         return true;
     }
 
-    private void RunAppiumSession(string ipaPath, string deviceId, string deviceName, string platformVersion, string teamId, string signingId)
+    private void RunAppiumSession(string ipaPath, string bundle, string deviceId, string deviceName, string platformVersion, string teamId, string signingId)
     {
         AppiumOptions capabilities = new AppiumOptions();
         
@@ -111,6 +112,7 @@ public class IosTestRunner : ITestsRunner<IosArguments>
         capabilities.AddAdditionalCapability(MobileCapabilityType.DeviceName, deviceName);
         capabilities.AddAdditionalCapability(MobileCapabilityType.PlatformVersion, platformVersion);
         capabilities.AddAdditionalCapability(MobileCapabilityType.Udid, deviceId);
+        capabilities.AddAdditionalCapability(IOSMobileCapabilityType.BundleId, bundle);
         capabilities.AddAdditionalCapability("appium:xcodeOrgId", teamId);
         capabilities.AddAdditionalCapability("appium:xcodeSigningId", signingId);
         capabilities.AddAdditionalCapability("appium:showXcodeLog", true);

@@ -40,12 +40,11 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments>
     public void StopAppiumServer() => 
         appiumServerProcess?.Kill();
 
-    public void RunAppiumSession(string deviceId, string buildPath, int sleepSeconds) =>
-        RunAppiumSession(
-            apkPath: buildPath,
-            bundle: androidArgumentsReader[AndroidArguments.Bundle],
-            sleepSecondsAfterLaunch: sleepSeconds,
-            deviceId: deviceId);
+    public void RunAppiumSession(string deviceId, string buildPath, string bundle, int sleepSeconds)
+    {
+        InitializeAppiumDriver(buildPath, bundle, deviceId);
+        Thread.Sleep(TimeSpan.FromSeconds(sleepSeconds));
+    }
 
     public void StopAppiumSession() => 
         driver?.Quit();
@@ -106,12 +105,6 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments>
         var arguments = $"-s {deviceId} forward tcp:{tcpLocalPort} tcp:{tcpDevicePort}";
         Console.WriteLine($"Executing command: {adbPath} {arguments}");
         processRunner.PrintProcessOutput(processRunner.StartProcess(adbPath, arguments));
-    }
-
-    private void RunAppiumSession(string apkPath, string bundle, string deviceId, int sleepSecondsAfterLaunch)
-    {
-        InitializeAppiumDriver(apkPath, bundle, deviceId);
-        Thread.Sleep(TimeSpan.FromSeconds(sleepSecondsAfterLaunch));
     }
 
     private void RunAppiumServer(string javaHome, string androidHome)

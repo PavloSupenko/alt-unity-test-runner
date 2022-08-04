@@ -6,6 +6,7 @@ public enum GeneralArguments
     TestsTree,
     RunOnDevice,
     BuildPath,
+    Bundle,
     
     LocalPort,
     DevicePort,
@@ -28,7 +29,6 @@ public enum AndroidArguments
     AndroidDebugBridgePath,
     AndroidHomePath,
     JavaHomePath,
-    Bundle
 }
 
 public enum IosArguments

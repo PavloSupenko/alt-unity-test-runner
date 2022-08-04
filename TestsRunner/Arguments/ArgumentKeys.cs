@@ -6,6 +6,8 @@ static class ArgumentKeys
     {
         ["--platform"] = GeneralArguments.Platform,
         ["--build"] = GeneralArguments.BuildPath,
+        
+        ["--bundle"] = GeneralArguments.Bundle,
 
         ["--tests"] = GeneralArguments.TestsTree,
         ["--run-on-device"] = GeneralArguments.RunOnDevice,
@@ -30,7 +32,6 @@ static class ArgumentKeys
         ["--adb"] = AndroidArguments.AndroidDebugBridgePath,
         ["--android-home"] = AndroidArguments.AndroidHomePath,
         ["--java-home"] = AndroidArguments.JavaHomePath,
-        ["--bundle"] = AndroidArguments.Bundle,
     };
 
     public static readonly Dictionary<string, IosArguments> IosKeys = new()
@@ -50,6 +51,8 @@ static class ArgumentKeys
         [GeneralArguments.NUnitConsoleApplicationPath] = "none",
         [GeneralArguments.TestSystemOutputLogFilePath] = "tests-log.log",
         
+        [GeneralArguments.Bundle] = "com.binibambini.acad.drawing",
+        
         [GeneralArguments.LocalPort] = "13000",
         [GeneralArguments.DevicePort] = "13000",
 
@@ -67,9 +70,9 @@ static class ArgumentKeys
         [AndroidArguments.AndroidDebugBridgePath] = "D:\\Unity Editors\\2020.3.30f1\\Editor\\Data\\PlaybackEngines\\AndroidPlayer\\SDK\\platform-tools\\adb.exe",
         [AndroidArguments.AndroidHomePath] = "D:\\Unity Editors\\2020.3.30f1\\Editor\\Data\\PlaybackEngines\\AndroidPlayer\\SDK",
         [AndroidArguments.JavaHomePath] = "C:\\Program Files\\Java\\jre1.8.0_321",
-        [AndroidArguments.Bundle] = "com.binibambini.acad.drawing",
     };
 
+    // todo: Get device name and iOS version from device udid
     public static readonly Dictionary<IosArguments, string> IosDefaults = new()
     {
         [IosArguments.DeviceName] = "Pavlo’s iPhone",
@@ -87,6 +90,8 @@ static class ArgumentKeys
         [GeneralArguments.RunOnDevice] = "number of device to run tests on. Values: [1..n]",
         [GeneralArguments.NUnitConsoleApplicationPath] = "path to console application to run NUnitv3+ tests. Value: string",
         [GeneralArguments.NUnitTestsAssemblyPath] = "path to console tests assembly. Value: string",
+        
+        [GeneralArguments.Bundle] = "application bundle. Value: string",
         
         [GeneralArguments.TestSystemOutputLogFilePath] = "file to save NUnit output logs. Value: string",
         
@@ -107,7 +112,7 @@ static class ArgumentKeys
     {
         [AndroidArguments.AndroidHomePath] = "android SDK directory path. Value: string",
         [AndroidArguments.JavaHomePath] = "java home path. Value: string",
-        [AndroidArguments.Bundle] = "bundle. Value: string",
+        [AndroidArguments.AndroidDebugBridgePath] = "adb path. Value: string",
     };
 
     public static readonly Dictionary<IosArguments, string> IosDescriptions = new()
