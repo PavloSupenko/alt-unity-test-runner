@@ -117,7 +117,7 @@ public class IosTestRunner : ITestsRunner<IosArguments>
         capabilities.AddAdditionalCapability("appium:xcodeSigningId", signingId);
         capabilities.AddAdditionalCapability("appium:showXcodeLog", true);
         
-        driver = new IOSDriver<IOSElement>(new Uri("http://127.0.0.1:4723/wd/hub"), capabilities);
+        driver = new IOSDriver<IOSElement>(new Uri("http://127.0.0.1:4723/wd/hub"), capabilities, TimeSpan.FromMinutes(5));
         driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
     }
 

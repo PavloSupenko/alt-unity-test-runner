@@ -133,7 +133,7 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments>
         capabilities.AddAdditionalCapability(MobileCapabilityType.App, apkPath);
         capabilities.AddAdditionalCapability(MobileCapabilityType.Udid, deviceId);
         
-        driver = new AndroidDriver<AndroidElement>(new Uri("http://127.0.0.1:4723/wd/hub"), capabilities);
+        driver = new AndroidDriver<AndroidElement>(new Uri("http://127.0.0.1:4723/wd/hub"), capabilities, TimeSpan.FromMinutes(5));
         driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
     }
 }
