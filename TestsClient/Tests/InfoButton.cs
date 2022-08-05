@@ -10,13 +10,13 @@ public class InfoButton : TestBase
     [Test]
     public override void Enter()
     {
-        var infoButtonObject = altUnityDriver.FindObject(By.NAME, "Info");
+        var infoButtonObject = AltUnityDriver.FindObject(By.NAME, "Info");
         Thread.Sleep(2000);
 
-        altUnityDriver.Tap(infoButtonObject.getScreenPosition());
+        AltUnityDriver.Tap(infoButtonObject.getScreenPosition());
         SaveScreenshot("Click to open");
 
-        var infoPanel = altUnityDriver.WaitForObject(By.NAME, "InfoMenu(Clone)");
+        var infoPanel = AltUnityDriver.WaitForObject(By.NAME, "InfoMenu(Clone)");
         Thread.Sleep(2000);
         SaveScreenshot("Opened menu");
         Assert.IsNotNull(infoPanel);
@@ -25,12 +25,12 @@ public class InfoButton : TestBase
     [Test]
     public override void Exit()
     {
-        var exitButtonObject = altUnityDriver.FindObject(By.NAME, "ExitButton");
+        var exitButtonObject = AltUnityDriver.FindObject(By.NAME, "ExitButton");
 
-        altUnityDriver.Tap(exitButtonObject.getScreenPosition());
+        AltUnityDriver.Tap(exitButtonObject.getScreenPosition());
         SaveScreenshot("Click to close");
 
-        altUnityDriver.WaitForObjectNotBePresent(By.NAME, "InfoMenu(Clone)");
+        AltUnityDriver.WaitForObjectNotBePresent(By.NAME, "InfoMenu(Clone)");
         SaveScreenshot("Closed menu");
         Assert.Pass();
     }

@@ -21,10 +21,10 @@ public class LanguageButton : TestBase
 
     private void TapOnLanguageButton(string action, string result)
     {
-        var languageButton = altUnityDriver.FindObject(By.NAME, "LangButton");
+        var languageButton = AltUnityDriver.FindObject(By.NAME, "LangButton");
         Thread.Sleep(2000);
 
-        altUnityDriver.Tap(languageButton.getScreenPosition());
+        AltUnityDriver.Tap(languageButton.getScreenPosition());
         SaveScreenshot(action);
 
         Thread.Sleep(2000);

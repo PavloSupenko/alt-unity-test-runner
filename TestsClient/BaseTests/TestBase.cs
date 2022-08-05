@@ -1,24 +1,27 @@
 ﻿using System.IO;
 using Altom.AltUnityDriver;
 using NUnit.Framework;
+using OpenQA.Selenium.Remote;
 
 
 namespace TestsClient;
 
 public abstract class TestBase
 {
-    public AltUnityDriver altUnityDriver;
+    protected AltUnityDriver AltUnityDriver;
+    public RemoteWebDriver AppiumDriver;
 
     [OneTimeSetUp]
     public void SetUp()
     {
-        altUnityDriver = new AltUnityDriver();
+        AltUnityDriver = new AltUnityDriver();
+        //AppiumDriver = 
     }
 
     [OneTimeTearDown]
     public void TearDown()
     {
-        altUnityDriver.Stop();
+        AltUnityDriver.Stop();
     }
 
     public abstract void Enter();

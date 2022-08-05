@@ -13,7 +13,7 @@ public class SceneLoading : TestBase
     [Test]
     public override void Enter()
     {
-        altUnityDriver.WaitForCurrentSceneToBe(SceneName, WaitingTime.TotalSeconds);
+        AltUnityDriver.WaitForCurrentSceneToBe(SceneName, WaitingTime.TotalSeconds);
         Thread.Sleep(2000);
         SaveScreenshot(SceneName);
     }
