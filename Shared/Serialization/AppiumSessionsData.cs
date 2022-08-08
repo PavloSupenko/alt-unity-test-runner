@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 
-namespace TestsClient.Serialization;
+namespace Shared.Serialization;
 
 [Serializable]
 public class AppiumSessionsListData

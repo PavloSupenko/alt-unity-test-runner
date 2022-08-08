@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using Altom.AltUnityDriver;
 using NUnit.Framework;
-using OpenQA.Selenium.Remote;
+using TestsClient.Drivers;
 
 
 namespace TestsClient;
@@ -9,13 +9,13 @@ namespace TestsClient;
 public abstract class TestBase
 {
     protected AltUnityDriver AltUnityDriver;
-    public RemoteWebDriver AppiumDriver;
+    protected AppiumDriver AppiumDriver;
 
     [OneTimeSetUp]
     public void SetUp()
     {
         AltUnityDriver = new AltUnityDriver();
-        //AppiumDriver = 
+        AppiumDriver = new AppiumDriver();
     }
 
     [OneTimeTearDown]
@@ -27,22 +27,22 @@ public abstract class TestBase
     public abstract void Enter();
     public abstract void Exit();
 
-    // todo: GetPNGScreenshot break test down by casting exceptions at runtime sometimes with no logic to understand.
-    // todo: Suggest to save screenshots from appium driver
-    protected void SaveScreenshot(string testName, string actionName)
-    {
-        // var screenshotPath = Path.Combine("..", "..", "artifacts", "Tests", "Screenshots", testName);
-        // var screenshotName = actionName + ".png";
-        //
-        // if (!Directory.Exists(screenshotPath))
-        //     Directory.CreateDirectory(screenshotPath);
-        //
-        // altUnityDriver.GetPNGScreenshot(Path.Combine(screenshotPath, screenshotName));
-    }
-
     protected void SaveScreenshot(string actionName)
     {
-        // var testName = GetType().Name;
-        // SaveScreenshot(testName, actionName);
+        var testName = GetType().Name;
+        SaveScreenshot(testName, actionName);
     }
+
+    private void SaveScreenshot(string testName, string actionName)
+    {
+        var screenshotPath = Path.Combine("..", "..", "artifacts", "Tests", "Screenshots", testName);
+        var screenshotName = actionName + ".png";
+        
+        if (!Directory.Exists(screenshotPath))
+            Directory.CreateDirectory(screenshotPath);
+        
+        AltUnityDriver.GetPNGScreenshot(Path.Combine(screenshotPath, screenshotName));
+    }
+    
+    
 }

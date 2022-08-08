@@ -45,7 +45,7 @@ public class IosTestRunner : ITestsRunner<IosArguments>
     public void StopAppiumServer() => 
         appiumServerProcess?.Kill();
 
-    public void RunAppiumSession(string deviceId, string buildPath, string bundle, int sleepSeconds) =>
+    public void RunAppiumSession(string deviceId, string deviceNumber, string buildPath, string bundle, int sleepSeconds) =>
         RunAppiumSession(
             ipaPath: buildPath,
             deviceId: deviceId,
@@ -53,7 +53,8 @@ public class IosTestRunner : ITestsRunner<IosArguments>
             deviceName: iosArgumentsReader[IosArguments.DeviceName],
             platformVersion: iosArgumentsReader[IosArguments.PlatformVersion],
             teamId: iosArgumentsReader[IosArguments.TeamId],
-            signingId: iosArgumentsReader[IosArguments.SigningId]);
+            signingId: iosArgumentsReader[IosArguments.SigningId],
+            deviceNumber: deviceNumber);
 
     private bool GetConnectedDevice(string deviceNumberString, out string deviceId)
     {
@@ -99,7 +100,8 @@ public class IosTestRunner : ITestsRunner<IosArguments>
         return true;
     }
 
-    private void RunAppiumSession(string ipaPath, string bundle, string deviceId, string deviceName, string platformVersion, string teamId, string signingId)
+    private void RunAppiumSession(string ipaPath, string bundle, string deviceId, string deviceNumber, string deviceName, 
+        string platformVersion, string teamId, string signingId)
     {
         AppiumOptions capabilities = new AppiumOptions();
         
@@ -116,6 +118,7 @@ public class IosTestRunner : ITestsRunner<IosArguments>
         capabilities.AddAdditionalCapability("appium:xcodeOrgId", teamId);
         capabilities.AddAdditionalCapability("appium:xcodeSigningId", signingId);
         capabilities.AddAdditionalCapability("appium:showXcodeLog", true);
+        capabilities.AddAdditionalCapability(CustomCapabilityType.TargetDeviceNumber, deviceNumber);
         
         driver = new IOSDriver<IOSElement>(new Uri("http://127.0.0.1:4723/wd/hub"), capabilities, TimeSpan.FromMinutes(5));
         driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);

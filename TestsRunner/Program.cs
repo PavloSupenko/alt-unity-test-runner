@@ -98,6 +98,7 @@ class Program
                 deviceId: deviceId, 
                 bundle: generalArgumentsReader[GeneralArguments.Bundle],
                 buildPath: generalArgumentsReader[GeneralArguments.BuildPath],
+                deviceNumber: generalArgumentsReader[GeneralArguments.RunOnDevice],
                 sleepSeconds: 10);
 
         if (generalArgumentsReader[GeneralArguments.SkipTests].Equals("false"))
