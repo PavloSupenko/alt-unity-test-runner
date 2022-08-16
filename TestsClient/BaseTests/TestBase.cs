@@ -14,8 +14,8 @@ public abstract class TestBase
     [OneTimeSetUp]
     public void SetUp()
     {
-        AltUnityDriver = new AltUnityDriver();
         AppiumDriver = new AppiumDriver();
+        AltUnityDriver = new AltUnityDriver();
     }
 
     [OneTimeTearDown]

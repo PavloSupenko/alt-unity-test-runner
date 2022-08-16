@@ -52,11 +52,11 @@ public class AppiumDriver : IAppiumDriver
 
         switch (requiredSessionPlatform)
         {
-            case "android":
+            case "Android":
                 platform = DriverPlatform.Android;
                 androidDriver = new AndroidExistingDriver(new Uri("http://127.0.0.1:4723/wd/hub"), requiredSessionId);
                 break;
-            case "ios":
+            case "iOS":
                 platform = DriverPlatform.Ios;
                 iosDriver = new IosExistingDriver(new Uri("http://127.0.0.1:4723/wd/hub"), requiredSessionId);
                 break;
