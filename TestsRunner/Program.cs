@@ -95,12 +95,17 @@ class Program
             testRunner.RunAppiumServer();
 
         if (generalArgumentsReader[GeneralArguments.SkipSessionRun].Equals("false"))
+        {
+            // todo: Add normal delay
+            Thread.Sleep(TimeSpan.FromSeconds(100));
             testRunner.RunAppiumSession(
                 deviceId: deviceId, 
                 bundle: generalArgumentsReader[GeneralArguments.Bundle],
                 buildPath: generalArgumentsReader[GeneralArguments.BuildPath],
                 deviceNumber: generalArgumentsReader[GeneralArguments.RunOnDevice],
                 sleepSeconds: 10);
+            
+        }
 
         if (generalArgumentsReader[GeneralArguments.SkipTests].Equals("false"))
         {
