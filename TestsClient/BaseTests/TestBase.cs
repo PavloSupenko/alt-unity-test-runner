@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using Altom.AltUnityDriver;
 using NUnit.Framework;
+using OpenQA.Selenium;
 using TestsClient.Drivers;
 
 
@@ -40,8 +41,10 @@ public abstract class TestBase
         
         if (!Directory.Exists(screenshotPath))
             Directory.CreateDirectory(screenshotPath);
-        
-        AltUnityDriver.GetPNGScreenshot(Path.Combine(screenshotPath, screenshotName));
+
+        var screenshotFilePath = Path.Combine(screenshotPath, screenshotName);
+        Screenshot screenshot = ((ITakesScreenshot)AppiumDriver.GetAppiumDriver()).GetScreenshot();
+        screenshot.SaveAsFile(screenshotFilePath, ScreenshotImageFormat.Png);
     }
     
     

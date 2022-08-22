@@ -3,6 +3,7 @@ using OpenQA.Selenium.Appium;
 using OpenQA.Selenium.Appium.Enums;
 using OpenQA.Selenium.Appium.iOS;
 using Shared.Processes;
+using Shared.Serialization;
 using TestsRunner.Arguments;
 
 

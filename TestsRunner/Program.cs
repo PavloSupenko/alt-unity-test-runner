@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Shared.Processes;
+using Shared.Serialization;
 using TestsRunner.Arguments;
 using TestsRunner.PlatformRunners;
 using TestsTreeParser.Tree;
@@ -108,7 +109,8 @@ class Program
                 testsTreeFilePath: generalArgumentsReader[GeneralArguments.TestsTree],
                 consoleRunnerPath: generalArgumentsReader[GeneralArguments.NUnitConsoleApplicationPath],
                 systemLog: generalArgumentsReader[GeneralArguments.TestSystemOutputLogFilePath], 
-                testAssembly: generalArgumentsReader[GeneralArguments.NUnitTestsAssemblyPath]);
+                testAssembly: generalArgumentsReader[GeneralArguments.NUnitTestsAssemblyPath],
+                deviceNumber: generalArgumentsReader[GeneralArguments.RunOnDevice]);
         }
     }
 
@@ -138,8 +140,8 @@ class Program
         }
     }
 
-    private static void RunTests(string testsTreeFilePath, string consoleRunnerPath, 
-        string systemLog, string testAssembly)
+    private static void RunTests(string testsTreeFilePath, string consoleRunnerPath,
+        string systemLog, string testAssembly, string deviceNumber)
     {
         ProcessRunner processRunner = new ProcessRunner();
         TestsTree testsTree = TestsTree.DeserializeTree(testsTreeFilePath);
@@ -158,7 +160,11 @@ class Program
             Console.WriteLine($"Executing test: {testName}");
             var arguments = $"--test={testName} --teamcity {testAssembly}";
             var systemOutput = processRunner
-                .GetProcessOutput(processRunner.StartProcess(consoleRunnerPath, arguments))
+                .GetProcessOutput(processRunner.StartProcess(consoleRunnerPath, arguments, 
+                    new Dictionary<string, string>()
+                    {
+                        [CustomCapabilityType.TargetDeviceNumber] = deviceNumber,
+                    }))
                 .ToList();
 
             foreach (var outputLine in systemOutput) 

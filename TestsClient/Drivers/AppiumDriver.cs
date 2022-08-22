@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net.Http;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Appium.Android;
 using OpenQA.Selenium.Appium.Enums;
 using OpenQA.Selenium.Appium.iOS;
@@ -25,7 +26,6 @@ public class AppiumDriver : IAppiumDriver
     {
         var httpClient = new HttpClient();
         var content = httpClient.GetStringAsync("http://127.0.0.1:4723/wd/hub/sessions").Result;
-
         if (string.IsNullOrEmpty(content))
         {
             Console.WriteLine("No Appium sessions found.");
@@ -33,7 +33,6 @@ public class AppiumDriver : IAppiumDriver
         }
 
         var sessionsData = Newtonsoft.Json.JsonConvert.DeserializeObject<AppiumSessionsListData>(content);
-
         if (sessionsData == null)
         {
             Console.WriteLine($"Sessions data has incorrect format: {content}");
@@ -41,12 +40,25 @@ public class AppiumDriver : IAppiumDriver
         }
         
         var sessionIds = sessionsData.Value
-            .Select(sessionData => new {DeviceNumber = "1", Data = sessionData})
+            .Select(sessionData => new {DeviceNumber = sessionData.Capabilities[CustomCapabilityType.TargetDeviceNumber], Data = sessionData})
             .ToDictionary(
                 deviceSession => deviceSession.DeviceNumber, 
                 deviceSession => deviceSession.Data);
 
-        var requiredSessionData = sessionIds["1"];
+        var targetDeviceNumber = Environment.GetEnvironmentVariable(CustomCapabilityType.TargetDeviceNumber);
+        if (targetDeviceNumber == null)
+        {
+            Console.WriteLine($"No environment variable:{CustomCapabilityType.TargetDeviceNumber}");
+            return;
+        }
+
+        if (!sessionIds.ContainsKey(targetDeviceNumber))
+        {
+            Console.WriteLine($"No suitable session for device number:{targetDeviceNumber}");
+            return;
+        }
+
+        var requiredSessionData = sessionIds[targetDeviceNumber];
         var requiredSessionId = requiredSessionData.Id;
         var requiredSessionPlatform = requiredSessionData.Capabilities[MobileCapabilityType.PlatformName];
 
@@ -60,6 +72,19 @@ public class AppiumDriver : IAppiumDriver
                 platform = DriverPlatform.Ios;
                 iosDriver = new IosExistingDriver(new Uri("http://127.0.0.1:4723/wd/hub"), requiredSessionId);
                 break;
+        }
+    }
+
+    public IWebDriver? GetAppiumDriver()
+    {
+        switch (platform)
+        {
+            case DriverPlatform.Android:
+                return androidDriver;
+            case DriverPlatform.Ios:
+                return iosDriver;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
     }
 

@@ -1,4 +1,4 @@
-﻿namespace TestsRunner.PlatformRunners;
+﻿namespace Shared.Serialization;
 
 public class CustomCapabilityType
 {
