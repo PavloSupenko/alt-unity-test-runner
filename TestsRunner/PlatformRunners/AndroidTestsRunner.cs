@@ -136,6 +136,9 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments>
         capabilities.AddAdditionalCapability(CustomCapabilityType.TargetDeviceNumber, deviceNumber);
         
         driver = new AndroidDriver<AndroidElement>(new Uri("http://127.0.0.1:4723/wd/hub"), capabilities, TimeSpan.FromMinutes(5));
-        driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
+        driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromMinutes(5);
+        driver.Manage().Timeouts().PageLoad = TimeSpan.FromMinutes(5);
+        driver.Manage().Timeouts().AsynchronousJavaScript = TimeSpan.FromMinutes(5);
+        // driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
     }
 }

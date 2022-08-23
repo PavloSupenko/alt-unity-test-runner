@@ -122,7 +122,10 @@ public class IosTestRunner : ITestsRunner<IosArguments>
         capabilities.AddAdditionalCapability(CustomCapabilityType.TargetDeviceNumber, deviceNumber);
         
         driver = new IOSDriver<IOSElement>(new Uri("http://127.0.0.1:4723/wd/hub"), capabilities, TimeSpan.FromMinutes(5));
-        driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
+        driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromMinutes(5);
+        driver.Manage().Timeouts().PageLoad = TimeSpan.FromMinutes(5);
+        driver.Manage().Timeouts().AsynchronousJavaScript = TimeSpan.FromMinutes(5);
+        //driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
     }
 
     public void StopAppiumSession() => 
