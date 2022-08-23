@@ -117,10 +117,10 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments>
             ["ANDROID_HOME"] = androidHome,
         };
         
-        var arguments = $"--address 127.0.0.1 --port 4723 --base-path /wd/hub";
+        var arguments = $"--address 127.0.0.1 --port 4723 --base-path /wd/hub --command-timeout 300";
         Console.WriteLine($"Executing command: {process} {arguments}");
         appiumServerProcess = processRunner.StartProcess(process, arguments, variables);
-        Thread.Sleep(TimeSpan.FromSeconds(5));
+        Thread.Sleep(TimeSpan.FromSeconds(60));
     }
 
     private void InitializeAppiumDriver(string apkPath, string bundle, string deviceId, string deviceNumber)
@@ -129,6 +129,13 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments>
         
         // Disable timeout session disabling
         capabilities.AddAdditionalCapability(MobileCapabilityType.NewCommandTimeout, 0);
+        capabilities.AddAdditionalCapability(AndroidMobileCapabilityType.AndroidInstallTimeout, 300_000);
+        capabilities.AddAdditionalCapability(AndroidMobileCapabilityType.AutoWebviewTimeout, 300_000);
+        capabilities.AddAdditionalCapability(AndroidMobileCapabilityType.AvdLaunchTimeout, 300_000);
+        capabilities.AddAdditionalCapability(AndroidMobileCapabilityType.AvdReadyTimeout, 300_000);
+        capabilities.AddAdditionalCapability(AndroidMobileCapabilityType.DeviceReadyTimeout, 300_000);
+        capabilities.AddAdditionalCapability(AndroidMobileCapabilityType.AndroidDeviceReadyTimeout, 300_000);
+        
         capabilities.AddAdditionalCapability(MobileCapabilityType.PlatformName, "Android");
         capabilities.AddAdditionalCapability("appPackage", bundle);
         capabilities.AddAdditionalCapability(MobileCapabilityType.App, apkPath);
