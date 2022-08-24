@@ -23,5 +23,5 @@ public class AppiumSessionData
     public string Id;
     
     [JsonProperty("capabilities")]
-    public Dictionary<string, string> Capabilities;
+    public Dictionary<string, object> Capabilities;
 }
