@@ -37,7 +37,7 @@ public class IosTestRunner : ITestsRunner<IosArguments>
     public void RunAppiumServer()
     {
         var process = "appium";
-        var arguments = $"--address 127.0.0.1 --port 4723 --base-path /wd/hub --command-timeout 3000";
+        var arguments = $"--address 127.0.0.1 --port 4723 --base-path /wd/hub";
         Console.WriteLine($"Executing command: {process} {arguments}");
         processRunner.StartProcess(process, arguments);
         Thread.Sleep(TimeSpan.FromSeconds(60));
@@ -108,8 +108,10 @@ public class IosTestRunner : ITestsRunner<IosArguments>
         
         // Disable timeout session disabling
         capabilities.AddAdditionalCapability(MobileCapabilityType.NewCommandTimeout, 0);
-        capabilities.AddAdditionalCapability(IOSMobileCapabilityType.LaunchTimeout, 2_000_000);
-        capabilities.AddAdditionalCapability(IOSMobileCapabilityType.ScreenshotWaitTimeout, 2_000_000);
+        capabilities.AddAdditionalCapability("appium:appPushTimeout", 1_800_000);
+        capabilities.AddAdditionalCapability("appium:wdaConnectionTimeout", 1_800_000);
+        capabilities.AddAdditionalCapability("appium:wdaStartupRetryInterval", 1_800_000);
+        capabilities.AddAdditionalCapability("appium:waitForIdleTimeout", 1_800);
         
         capabilities.AddAdditionalCapability(MobileCapabilityType.PlatformName, "iOS");
         capabilities.AddAdditionalCapability(MobileCapabilityType.App, ipaPath);
