@@ -37,7 +37,7 @@ public class IosTestRunner : ITestsRunner<IosArguments>
     public void RunAppiumServer()
     {
         var process = "appium";
-        var arguments = $"--address 127.0.0.1 --port 4723 --base-path /wd/hub --command-timeout 310";
+        var arguments = $"--address 127.0.0.1 --port 4723 --base-path /wd/hub --command-timeout 3000";
         Console.WriteLine($"Executing command: {process} {arguments}");
         processRunner.StartProcess(process, arguments);
         Thread.Sleep(TimeSpan.FromSeconds(60));
@@ -108,8 +108,8 @@ public class IosTestRunner : ITestsRunner<IosArguments>
         
         // Disable timeout session disabling
         capabilities.AddAdditionalCapability(MobileCapabilityType.NewCommandTimeout, 0);
-        capabilities.AddAdditionalCapability(IOSMobileCapabilityType.LaunchTimeout, 301_000);
-        capabilities.AddAdditionalCapability(IOSMobileCapabilityType.ScreenshotWaitTimeout, 302_000);
+        capabilities.AddAdditionalCapability(IOSMobileCapabilityType.LaunchTimeout, 2_000_000);
+        capabilities.AddAdditionalCapability(IOSMobileCapabilityType.ScreenshotWaitTimeout, 2_000_000);
         
         capabilities.AddAdditionalCapability(MobileCapabilityType.PlatformName, "iOS");
         capabilities.AddAdditionalCapability(MobileCapabilityType.App, ipaPath);
@@ -123,10 +123,10 @@ public class IosTestRunner : ITestsRunner<IosArguments>
         capabilities.AddAdditionalCapability("appium:showXcodeLog", true);
         capabilities.AddAdditionalCapability(CustomCapabilityType.TargetDeviceNumber, deviceNumber);
         
-        driver = new IOSDriver<IOSElement>(new Uri("http://127.0.0.1:4723/wd/hub"), capabilities, TimeSpan.FromMinutes(6));
-        driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromMinutes(1);
-        driver.Manage().Timeouts().PageLoad = TimeSpan.FromMinutes(2);
-        driver.Manage().Timeouts().AsynchronousJavaScript = TimeSpan.FromMinutes(3);
+        driver = new IOSDriver<IOSElement>(new Uri("http://127.0.0.1:4723/wd/hub"), capabilities, TimeSpan.FromMinutes(30));
+        driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromMinutes(30);
+        driver.Manage().Timeouts().PageLoad = TimeSpan.FromMinutes(30);
+        driver.Manage().Timeouts().AsynchronousJavaScript = TimeSpan.FromMinutes(30);
         //driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
     }
 
