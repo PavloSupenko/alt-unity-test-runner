@@ -46,6 +46,4 @@ public abstract class TestBase
         Screenshot screenshot = ((ITakesScreenshot)AppiumDriver.GetAppiumDriver()).GetScreenshot();
         screenshot.SaveAsFile(screenshotFilePath, ScreenshotImageFormat.Png);
     }
-    
-    
 }
