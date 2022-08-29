@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using Altom.AltUnityDriver;
 using NUnit.Framework;
 
@@ -11,13 +12,13 @@ public class InfoButton : TestBase
     public override void Enter()
     {
         var infoButtonObject = AltUnityDriver.FindObject(By.NAME, "Info");
-        Thread.Sleep(2000);
+        Thread.Sleep(TimeSpan.FromSeconds(30));
 
         AltUnityDriver.Tap(infoButtonObject.getScreenPosition());
         SaveScreenshot("Click to open");
 
         var infoPanel = AltUnityDriver.WaitForObject(By.NAME, "InfoMenu(Clone)");
-        Thread.Sleep(2000);
+        Thread.Sleep(TimeSpan.FromSeconds(5));
         SaveScreenshot("Opened menu");
         Assert.IsNotNull(infoPanel);
     }

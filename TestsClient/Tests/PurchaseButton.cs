@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using Altom.AltUnityDriver;
 using NUnit.Framework;
 
@@ -15,7 +16,7 @@ public class PurchaseButton : TestBase
         SaveScreenshot("Click to open");
 
         var infoPanel = AltUnityDriver.WaitForObject(By.NAME, "InAppMenuD_Discount(Clone)");
-        Thread.Sleep(2000);
+        Thread.Sleep(TimeSpan.FromSeconds(5));
         SaveScreenshot("Opened menu");
         Assert.IsNotNull(infoPanel);
     }

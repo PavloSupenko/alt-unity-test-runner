@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using Altom.AltUnityDriver;
 using NUnit.Framework;
 
@@ -22,12 +23,12 @@ public class LanguageButton : TestBase
     private void TapOnLanguageButton(string action, string result)
     {
         var languageButton = AltUnityDriver.FindObject(By.NAME, "LangButton");
-        Thread.Sleep(2000);
+        Thread.Sleep(TimeSpan.FromSeconds(5));
 
         AltUnityDriver.Tap(languageButton.getScreenPosition());
         SaveScreenshot(action);
 
-        Thread.Sleep(2000);
+        Thread.Sleep(TimeSpan.FromSeconds(5));
         SaveScreenshot(result);
         Assert.Pass();
     }
