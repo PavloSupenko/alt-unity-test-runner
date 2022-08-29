@@ -80,35 +80,49 @@ class Program
         testRunner.StopAppiumSession();
     }
 
-    private static void ExecuteTests<TArgsEnum>(ITestsRunner<TArgsEnum> testRunner, ArgumentsReader<GeneralArguments> generalArgumentsReader) where TArgsEnum : Enum
+    private static void ExecuteTests<TArgsEnum>(ITestsRunner<TArgsEnum> testRunner,
+        ArgumentsReader<GeneralArguments> generalArgumentsReader) where TArgsEnum : Enum
     {
         if (!testRunner.IsDeviceConnected(generalArgumentsReader[GeneralArguments.RunOnDevice], out var deviceId))
+        {
             return;
+        }
 
         if (generalArgumentsReader[GeneralArguments.SkipPortForward].Equals("false"))
+        {
+            Console.WriteLine("Setup port forwarding:");
             testRunner.SetupPortForwarding(
-                tcpLocalPort:generalArgumentsReader[GeneralArguments.LocalPort],
-                tcpDevicePort:generalArgumentsReader[GeneralArguments.DevicePort],
+                tcpLocalPort: generalArgumentsReader[GeneralArguments.LocalPort],
+                tcpDevicePort: generalArgumentsReader[GeneralArguments.DevicePort],
                 deviceId: deviceId);
-        
+        }
+
         if (generalArgumentsReader[GeneralArguments.SkipServerRun].Equals("false"))
-            testRunner.RunAppiumServer();
+        {
+            Console.WriteLine("Running Appium server:");
+            testRunner.RunAppiumServer(hostPlatform: generalArgumentsReader[GeneralArguments.HostPlatform]);
+        }
 
         if (generalArgumentsReader[GeneralArguments.SkipSessionRun].Equals("false"))
+        {
+            Console.WriteLine("Running Appium session:");
             testRunner.RunAppiumSession(
                 deviceId: deviceId,
                 bundle: generalArgumentsReader[GeneralArguments.Bundle],
                 buildPath: generalArgumentsReader[GeneralArguments.BuildPath],
                 deviceNumber: generalArgumentsReader[GeneralArguments.RunOnDevice],
                 sleepSeconds: 10);
+        }
 
         if (generalArgumentsReader[GeneralArguments.SkipTests].Equals("false"))
         {
+            Console.WriteLine("Running tests:");
             PrintParsedTestsTree(testsTreeJsonPath: generalArgumentsReader[GeneralArguments.TestsTree]);
+
             RunTests(
                 testsTreeFilePath: generalArgumentsReader[GeneralArguments.TestsTree],
                 consoleRunnerPath: generalArgumentsReader[GeneralArguments.NUnitConsoleApplicationPath],
-                systemLog: generalArgumentsReader[GeneralArguments.TestSystemOutputLogFilePath], 
+                systemLog: generalArgumentsReader[GeneralArguments.TestSystemOutputLogFilePath],
                 testAssembly: generalArgumentsReader[GeneralArguments.NUnitTestsAssemblyPath],
                 deviceNumber: generalArgumentsReader[GeneralArguments.RunOnDevice]);
         }

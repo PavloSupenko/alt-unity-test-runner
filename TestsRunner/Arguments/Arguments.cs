@@ -2,7 +2,9 @@
 
 public enum GeneralArguments
 {
+    HostPlatform,
     Platform,
+    
     TestsTree,
     RunOnDevice,
     BuildPath,

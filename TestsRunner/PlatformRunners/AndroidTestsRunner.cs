@@ -33,10 +33,11 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments>
             tcpDevicePort: tcpDevicePort,
             deviceId: deviceId);
 
-    public void RunAppiumServer() =>
+    public void RunAppiumServer(string hostPlatform) =>
         RunAppiumServer(
             javaHome: androidArgumentsReader[AndroidArguments.JavaHomePath],
-            androidHome: androidArgumentsReader[AndroidArguments.AndroidHomePath]);
+            androidHome: androidArgumentsReader[AndroidArguments.AndroidHomePath],
+            hostPlatform: hostPlatform);
 
     public void StopAppiumServer() => 
         appiumServerProcess?.Kill();
@@ -59,7 +60,7 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments>
             .GetProcessOutput(processRunner.StartProcess(adbPath, arguments)).ToList();
 
         var devices = resultsStrings
-            .Where(line => !string.IsNullOrEmpty(line) && !line.StartsWith("List "))
+            .Where(line => !string.IsNullOrEmpty(line) && !line.StartsWith("List ") && !line.Contains("deamon"))
             .Select(line => line.Split('\t')[0])
             .ToList();
 
@@ -108,19 +109,31 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments>
         processRunner.PrintProcessOutput(processRunner.StartProcess(adbPath, arguments));
     }
 
-    private void RunAppiumServer(string javaHome, string androidHome)
+    private void RunAppiumServer(string javaHome, string androidHome, string hostPlatform)
     {
-        var process = "appium";
         var variables = new Dictionary<string, string>()
         {
             ["JAVA_HOME"] = javaHome,
             ["ANDROID_HOME"] = androidHome,
         };
-        
-        var arguments = $"--address 127.0.0.1 --port 4723 --base-path /wd/hub";
-        Console.WriteLine($"Executing command: {process} {arguments}");
-        appiumServerProcess = processRunner.StartProcess(process, arguments, variables);
-        Thread.Sleep(TimeSpan.FromSeconds(60));
+
+        if (hostPlatform.Equals("osx"))
+        {
+            var appiumProcess = "appium";
+            var arguments = $"--address 127.0.0.1 --port 4723 --base-path /wd/hub";
+            Console.WriteLine($"Executing command: {appiumProcess} {arguments}");
+            appiumServerProcess = processRunner.StartProcess(appiumProcess, arguments, variables);
+            processRunner.PrintProcessOutput(appiumServerProcess, false);
+            Thread.Sleep(TimeSpan.FromSeconds(10));
+        }
+        else if (hostPlatform.Equals("windows"))
+        {
+            var process = "C:\\Windows\\system32\\cmd.exe";
+            var arguments = $"cmd.exe /C appium --address 127.0.0.1 --port 4723 --base-path /wd/hub";
+            Console.WriteLine($"Executing command: {process} {arguments}");
+            appiumServerProcess = processRunner.StartProcess(process, arguments, variables, true);
+            Thread.Sleep(TimeSpan.FromSeconds(5));
+        }
     }
 
     private void InitializeAppiumDriver(string apkPath, string bundle, string deviceId, string deviceNumber)
@@ -144,6 +157,5 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments>
         
         driver = new AndroidDriver<AndroidElement>(new Uri("http://127.0.0.1:4723/wd/hub"), capabilities, TimeSpan.FromMinutes(5));
         driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromMinutes(30);
-        // driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
     }
 }

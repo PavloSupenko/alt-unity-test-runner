@@ -4,6 +4,7 @@ static class ArgumentKeys
 {
     public static readonly Dictionary<string, GeneralArguments> GeneralKeys = new()
     {
+        ["--host-platform"] = GeneralArguments.HostPlatform,
         ["--platform"] = GeneralArguments.Platform,
         ["--build"] = GeneralArguments.BuildPath,
         
@@ -45,6 +46,7 @@ static class ArgumentKeys
     public static readonly Dictionary<GeneralArguments, string> GeneralDefaults = new()
     {
         [GeneralArguments.Platform] = "none",
+        [GeneralArguments.HostPlatform] = "osx",
 
         [GeneralArguments.TestsTree] = "TestsTreeTemplate.json",
         [GeneralArguments.RunOnDevice] = "1",
@@ -83,6 +85,7 @@ static class ArgumentKeys
 
     public static readonly Dictionary<GeneralArguments, string> GeneralDescriptions = new()
     {
+        [GeneralArguments.HostPlatform] = "computer platform. Values [osx/windows]",
         [GeneralArguments.Platform] = "test platform. Values [ios/android]",
         [GeneralArguments.BuildPath] = "path to .apk for android / .ipa or .app for iOS. Value: string",
 

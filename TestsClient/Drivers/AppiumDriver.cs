@@ -40,7 +40,7 @@ public class AppiumDriver : IAppiumDriver
         }
         
         var sessionIds = sessionsData.Value
-            .Select(sessionData => new {DeviceNumber = sessionData.Capabilities[CustomCapabilityType.TargetDeviceNumber], Data = sessionData})
+            .Select(sessionData => new {DeviceNumber = sessionData.Capabilities[CustomCapabilityType.TargetDeviceNumber].ToString(), Data = sessionData})
             .ToDictionary(
                 deviceSession => deviceSession.DeviceNumber, 
                 deviceSession => deviceSession.Data);
@@ -60,7 +60,7 @@ public class AppiumDriver : IAppiumDriver
 
         var requiredSessionData = sessionIds[targetDeviceNumber];
         var requiredSessionId = requiredSessionData.Id;
-        var requiredSessionPlatform = requiredSessionData.Capabilities[MobileCapabilityType.PlatformName];
+        var requiredSessionPlatform = requiredSessionData.Capabilities[MobileCapabilityType.PlatformName].ToString();
 
         switch (requiredSessionPlatform)
         {

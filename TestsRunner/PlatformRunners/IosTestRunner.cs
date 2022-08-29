@@ -34,7 +34,7 @@ public class IosTestRunner : ITestsRunner<IosArguments>
         Thread.Sleep(TimeSpan.FromSeconds(2));
     }
 
-    public void RunAppiumServer()
+    public void RunAppiumServer(string hostPlatform)
     {
         var process = "appium";
         var arguments = $"--address 127.0.0.1 --port 4723 --base-path /wd/hub";
@@ -129,9 +129,10 @@ public class IosTestRunner : ITestsRunner<IosArguments>
         driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromMinutes(30);
         driver.Manage().Timeouts().PageLoad = TimeSpan.FromMinutes(30);
         driver.Manage().Timeouts().AsynchronousJavaScript = TimeSpan.FromMinutes(30);
-        //driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
     }
 
-    public void StopAppiumSession() => 
+    public void StopAppiumSession()
+    {
         driver?.Quit();
+    }
 }

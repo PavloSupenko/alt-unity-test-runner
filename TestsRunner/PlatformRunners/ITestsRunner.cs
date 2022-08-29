@@ -10,7 +10,7 @@ public interface ITestsRunner<TArgsEnum> where TArgsEnum : Enum
     bool IsDeviceConnected(string deviceNumber, out string deviceId);
     void SetupPortForwarding(string deviceId, string tcpLocalPort, string tcpDevicePort);
     
-    void RunAppiumServer();
+    void RunAppiumServer(string hostPlatform);
     void StopAppiumServer();
     
     void RunAppiumSession(string deviceId, string deviceNumber, string buildPath, string bundle, int sleepSeconds);
