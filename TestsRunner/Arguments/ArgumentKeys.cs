@@ -26,6 +26,31 @@ static class ArgumentKeys
 
         ["--help"] = GeneralArguments.Help,
         ["--defaults"] = GeneralArguments.Defaults,
+        
+        //* Short versions *//
+        
+        ["-hp"] = GeneralArguments.HostPlatform,
+        ["-p"] = GeneralArguments.Platform,
+        ["-b"] = GeneralArguments.BuildPath,
+        
+        ["-app"] = GeneralArguments.Bundle,
+
+        ["-t"] = GeneralArguments.TestsTree,
+        ["-n"] = GeneralArguments.RunOnDevice,
+        ["-c"] = GeneralArguments.NUnitConsoleApplicationPath,
+        ["-a"] = GeneralArguments.NUnitTestsAssemblyPath,
+        ["-l"] = GeneralArguments.TestSystemOutputLogFilePath,
+        
+        ["-ah"] = GeneralArguments.LocalPort,
+        ["-ad"] = GeneralArguments.DevicePort,
+
+        ["-sp"] = GeneralArguments.SkipPortForward,
+        ["-ss"] = GeneralArguments.SkipServerRun,
+        ["-sr"] = GeneralArguments.SkipSessionRun,
+        ["-st"] = GeneralArguments.SkipTests,
+
+        ["-h"] = GeneralArguments.Help,
+        ["-d"] = GeneralArguments.Defaults,
     };
 
     public static readonly Dictionary<string, AndroidArguments> AndroidKeys = new()

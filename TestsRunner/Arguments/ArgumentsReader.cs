@@ -58,7 +58,8 @@ public class ArgumentsReader<TArgsEnum> where TArgsEnum : Enum
 
     public (string switchName, string description) GetHelp(TArgsEnum argument)
     {
-        var switchName = allCommandLineKeys.First(key => key.Value.Equals(argument)).Key;
+        var switchNames = allCommandLineKeys.Where(key => key.Value.Equals(argument)).Select(key => key.Key);
+        var switchName = string.Join('/', switchNames);
         var description = descriptions.ContainsKey(argument)
             ? descriptions.FirstOrDefault(key => key.Key.Equals(argument)).Value
             : "*no description for this parameter*";
