@@ -19,7 +19,7 @@ public class ArgumentsReader<TArgsEnum> where TArgsEnum : Enum
         this.commandLineValues = ParseCommandLineArguments(commandLineArguments, commandLineKeys);
     }
 
-    public string? this[TArgsEnum argument]
+    public string this[TArgsEnum argument]
     {
         get
         {
@@ -37,7 +37,7 @@ public class ArgumentsReader<TArgsEnum> where TArgsEnum : Enum
         this[argument] != null;
     
     public bool IsTrue(TArgsEnum argument) => 
-        this[argument].Equals("true");
+        IsExist(argument) && this[argument].Equals("true");
 
     public (string switchName, string description) GetHelp(TArgsEnum argument)
     {
