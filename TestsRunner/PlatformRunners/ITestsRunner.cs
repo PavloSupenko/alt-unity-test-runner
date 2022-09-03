@@ -16,6 +16,6 @@ public interface ITestsRunner
     void RunAppiumServer(string hostPlatform);
     void StopAppiumServer();
     
-    void RunAppiumSession(string deviceId, string deviceNumber, string buildPath, string bundle, int sleepSeconds);
+    void RunAppiumSession(string deviceId, string buildPath, string bundle);
     void StopAppiumSession();
 }

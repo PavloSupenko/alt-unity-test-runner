@@ -46,16 +46,13 @@ public class IosTestRunner : ITestsRunner<IosArguments>
     public void StopAppiumServer() => 
         appiumServerProcess?.Kill();
 
-    public void RunAppiumSession(string deviceId, string deviceNumber, string buildPath, string bundle, int sleepSeconds) =>
+    public void RunAppiumSession(string deviceId, string buildPath, string bundle) =>
         RunAppiumSession(
             ipaPath: buildPath,
             deviceId: deviceId,
             bundle: bundle,
-            deviceName: iosArgumentsReader[IosArguments.DeviceName],
-            platformVersion: iosArgumentsReader[IosArguments.PlatformVersion],
             teamId: iosArgumentsReader[IosArguments.TeamId],
-            signingId: iosArgumentsReader[IosArguments.SigningId],
-            deviceNumber: deviceNumber);
+            signingId: iosArgumentsReader[IosArguments.SigningId]);
 
     private bool GetConnectedDevice(string deviceNumberString, out string deviceId)
     {
@@ -63,10 +60,10 @@ public class IosTestRunner : ITestsRunner<IosArguments>
         var arguments = $"xctrace list devices";
         Console.WriteLine($"Executing command: {xcrunPath} {arguments}");
 
-        var resultsStrings = processRunner
+        var resultStrings = processRunner
             .GetProcessOutput(processRunner.StartProcess(xcrunPath, arguments)).ToList();
 
-        var devices = resultsStrings
+        var devices = resultStrings
             .Skip(2)
             .Where(line => !string.IsNullOrEmpty(line) && !line.Contains("Simulator"))
             .Select(line => line
@@ -101,9 +98,24 @@ public class IosTestRunner : ITestsRunner<IosArguments>
         return true;
     }
 
-    private void RunAppiumSession(string ipaPath, string bundle, string deviceId, string deviceNumber, string deviceName, 
-        string platformVersion, string teamId, string signingId)
+    private void GetDeviceInfo(out string deviceName, out string platformVersion)
     {
+        var deviceInfo = "ideviceinfo";
+        var arguments = string.Empty;
+        Console.WriteLine($"Executing command: {deviceInfo} {arguments}");
+
+        var resultStrings = processRunner.GetProcessOutput(processRunner.StartProcess(deviceInfo, arguments)).ToList();
+
+        deviceName = resultStrings.First(line => line.Contains("DeviceName")).Replace("DeviceName: ", string.Empty);
+        platformVersion = resultStrings.First(line => line.Contains("ProductVersion")).Replace("ProductVersion: ", string.Empty);
+        
+        Console.WriteLine($"Found device name: {deviceName}");
+        Console.WriteLine($"Found device version: {platformVersion}");
+    }
+
+    private void RunAppiumSession(string ipaPath, string bundle, string deviceId, string teamId, string signingId)
+    {
+        GetDeviceInfo(out var deviceName, out var platformVersion);
         AppiumOptions capabilities = new AppiumOptions();
         
         // Disable timeout session disabling
@@ -123,7 +135,7 @@ public class IosTestRunner : ITestsRunner<IosArguments>
         capabilities.AddAdditionalCapability("appium:xcodeOrgId", teamId);
         capabilities.AddAdditionalCapability("appium:xcodeSigningId", signingId);
         capabilities.AddAdditionalCapability("appium:showXcodeLog", true);
-        capabilities.AddAdditionalCapability(CustomCapabilityType.TargetDeviceNumber, deviceNumber);
+        capabilities.AddAdditionalCapability(CustomCapabilityType.TargetDeviceId, deviceId);
         
         driver = new IOSDriver<IOSElement>(new Uri("http://127.0.0.1:4723/wd/hub"), capabilities, TimeSpan.FromMinutes(30));
         driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromMinutes(30);

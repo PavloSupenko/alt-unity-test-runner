@@ -2,5 +2,5 @@
 
 public class CustomCapabilityType
 {
-    public const string TargetDeviceNumber = "customDeviceNumber";
+    public const string TargetDeviceId = "customDeviceId";
 }

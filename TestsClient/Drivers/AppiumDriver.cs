@@ -40,15 +40,15 @@ public class AppiumDriver : IAppiumDriver
         }
         
         var sessionIds = sessionsData.Value
-            .Select(sessionData => new {DeviceNumber = sessionData.Capabilities[CustomCapabilityType.TargetDeviceNumber].ToString(), Data = sessionData})
+            .Select(sessionData => new {DeviceNumber = sessionData.Capabilities[CustomCapabilityType.TargetDeviceId].ToString(), Data = sessionData})
             .ToDictionary(
                 deviceSession => deviceSession.DeviceNumber, 
                 deviceSession => deviceSession.Data);
 
-        var targetDeviceNumber = Environment.GetEnvironmentVariable(CustomCapabilityType.TargetDeviceNumber);
+        var targetDeviceNumber = Environment.GetEnvironmentVariable(CustomCapabilityType.TargetDeviceId);
         if (targetDeviceNumber == null)
         {
-            Console.WriteLine($"No environment variable:{CustomCapabilityType.TargetDeviceNumber}");
+            Console.WriteLine($"No environment variable:{CustomCapabilityType.TargetDeviceId}");
             return;
         }
 
