@@ -42,10 +42,10 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments>
     public void StopAppiumServer() => 
         appiumServerProcess?.Kill();
 
-    public void RunAppiumSession(string deviceId, string deviceNumber, string buildPath, string bundle, int sleepSeconds)
+    public void RunAppiumSession(string deviceId, string buildPath, string bundle)
     {
-        InitializeAppiumDriver(buildPath, bundle, deviceId, deviceNumber);
-        Thread.Sleep(TimeSpan.FromSeconds(sleepSeconds));
+        InitializeAppiumDriver(buildPath, bundle, deviceId);
+        Thread.Sleep(TimeSpan.FromSeconds(10));
     }
 
     public void StopAppiumSession() => 
@@ -136,7 +136,7 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments>
         }
     }
 
-    private void InitializeAppiumDriver(string apkPath, string bundle, string deviceId, string deviceNumber)
+    private void InitializeAppiumDriver(string apkPath, string bundle, string deviceId)
     {
         AppiumOptions capabilities = new AppiumOptions();
         
@@ -153,7 +153,7 @@ public class AndroidTestsRunner : ITestsRunner<AndroidArguments>
         capabilities.AddAdditionalCapability("appPackage", bundle);
         capabilities.AddAdditionalCapability(MobileCapabilityType.App, apkPath);
         capabilities.AddAdditionalCapability(MobileCapabilityType.Udid, deviceId);
-        capabilities.AddAdditionalCapability(CustomCapabilityType.TargetDeviceNumber, deviceNumber);
+        capabilities.AddAdditionalCapability(CustomCapabilityType.TargetDeviceId, deviceId);
         
         driver = new AndroidDriver<AndroidElement>(new Uri("http://127.0.0.1:4723/wd/hub"), capabilities, TimeSpan.FromMinutes(5));
         driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromMinutes(30);

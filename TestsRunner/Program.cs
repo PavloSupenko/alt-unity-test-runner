@@ -91,10 +91,10 @@ class Program
         TrySetupPortForwarding(deviceId);
         TryRunAppiumServer();
         TryRunAppiumSession(deviceId);
-        TryRunTests();
+        TryRunTests(deviceId);
     }
 
-    private static void TryRunTests()
+    private static void TryRunTests(string deviceId)
     {
         if (generalArgumentsReader[GeneralArguments.SkipTests].Equals("false"))
         {
@@ -106,7 +106,7 @@ class Program
                 consoleRunnerPath: generalArgumentsReader[GeneralArguments.NUnitConsoleApplicationPath],
                 systemLog: generalArgumentsReader[GeneralArguments.TestSystemOutputLogFilePath],
                 testAssembly: generalArgumentsReader[GeneralArguments.NUnitTestsAssemblyPath],
-                deviceNumber: generalArgumentsReader[GeneralArguments.AutoDetectDevice]);
+                deviceId: deviceId);
         }
     }
 
@@ -119,9 +119,7 @@ class Program
             testsRunner.RunAppiumSession(
                 deviceId: deviceId,
                 bundle: generalArgumentsReader[GeneralArguments.Bundle],
-                buildPath: generalArgumentsReader[GeneralArguments.BuildPath],
-                deviceNumber: generalArgumentsReader[GeneralArguments.AutoDetectDevice],
-                sleepSeconds: 10);
+                buildPath: generalArgumentsReader[GeneralArguments.BuildPath]);
         }
     }
 
@@ -192,7 +190,7 @@ class Program
     }
 
     private static void RunTests(string testsTreeFilePath, string consoleRunnerPath,
-        string systemLog, string testAssembly, string deviceNumber)
+        string systemLog, string testAssembly, string deviceId)
     {
         ProcessRunner processRunner = new ProcessRunner();
         TestsTree testsTree = TestsTree.DeserializeTree(testsTreeFilePath);
@@ -214,7 +212,7 @@ class Program
                 .GetProcessOutput(processRunner.StartProcess(consoleRunnerPath, arguments, 
                     new Dictionary<string, string>()
                     {
-                        [CustomCapabilityType.TargetDeviceNumber] = deviceNumber,
+                        [CustomCapabilityType.TargetDeviceId] = deviceId,
                     }))
                 .ToList();
 
