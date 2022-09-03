@@ -100,14 +100,17 @@ public class IosTestRunner : ITestsRunner<IosArguments>
 
     private void GetDeviceInfo(out string deviceName, out string platformVersion)
     {
-        var xcrunPath = "xcrun";
-        var arguments = $"xctrace list devices";
-        Console.WriteLine($"Executing command: {xcrunPath} {arguments}");
+        var deviceInfo = "ideviceinfo";
+        var arguments = string.Empty;
+        Console.WriteLine($"Executing command: {deviceInfo} {arguments}");
 
-        var resultStrings = processRunner.GetProcessOutput(processRunner.StartProcess(xcrunPath, arguments)).ToList();
+        var resultStrings = processRunner.GetProcessOutput(processRunner.StartProcess(deviceInfo, arguments)).ToList();
 
         deviceName = resultStrings.First(line => line.Contains("DeviceName")).Replace("DeviceName: ", string.Empty);
         platformVersion = resultStrings.First(line => line.Contains("ProductVersion")).Replace("ProductVersion: ", string.Empty);
+        
+        Console.WriteLine($"Found device name: {deviceName}");
+        Console.WriteLine($"Found device version: {platformVersion}");
     }
 
     private void RunAppiumSession(string ipaPath, string bundle, string deviceId, string teamId, string signingId)
