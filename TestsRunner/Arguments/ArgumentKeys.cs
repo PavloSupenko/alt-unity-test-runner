@@ -98,7 +98,6 @@ static class ArgumentKeys
         [AndroidArguments.JavaHomePath] = "C:\\Program Files\\Java\\jre1.8.0_321",
     };
 
-    // todo: Get device name and iOS version from device udid
     public static readonly Dictionary<IosArguments, string> IosDefaults = new()
     {
         [IosArguments.DeviceName] = "Pavlo’s iPhone",

@@ -35,7 +35,6 @@ public enum AndroidArguments
     JavaHomePath,
 }
 
-// todo: make auto-recognizing parameters values
 public enum IosArguments
 {
     DeviceName,

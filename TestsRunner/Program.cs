@@ -25,35 +25,12 @@ class Program
             new ArgumentsReader<IosArguments>(args, ArgumentKeys.IosKeys,
                 ArgumentKeys.IosDefaults, ArgumentKeys.IosDescriptions);
 
-        if (generalArgumentsReader.IsTrue(GeneralArguments.Help))
-        {
-            var showDefaults = generalArgumentsReader.IsTrue(GeneralArguments.Defaults);
-            ShowHelp(generalArgumentsReader, "==== General parameters: ====", showDefaults);
-            ShowHelp(androidArgumentsReader, "==== Android parameters: ====", showDefaults);
-            ShowHelp(iosArgumentsReader, "==== iOS parameters: ====", showDefaults);
-            Console.WriteLine();
-            
+        if (TryShowHelp(androidArgumentsReader, iosArgumentsReader)) 
             return;
-        }
 
         try
         {
-            switch (generalArgumentsReader[GeneralArguments.Platform])
-            {
-                case "android":
-                    var androidTestsRunner = new AndroidTestsRunner();
-                    androidTestsRunner.Initialize(androidArgumentsReader);
-                    testsRunner = androidTestsRunner;
-                    break;
-                case "ios":
-                    var iosTestRunner = new IosTestRunner();
-                    iosTestRunner.Initialize(iosArgumentsReader);
-                    testsRunner = iosTestRunner;
-                    break;
-                default:
-                    throw new KeyNotFoundException("Platform key needed to run tests session. Exit from application.");
-            }
-            
+            testsRunner = CreateTestsRunnerForCurrentPlatform(androidArgumentsReader, iosArgumentsReader);
             ExecuteTests();
         }
         catch (Exception exception)
@@ -66,54 +43,59 @@ class Program
         }
     }
 
+    private static ITestsRunner CreateTestsRunnerForCurrentPlatform(ArgumentsReader<AndroidArguments> androidArgumentsReader,
+        ArgumentsReader<IosArguments> iosArgumentsReader)
+    {
+        switch (generalArgumentsReader[GeneralArguments.Platform])
+        {
+            case "android":
+                var androidTestsRunner = new AndroidTestsRunner();
+                androidTestsRunner.Initialize(androidArgumentsReader);
+                return androidTestsRunner;
+            case "ios":
+                var iosTestRunner = new IosTestRunner();
+                iosTestRunner.Initialize(iosArgumentsReader);
+                return iosTestRunner;
+            default:
+                throw new KeyNotFoundException("Platform key needed to run tests session. Exit from application.");
+        }
+    }
+
+    private static bool TryShowHelp(ArgumentsReader<AndroidArguments> androidArgumentsReader, ArgumentsReader<IosArguments> iosArgumentsReader)
+    {
+        if (!generalArgumentsReader.IsTrue(GeneralArguments.Help)) 
+            return false;
+
+        var showDefaults = generalArgumentsReader.IsTrue(GeneralArguments.Defaults);
+        ShowHelp(generalArgumentsReader, "==== General parameters: ====", showDefaults);
+        ShowHelp(androidArgumentsReader, "==== Android parameters: ====", showDefaults);
+        ShowHelp(iosArgumentsReader, "==== iOS parameters: ====", showDefaults);
+        Console.WriteLine();
+
+        return true;
+
+    }
+
     private static void StopSession()
     {
+        Console.WriteLine("Closing Appium session and server.");
         testsRunner.StopAppiumSession();
         testsRunner.StopAppiumServer();
     }
 
     private static void ExecuteTests()
     {
-        string deviceId;
-        if (!generalArgumentsReader.IsExist(GeneralArguments.AutoDetectDevice))
-        {
-            if (!generalArgumentsReader.IsExist(GeneralArguments.DeviceId))
-                throw new KeyNotFoundException("Auto detection disabled and device id not set. Use one of this options.");
-
-            deviceId = generalArgumentsReader[GeneralArguments.DeviceId];
-            Console.WriteLine($"Auto detection device disabled. Device id: {deviceId} will be used");
-        }
-        else if (!testsRunner.IsDeviceConnected(generalArgumentsReader[GeneralArguments.AutoDetectDevice], out deviceId))
-        {
+        if (TryGetConnectedDevice(out var deviceId)) 
             return;
-        }
 
-        if (generalArgumentsReader[GeneralArguments.SkipPortForward].Equals("false"))
-        {
-            Console.WriteLine("Setup port forwarding:");
-            testsRunner.SetupPortForwarding(
-                tcpLocalPort: generalArgumentsReader[GeneralArguments.LocalPort],
-                tcpDevicePort: generalArgumentsReader[GeneralArguments.DevicePort],
-                deviceId: deviceId);
-        }
+        TrySetupPortForwarding(deviceId);
+        TryRunAppiumServer();
+        TryRunAppiumSession(deviceId);
+        TryRunTests();
+    }
 
-        if (generalArgumentsReader[GeneralArguments.SkipServerRun].Equals("false"))
-        {
-            Console.WriteLine("Running Appium server:");
-            testsRunner.RunAppiumServer(hostPlatform: generalArgumentsReader[GeneralArguments.HostPlatform]);
-        }
-
-        if (generalArgumentsReader[GeneralArguments.SkipSessionRun].Equals("false"))
-        {
-            Console.WriteLine("Running Appium session:");
-            testsRunner.RunAppiumSession(
-                deviceId: deviceId,
-                bundle: generalArgumentsReader[GeneralArguments.Bundle],
-                buildPath: generalArgumentsReader[GeneralArguments.BuildPath],
-                deviceNumber: generalArgumentsReader[GeneralArguments.AutoDetectDevice],
-                sleepSeconds: 10);
-        }
-
+    private static void TryRunTests()
+    {
         if (generalArgumentsReader[GeneralArguments.SkipTests].Equals("false"))
         {
             Console.WriteLine("Running tests:");
@@ -126,6 +108,61 @@ class Program
                 testAssembly: generalArgumentsReader[GeneralArguments.NUnitTestsAssemblyPath],
                 deviceNumber: generalArgumentsReader[GeneralArguments.AutoDetectDevice]);
         }
+    }
+
+    private static void TryRunAppiumSession(string deviceId)
+    {
+        if (generalArgumentsReader[GeneralArguments.SkipSessionRun].Equals("false"))
+        {
+            Console.WriteLine("Running Appium session:");
+
+            testsRunner.RunAppiumSession(
+                deviceId: deviceId,
+                bundle: generalArgumentsReader[GeneralArguments.Bundle],
+                buildPath: generalArgumentsReader[GeneralArguments.BuildPath],
+                deviceNumber: generalArgumentsReader[GeneralArguments.AutoDetectDevice],
+                sleepSeconds: 10);
+        }
+    }
+
+    private static void TryRunAppiumServer()
+    {
+        if (generalArgumentsReader[GeneralArguments.SkipServerRun].Equals("false"))
+        {
+            Console.WriteLine("Running Appium server:");
+            testsRunner.RunAppiumServer(hostPlatform: generalArgumentsReader[GeneralArguments.HostPlatform]);
+        }
+    }
+
+    private static void TrySetupPortForwarding(string deviceId)
+    {
+        if (!generalArgumentsReader[GeneralArguments.SkipPortForward].Equals("false")) 
+            return;
+
+        Console.WriteLine("Setup port forwarding:");
+
+        testsRunner.SetupPortForwarding(
+            tcpLocalPort: generalArgumentsReader[GeneralArguments.LocalPort],
+            tcpDevicePort: generalArgumentsReader[GeneralArguments.DevicePort],
+            deviceId: deviceId);
+    }
+
+    private static bool TryGetConnectedDevice(out string deviceId)
+    {
+        if (!generalArgumentsReader.IsExist(GeneralArguments.AutoDetectDevice))
+        {
+            if (!generalArgumentsReader.IsExist(GeneralArguments.DeviceId))
+                throw new KeyNotFoundException("Auto detection disabled and device id not set. Use one of this options.");
+
+            deviceId = generalArgumentsReader[GeneralArguments.DeviceId];
+            Console.WriteLine($"Auto detection device disabled. Device id: {deviceId} will be used.");
+        }
+        else if (!testsRunner.IsDeviceConnected(generalArgumentsReader[GeneralArguments.AutoDetectDevice], out deviceId))
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private static void PrintParsedTestsTree(string testsTreeJsonPath)
