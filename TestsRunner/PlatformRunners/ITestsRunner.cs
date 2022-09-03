@@ -3,10 +3,13 @@
 
 namespace TestsRunner.PlatformRunners;
 
-public interface ITestsRunner<TArgsEnum> where TArgsEnum : Enum
+public interface ITestsRunner<TArgsEnum> : ITestsRunner where TArgsEnum : Enum
 {
     void Initialize(ArgumentsReader<TArgsEnum> platformArguments);
-    
+}
+
+public interface ITestsRunner
+{
     bool IsDeviceConnected(string deviceNumber, out string deviceId);
     void SetupPortForwarding(string deviceId, string tcpLocalPort, string tcpDevicePort);
     

@@ -9,14 +9,13 @@ namespace TestsRunner;
 
 class Program
 {
-    private static readonly ITestsRunner<AndroidArguments> AndroidTestsRunner = new AndroidTestsRunner();
-    private static readonly ITestsRunner<IosArguments> IosTestsRunner = new IosTestRunner();
+    private static ITestsRunner testsRunner;
+    private static ArgumentsReader<GeneralArguments> generalArgumentsReader;
 
     private static void Main(string[] args)
     {
-        var generalArgumentsReader =
-            new ArgumentsReader<GeneralArguments>(args, ArgumentKeys.GeneralKeys,
-                ArgumentKeys.GeneralDefaults, ArgumentKeys.GeneralDescriptions);
+        generalArgumentsReader = new ArgumentsReader<GeneralArguments>(args, ArgumentKeys.GeneralKeys,
+            ArgumentKeys.GeneralDefaults, ArgumentKeys.GeneralDescriptions);
 
         var androidArgumentsReader =
             new ArgumentsReader<AndroidArguments>(args, ArgumentKeys.AndroidKeys,
@@ -26,12 +25,9 @@ class Program
             new ArgumentsReader<IosArguments>(args, ArgumentKeys.IosKeys,
                 ArgumentKeys.IosDefaults, ArgumentKeys.IosDescriptions);
 
-        AndroidTestsRunner.Initialize(androidArgumentsReader);
-        IosTestsRunner.Initialize(iosArgumentsReader);
-
-        if (generalArgumentsReader[GeneralArguments.Help].Equals("true"))
+        if (generalArgumentsReader.IsTrue(GeneralArguments.Help))
         {
-            var showDefaults = generalArgumentsReader[GeneralArguments.Defaults].Equals("true");
+            var showDefaults = generalArgumentsReader.IsTrue(GeneralArguments.Defaults);
             ShowHelp(generalArgumentsReader, "==== General parameters: ====", showDefaults);
             ShowHelp(androidArgumentsReader, "==== Android parameters: ====", showDefaults);
             ShowHelp(iosArgumentsReader, "==== iOS parameters: ====", showDefaults);
@@ -45,15 +41,20 @@ class Program
             switch (generalArgumentsReader[GeneralArguments.Platform])
             {
                 case "android":
-                    ExecuteTests(AndroidTestsRunner, generalArgumentsReader);
+                    var androidTestsRunner = new AndroidTestsRunner();
+                    androidTestsRunner.Initialize(androidArgumentsReader);
+                    testsRunner = androidTestsRunner;
                     break;
                 case "ios":
-                    ExecuteTests(IosTestsRunner, generalArgumentsReader);
+                    var iosTestRunner = new IosTestRunner();
+                    iosTestRunner.Initialize(iosArgumentsReader);
+                    testsRunner = iosTestRunner;
                     break;
                 default:
-                    Console.WriteLine("Platform key needed to run test session. Exit from application.");
-                    break;
+                    throw new KeyNotFoundException("Platform key needed to run tests session. Exit from application.");
             }
+            
+            ExecuteTests();
         }
         catch (Exception exception)
         {
@@ -61,29 +62,28 @@ class Program
         }
         finally
         {
-            // todo: write a little bit properly and safe
-            switch (generalArgumentsReader[GeneralArguments.Platform])
-            {
-                case "android":
-                    StopSession(AndroidTestsRunner);
-                    break;
-                case "ios":
-                    StopSession(IosTestsRunner);
-                    break;
-            }
+            StopSession();
         }
     }
 
-    private static void StopSession<TArgsEnum>(ITestsRunner<TArgsEnum> testRunner) where TArgsEnum : Enum
+    private static void StopSession()
     {
-        testRunner.StopAppiumServer();
-        testRunner.StopAppiumSession();
+        testsRunner.StopAppiumSession();
+        testsRunner.StopAppiumServer();
     }
 
-    private static void ExecuteTests<TArgsEnum>(ITestsRunner<TArgsEnum> testRunner,
-        ArgumentsReader<GeneralArguments> generalArgumentsReader) where TArgsEnum : Enum
+    private static void ExecuteTests()
     {
-        if (!testRunner.IsDeviceConnected(generalArgumentsReader[GeneralArguments.RunOnDevice], out var deviceId))
+        string deviceId;
+        if (!generalArgumentsReader.IsExist(GeneralArguments.AutoDetectDevice))
+        {
+            if (!generalArgumentsReader.IsExist(GeneralArguments.DeviceId))
+                throw new KeyNotFoundException("Auto detection disabled and device id not set. Use one of this options.");
+
+            deviceId = generalArgumentsReader[GeneralArguments.DeviceId];
+            Console.WriteLine($"Auto detection device disabled. Device id: {deviceId} will be used");
+        }
+        else if (!testsRunner.IsDeviceConnected(generalArgumentsReader[GeneralArguments.AutoDetectDevice], out deviceId))
         {
             return;
         }
@@ -91,7 +91,7 @@ class Program
         if (generalArgumentsReader[GeneralArguments.SkipPortForward].Equals("false"))
         {
             Console.WriteLine("Setup port forwarding:");
-            testRunner.SetupPortForwarding(
+            testsRunner.SetupPortForwarding(
                 tcpLocalPort: generalArgumentsReader[GeneralArguments.LocalPort],
                 tcpDevicePort: generalArgumentsReader[GeneralArguments.DevicePort],
                 deviceId: deviceId);
@@ -100,17 +100,17 @@ class Program
         if (generalArgumentsReader[GeneralArguments.SkipServerRun].Equals("false"))
         {
             Console.WriteLine("Running Appium server:");
-            testRunner.RunAppiumServer(hostPlatform: generalArgumentsReader[GeneralArguments.HostPlatform]);
+            testsRunner.RunAppiumServer(hostPlatform: generalArgumentsReader[GeneralArguments.HostPlatform]);
         }
 
         if (generalArgumentsReader[GeneralArguments.SkipSessionRun].Equals("false"))
         {
             Console.WriteLine("Running Appium session:");
-            testRunner.RunAppiumSession(
+            testsRunner.RunAppiumSession(
                 deviceId: deviceId,
                 bundle: generalArgumentsReader[GeneralArguments.Bundle],
                 buildPath: generalArgumentsReader[GeneralArguments.BuildPath],
-                deviceNumber: generalArgumentsReader[GeneralArguments.RunOnDevice],
+                deviceNumber: generalArgumentsReader[GeneralArguments.AutoDetectDevice],
                 sleepSeconds: 10);
         }
 
@@ -124,7 +124,7 @@ class Program
                 consoleRunnerPath: generalArgumentsReader[GeneralArguments.NUnitConsoleApplicationPath],
                 systemLog: generalArgumentsReader[GeneralArguments.TestSystemOutputLogFilePath],
                 testAssembly: generalArgumentsReader[GeneralArguments.NUnitTestsAssemblyPath],
-                deviceNumber: generalArgumentsReader[GeneralArguments.RunOnDevice]);
+                deviceNumber: generalArgumentsReader[GeneralArguments.AutoDetectDevice]);
         }
     }
 

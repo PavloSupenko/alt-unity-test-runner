@@ -2,7 +2,7 @@
 
 public class ArgumentsReader<TArgsEnum> where TArgsEnum : Enum
 {
-    private readonly Dictionary<TArgsEnum, string> @default;
+    private readonly Dictionary<TArgsEnum, string> defaults;
     private readonly Dictionary<TArgsEnum, string> commandLineValues;
     private readonly Dictionary<TArgsEnum, string> descriptions;
     private readonly IReadOnlyDictionary<string, TArgsEnum> allCommandLineKeys;
@@ -10,51 +10,34 @@ public class ArgumentsReader<TArgsEnum> where TArgsEnum : Enum
     public ArgumentsReader(
         IEnumerable<string> commandLineArguments,
         IReadOnlyDictionary<string, TArgsEnum> commandLineKeys,
-        Dictionary<TArgsEnum, string> @default,
+        Dictionary<TArgsEnum, string> defaults,
         Dictionary<TArgsEnum, string> descriptions)
     {
+        this.defaults = defaults;
         this.descriptions = descriptions;
-        this.@default = @default;
         this.allCommandLineKeys = commandLineKeys;
         this.commandLineValues = ParseCommandLineArguments(commandLineArguments, commandLineKeys);
     }
 
-    private Dictionary<TArgsEnum, string> ParseCommandLineArguments(
-        IEnumerable<string> commandLineArguments,
-        IReadOnlyDictionary<string, TArgsEnum> commandLineKeys)
-    {
-        var lineArguments = commandLineArguments.ToArray();
-        var result = new Dictionary<TArgsEnum, string>();
-
-        for (var i = 0; i < lineArguments.Length; i++)
-        {
-            var argument = lineArguments[i];
-
-            if (commandLineKeys.ContainsKey(argument))
-            {
-                if (!result.ContainsKey(commandLineKeys[argument]))
-                    result.Add(commandLineKeys[argument], lineArguments[i + 1]);
-
-                i++;
-            }
-        }
-
-        return result;
-    }
-
-    public string this[TArgsEnum argument]
+    public string? this[TArgsEnum argument]
     {
         get
         {
             if (commandLineValues.ContainsKey(argument))
                 return commandLineValues[argument];
 
-            if (@default.ContainsKey(argument))
-                return @default[argument];
+            if (defaults.ContainsKey(argument))
+                return defaults[argument];
 
             return null;
         }
     }
+    
+    public bool IsExist(TArgsEnum argument) => 
+        this[argument] != null;
+    
+    public bool IsTrue(TArgsEnum argument) => 
+        this[argument].Equals("true");
 
     public (string switchName, string description) GetHelp(TArgsEnum argument)
     {
@@ -65,5 +48,35 @@ public class ArgumentsReader<TArgsEnum> where TArgsEnum : Enum
             : "*no description for this parameter*";
 
         return (switchName, description);
+    }
+
+    private Dictionary<TArgsEnum, string> ParseCommandLineArguments(IEnumerable<string> commandLineArguments, 
+        IReadOnlyDictionary<string, TArgsEnum> commandLineKeys)
+    {
+        var lineArguments = commandLineArguments.ToArray();
+        var result = new Dictionary<TArgsEnum, string>();
+
+        for (var i = 0; i < lineArguments.Length; i++)
+        {
+            var argument = lineArguments[i];
+
+            if (!commandLineKeys.ContainsKey(argument)) 
+                continue;
+
+            if (result.ContainsKey(commandLineKeys[argument])) 
+                continue;
+
+            if (lineArguments.Length <= i + 1 || lineArguments[i + 1].StartsWith("-"))
+            {
+                result.Add(commandLineKeys[argument], "true");
+            }
+            else
+            {
+                result.Add(commandLineKeys[argument], lineArguments[i + 1]);
+                i++;
+            }
+        }
+
+        return result;
     }
 }

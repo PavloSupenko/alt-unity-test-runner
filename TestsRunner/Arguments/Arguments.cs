@@ -4,9 +4,11 @@ public enum GeneralArguments
 {
     HostPlatform,
     Platform,
+
+    AutoDetectDevice,
+    DeviceId,
     
     TestsTree,
-    RunOnDevice,
     BuildPath,
     Bundle,
     

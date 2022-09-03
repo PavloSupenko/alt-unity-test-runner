@@ -10,8 +10,10 @@ static class ArgumentKeys
         
         ["--bundle"] = GeneralArguments.Bundle,
 
+        ["--auto-detect-device"] = GeneralArguments.AutoDetectDevice,
+        ["--device-id"] = GeneralArguments.DeviceId,
+
         ["--tests"] = GeneralArguments.TestsTree,
-        ["--run-on-device"] = GeneralArguments.RunOnDevice,
         ["--nunit-console"] = GeneralArguments.NUnitConsoleApplicationPath,
         ["--nunit-assembly"] = GeneralArguments.NUnitTestsAssemblyPath,
         ["--log"] = GeneralArguments.TestSystemOutputLogFilePath,
@@ -34,9 +36,11 @@ static class ArgumentKeys
         ["-b"] = GeneralArguments.BuildPath,
         
         ["-app"] = GeneralArguments.Bundle,
+        
+        ["-n"] = GeneralArguments.AutoDetectDevice,
+        ["-i"] = GeneralArguments.DeviceId,
 
         ["-t"] = GeneralArguments.TestsTree,
-        ["-n"] = GeneralArguments.RunOnDevice,
         ["-c"] = GeneralArguments.NUnitConsoleApplicationPath,
         ["-a"] = GeneralArguments.NUnitTestsAssemblyPath,
         ["-l"] = GeneralArguments.TestSystemOutputLogFilePath,
@@ -70,15 +74,10 @@ static class ArgumentKeys
 
     public static readonly Dictionary<GeneralArguments, string> GeneralDefaults = new()
     {
-        [GeneralArguments.Platform] = "none",
         [GeneralArguments.HostPlatform] = "osx",
 
         [GeneralArguments.TestsTree] = "TestsTreeTemplate.json",
-        [GeneralArguments.RunOnDevice] = "1",
-        [GeneralArguments.NUnitConsoleApplicationPath] = "none",
         [GeneralArguments.TestSystemOutputLogFilePath] = "tests-log.log",
-        
-        [GeneralArguments.Bundle] = "com.binibambini.acad.drawing",
         
         [GeneralArguments.LocalPort] = "13000",
         [GeneralArguments.DevicePort] = "13000",
@@ -113,9 +112,11 @@ static class ArgumentKeys
         [GeneralArguments.HostPlatform] = "computer platform. Values [osx/windows]",
         [GeneralArguments.Platform] = "test platform. Values [ios/android]",
         [GeneralArguments.BuildPath] = "path to .apk for android / .ipa or .app for iOS. Value: string",
+        
+        [GeneralArguments.AutoDetectDevice] = "number of device to auto detect to run tests on. Values: [1..n]",
+        [GeneralArguments.DeviceId] = "device id to run tests on. Used when auto detection is not allowed. Value: string",
 
         [GeneralArguments.TestsTree] = "path to tests tree template json file. Value: string",
-        [GeneralArguments.RunOnDevice] = "number of device to run tests on. Values: [1..n]",
         [GeneralArguments.NUnitConsoleApplicationPath] = "path to console application to run NUnitv3+ tests. Value: string",
         [GeneralArguments.NUnitTestsAssemblyPath] = "path to console tests assembly. Value: string",
         
