@@ -16,13 +16,13 @@ public abstract class TestBase
     public void SetUp()
     {
         AppiumDriver = new AppiumDriver();
-        AltUnityDriver = new AltUnityDriver();
+        // AltUnityDriver = new AltUnityDriver();
     }
 
     [OneTimeTearDown]
     public void TearDown()
     {
-        AltUnityDriver.Stop();
+        // AltUnityDriver.Stop();
     }
 
     public abstract void Enter();
