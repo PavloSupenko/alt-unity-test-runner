@@ -1,4 +1,4 @@
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using OpenQA.Selenium.Appium.iOS;
 
 namespace TestsClient;
@@ -6,7 +6,7 @@ namespace TestsClient;
 /// <summary>
 /// This test methods need appium:noReset=true capability to not reinstall application on launch
 /// </summary>
-public class ReopenApplication : TestBase
+public class CloseApplication : TestBase
 {
     [Test]
     public override void Enter()
@@ -18,7 +18,6 @@ public class ReopenApplication : TestBase
     [Test]
     public override void Exit()
     {
-        var driver = (IOSDriver<IOSElement>) AppiumDriver.GetAppiumDriver();
-        driver.LaunchApp();
+        
     }
 }
