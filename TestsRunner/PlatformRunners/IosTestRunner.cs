@@ -2,6 +2,7 @@ using System.Diagnostics;
 using OpenQA.Selenium.Appium;
 using OpenQA.Selenium.Appium.Enums;
 using OpenQA.Selenium.Appium.iOS;
+using OpenQA.Selenium.Remote;
 using Shared.Processes;
 using Shared.Serialization;
 using TestsRunner.Arguments;
@@ -136,6 +137,8 @@ public class IosTestRunner : ITestsRunner<IosArguments>
         capabilities.AddAdditionalCapability("appium:xcodeSigningId", signingId);
         capabilities.AddAdditionalCapability("appium:showXcodeLog", true);
         capabilities.AddAdditionalCapability(CustomCapabilityType.TargetDeviceId, deviceId);
+        
+        capabilities.AddAdditionalCapability("appium:noReset", true);
         
         driver = new IOSDriver<IOSElement>(new Uri("http://127.0.0.1:4723/wd/hub"), capabilities, TimeSpan.FromMinutes(30));
         driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromMinutes(30);
