@@ -1,3 +1,5 @@
+using System;
+using System.Threading;
 using NUnit.Framework;
 using OpenQA.Selenium.Appium.iOS;
 
@@ -8,8 +10,17 @@ public class PushAlarmMessage: TestBase
     [Test]
     public override void Enter()
     {
-        var acceptButton = ((IOSDriver<IOSElement>)AppiumDriver.GetAppiumDriver()).FindElementByAccessibilityId("Заборонити");
-        acceptButton.Click();
+        Thread.Sleep(TimeSpan.FromSeconds(10));
+
+        try
+        {
+            var acceptButton = ((IOSDriver<IOSElement>)AppiumDriver.GetAppiumDriver()).FindElementByAccessibilityId("Заборонити");
+            acceptButton.Click();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("No push warning message to skip.");
+        }
     }
 
     [Test]
