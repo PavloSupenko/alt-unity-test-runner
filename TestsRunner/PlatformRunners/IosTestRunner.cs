@@ -142,7 +142,7 @@ public class IosTestRunner : ITestsRunner<IosArguments>
         
         driver = new IOSDriver<IOSElement>(new Uri("http://127.0.0.1:4723/wd/hub"), capabilities, TimeSpan.FromSeconds(600));
         driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
-        // driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(10);
+        driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(600);
         // driver.Manage().Timeouts().AsynchronousJavaScript = TimeSpan.FromSeconds(10);
     }
 
