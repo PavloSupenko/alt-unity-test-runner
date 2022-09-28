@@ -195,7 +195,7 @@ class Program
         ProcessRunner processRunner = new ProcessRunner();
         TestsTree testsTree = TestsTree.DeserializeTree(testsTreeFilePath);
         List<string> testsList = testsTree.GetTestsInvocationList();
-        Dictionary<string, bool> testsStatus = new Dictionary<string, bool>();
+        //List<KeyValuePair<string, bool>> testsStatus = new List<KeyValuePair<string, bool>>();
 
         using StreamWriter sw = new StreamWriter(systemLog,
             new FileStreamOptions()
@@ -220,12 +220,12 @@ class Program
                 sw.WriteLine(outputLine);
             
             sw.WriteLine();
-            testsStatus.Add(testName, IsTestSuccess(systemOutput));
+            //testsStatus.Add(testName, IsTestSuccess(systemOutput));
         }
         
         sw.Close();
         
-        DrawTestsTreeResult(TestsTree.DeserializeTree(testsTreeFilePath), testsStatus);
+        //DrawTestsTreeResult(TestsTree.DeserializeTree(testsTreeFilePath), testsStatus);
     }
 
     private static bool IsTestSuccess(IEnumerable<string> logText)
