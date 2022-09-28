@@ -68,17 +68,17 @@ public class AppiumDriver : IAppiumDriver
                 platform = DriverPlatform.Android;
                 androidDriver = new AndroidExistingDriver(new Uri("http://127.0.0.1:4723/wd/hub"), requiredSessionId, TimeSpan.FromSeconds(600));
 
-                androidDriver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
-                androidDriver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(600);
-                androidDriver.Manage().Timeouts().AsynchronousJavaScript = TimeSpan.FromSeconds(10);
+                //androidDriver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
+                //androidDriver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(600);
+                //androidDriver.Manage().Timeouts().AsynchronousJavaScript = TimeSpan.FromSeconds(10);
                 break;
             case "iOS":
                 platform = DriverPlatform.Ios;
                 iosDriver = new IosExistingDriver(new Uri("http://127.0.0.1:4723/wd/hub"), requiredSessionId, TimeSpan.FromSeconds(600));
                 
-                iosDriver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
-                iosDriver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(600);
-                iosDriver.Manage().Timeouts().AsynchronousJavaScript = TimeSpan.FromSeconds(10);
+                //iosDriver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
+                //iosDriver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(600);
+                //iosDriver.Manage().Timeouts().AsynchronousJavaScript = TimeSpan.FromSeconds(10);
                 break;
         }
     }
