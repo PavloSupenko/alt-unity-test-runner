@@ -120,7 +120,8 @@ public class IosTestRunner : ITestsRunner<IosArguments>
         AppiumOptions capabilities = new AppiumOptions();
         
         // Disable timeout session disabling
-        // capabilities.AddAdditionalCapability(MobileCapabilityType.NewCommandTimeout, 600);
+        capabilities.AddAdditionalCapability(MobileCapabilityType.NewCommandTimeout, 600);
+        capabilities.AddAdditionalCapability("appium:commandTimeouts", 600_000);
         // capabilities.AddAdditionalCapability("appium:appPushTimeout", 1_800_000);
         // capabilities.AddAdditionalCapability("appium:wdaConnectionTimeout", 1_800_000);
         // capabilities.AddAdditionalCapability("appium:wdaStartupRetryInterval", 1_800_000);
