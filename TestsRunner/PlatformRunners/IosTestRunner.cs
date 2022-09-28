@@ -120,11 +120,11 @@ public class IosTestRunner : ITestsRunner<IosArguments>
         AppiumOptions capabilities = new AppiumOptions();
         
         // Disable timeout session disabling
-        capabilities.AddAdditionalCapability(MobileCapabilityType.NewCommandTimeout, 0);
-        capabilities.AddAdditionalCapability("appium:appPushTimeout", 1_800_000);
-        capabilities.AddAdditionalCapability("appium:wdaConnectionTimeout", 1_800_000);
-        capabilities.AddAdditionalCapability("appium:wdaStartupRetryInterval", 1_800_000);
-        capabilities.AddAdditionalCapability("appium:waitForIdleTimeout", 1_800);
+        // capabilities.AddAdditionalCapability(MobileCapabilityType.NewCommandTimeout, 0);
+        // capabilities.AddAdditionalCapability("appium:appPushTimeout", 1_800_000);
+        // capabilities.AddAdditionalCapability("appium:wdaConnectionTimeout", 1_800_000);
+        // capabilities.AddAdditionalCapability("appium:wdaStartupRetryInterval", 1_800_000);
+        // capabilities.AddAdditionalCapability("appium:waitForIdleTimeout", 1_800);
         
         capabilities.AddAdditionalCapability(MobileCapabilityType.PlatformName, "iOS");
         capabilities.AddAdditionalCapability(MobileCapabilityType.App, ipaPath);
@@ -141,9 +141,9 @@ public class IosTestRunner : ITestsRunner<IosArguments>
         capabilities.AddAdditionalCapability("appium:noReset", true);
         
         driver = new IOSDriver<IOSElement>(new Uri("http://127.0.0.1:4723/wd/hub"), capabilities, TimeSpan.FromMinutes(30));
-        driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromMinutes(30);
-        driver.Manage().Timeouts().PageLoad = TimeSpan.FromMinutes(30);
-        driver.Manage().Timeouts().AsynchronousJavaScript = TimeSpan.FromMinutes(30);
+        // driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromMinutes(30);
+        // driver.Manage().Timeouts().PageLoad = TimeSpan.FromMinutes(30);
+        // driver.Manage().Timeouts().AsynchronousJavaScript = TimeSpan.FromMinutes(30);
     }
 
     public void StopAppiumSession()
