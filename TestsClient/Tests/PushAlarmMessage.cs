@@ -10,8 +10,6 @@ public class PushAlarmMessage: TestBase
     [Test]
     public override void Enter()
     {
-        Thread.Sleep(TimeSpan.FromSeconds(10));
-
         try
         {
             var acceptButton = ((IOSDriver<IOSElement>)AppiumDriver.GetAppiumDriver()).FindElementByAccessibilityId("Заборонити");

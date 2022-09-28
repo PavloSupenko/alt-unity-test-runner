@@ -1,28 +1,4 @@
 {
   "TestsRootNamespace": "TestsClient",
-  "Tests": [
-
-    {"Test": "PushAlarmMessage", "SubTests": []}, {"Test": "WaitTwentySeconds", "SubTests": []}, {"Test": "CloseApplication", "SubTests": []},
-    {"Test": "OpenApplication", "SubTests": []}, {"Test": "PushAlarmMessage", "SubTests": []}, {"Test": "WaitTwentySeconds", "SubTests": []}, {"Test": "CloseApplication", "SubTests": []},
-
-    {"Test": "OpenApplication", "SubTests": []}, {"Test": "WaitTwentySeconds", "SubTests": []}, {"Test": "CloseApplication", "SubTests": []},
-    {"Test": "OpenApplication", "SubTests": []}, {"Test": "WaitTwentySeconds", "SubTests": []}, {"Test": "CloseApplication", "SubTests": []},
-    {"Test": "OpenApplication", "SubTests": []}, {"Test": "WaitTwentySeconds", "SubTests": []}, {"Test": "CloseApplication", "SubTests": []},
-    {"Test": "OpenApplication", "SubTests": []}, {"Test": "WaitTwentySeconds", "SubTests": []}, {"Test": "CloseApplication", "SubTests": []},
-    {"Test": "OpenApplication", "SubTests": []}, {"Test": "WaitTwentySeconds", "SubTests": []}, {"Test": "CloseApplication", "SubTests": []},
-    {"Test": "OpenApplication", "SubTests": []}, {"Test": "WaitTwentySeconds", "SubTests": []}, {"Test": "CloseApplication", "SubTests": []},
-    {"Test": "OpenApplication", "SubTests": []}, {"Test": "WaitTwentySeconds", "SubTests": []}, {"Test": "CloseApplication", "SubTests": []},
-    {"Test": "OpenApplication", "SubTests": []}, {"Test": "WaitTwentySeconds", "SubTests": []}, {"Test": "CloseApplication", "SubTests": []},
-    {"Test": "OpenApplication", "SubTests": []}, {"Test": "WaitTwentySeconds", "SubTests": []}, {"Test": "CloseApplication", "SubTests": []},
-    {"Test": "OpenApplication", "SubTests": []}, {"Test": "WaitTwentySeconds", "SubTests": []}, {"Test": "CloseApplication", "SubTests": []},
-    {"Test": "OpenApplication", "SubTests": []}, {"Test": "WaitTwentySeconds", "SubTests": []}, {"Test": "CloseApplication", "SubTests": []},
-    {"Test": "OpenApplication", "SubTests": []}, {"Test": "WaitTwentySeconds", "SubTests": []}, {"Test": "CloseApplication", "SubTests": []},
-    {"Test": "OpenApplication", "SubTests": []}, {"Test": "WaitTwentySeconds", "SubTests": []}, {"Test": "CloseApplication", "SubTests": []},
-    {"Test": "OpenApplication", "SubTests": []}, {"Test": "WaitTwentySeconds", "SubTests": []}, {"Test": "CloseApplication", "SubTests": []},
-    {"Test": "OpenApplication", "SubTests": []}, {"Test": "WaitTwentySeconds", "SubTests": []}, {"Test": "CloseApplication", "SubTests": []},
-    {"Test": "OpenApplication", "SubTests": []}, {"Test": "WaitTwentySeconds", "SubTests": []}, {"Test": "CloseApplication", "SubTests": []},
-    {"Test": "OpenApplication", "SubTests": []}, {"Test": "WaitTwentySeconds", "SubTests": []}, {"Test": "CloseApplication", "SubTests": []},
-    {"Test": "OpenApplication", "SubTests": []}, {"Test": "WaitTwentySeconds", "SubTests": []}, {"Test": "CloseApplication", "SubTests": []}
-    
-  ]
+  "Tests": [{"Test": "AnalyticsTest", "SubTests": []}]
 }
