@@ -22,7 +22,7 @@ public class AnalyticsTest : TestBase
             for (var j = 1; j <= 3; j++)
             {
                 Console.WriteLine($"Executing session:{i}/20, run:{j}/3.");
-                OpenAndCloseApplication(i <= 2);
+                OpenAndCloseApplication(j <= 2);
             }
             
             Console.WriteLine("Reinstalling application.");
@@ -32,17 +32,21 @@ public class AnalyticsTest : TestBase
 
     private void OpenAndCloseApplication(bool isPushMessageAllowed)
     {
+        Console.WriteLine("Opening application.");
         OpenApplication();
 
         if (isPushMessageAllowed)
         {
-            Thread.Sleep(TimeSpan.FromSeconds(10));
+            Console.WriteLine("Waiting for possible push message.");
+            Thread.Sleep(TimeSpan.FromSeconds(3));
             SkipPushMessage();   
         }
         
-        Thread.Sleep(TimeSpan.FromSeconds(20));
+        Console.WriteLine("Waiting for main scene.");
+        Thread.Sleep(TimeSpan.FromSeconds(30));
+        Console.WriteLine("Closing application.");
         CloseApplication();
-        Thread.Sleep(TimeSpan.FromSeconds(2));
+        Thread.Sleep(TimeSpan.FromSeconds(5));
     }
 
     private void OpenApplication()
@@ -68,6 +72,8 @@ public class AnalyticsTest : TestBase
         try
         {
             var acceptButton = ((IOSDriver<IOSElement>)AppiumDriver.GetAppiumDriver()).FindElementByAccessibilityId("Заборонити");
+            
+            Console.WriteLine("Skipping push message.");
             acceptButton.Click();
         }
         catch (Exception e)
