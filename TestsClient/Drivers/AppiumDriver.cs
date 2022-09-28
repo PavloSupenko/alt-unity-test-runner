@@ -66,11 +66,11 @@ public class AppiumDriver : IAppiumDriver
         {
             case "Android":
                 platform = DriverPlatform.Android;
-                androidDriver = new AndroidExistingDriver(new Uri("http://127.0.0.1:4723/wd/hub"), requiredSessionId);
+                androidDriver = new AndroidExistingDriver(new Uri("http://127.0.0.1:4723/wd/hub"), requiredSessionId, TimeSpan.FromSeconds(600));
                 break;
             case "iOS":
                 platform = DriverPlatform.Ios;
-                iosDriver = new IosExistingDriver(new Uri("http://127.0.0.1:4723/wd/hub"), requiredSessionId);
+                iosDriver = new IosExistingDriver(new Uri("http://127.0.0.1:4723/wd/hub"), requiredSessionId, TimeSpan.FromSeconds(600));
                 break;
         }
     }

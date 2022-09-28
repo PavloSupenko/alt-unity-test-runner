@@ -124,8 +124,8 @@ public class IosTestRunner : ITestsRunner<IosArguments>
         capabilities.AddAdditionalCapability("appium:commandTimeouts", 600_000); // millisec
         capabilities.AddAdditionalCapability("appium:appPushTimeout", 600_000);
         capabilities.AddAdditionalCapability("appium:wdaConnectionTimeout", 600_000);
-        // capabilities.AddAdditionalCapability("appium:wdaStartupRetryInterval", 1_800_000);
-        // capabilities.AddAdditionalCapability("appium:waitForIdleTimeout", 1_800);
+        capabilities.AddAdditionalCapability("appium:wdaStartupRetryInterval", 600_000);
+        capabilities.AddAdditionalCapability("appium:waitForIdleTimeout", 1_800);
         
         capabilities.AddAdditionalCapability(MobileCapabilityType.PlatformName, "iOS");
         capabilities.AddAdditionalCapability(MobileCapabilityType.App, ipaPath);
@@ -144,7 +144,7 @@ public class IosTestRunner : ITestsRunner<IosArguments>
         driver = new IOSDriver<IOSElement>(new Uri("http://127.0.0.1:4723/wd/hub"), capabilities, TimeSpan.FromSeconds(600));
         driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
         driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(600);
-        // driver.Manage().Timeouts().AsynchronousJavaScript = TimeSpan.FromSeconds(10);
+        driver.Manage().Timeouts().AsynchronousJavaScript = TimeSpan.FromSeconds(10);
     }
 
     public void StopAppiumSession()

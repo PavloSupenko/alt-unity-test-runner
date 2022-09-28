@@ -12,13 +12,17 @@ public class IosExistingDriver : IOSDriver<IOSElement>
 {
     private readonly string sessionId;
 
-    public IosExistingDriver(Uri remoteAddress, string sessionId) : base(remoteAddress, new AppiumOptions())
+    public IosExistingDriver(Uri remoteAddress, string sessionId, TimeSpan commandTimeout) : base(remoteAddress, new AppiumOptions(), commandTimeout)
     {
         this.sessionId = sessionId;
         var sessionIdBase = GetType().BaseType.BaseType.BaseType
             .GetField("sessionId", BindingFlags.Instance | BindingFlags.NonPublic);
         
         sessionIdBase.SetValue(this, new SessionId(sessionId));
+        
+        this.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
+        this.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(600);
+        this.Manage().Timeouts().AsynchronousJavaScript = TimeSpan.FromSeconds(10);
     }
 
     protected override Response Execute(string driverCommandToExecute, Dictionary<string, object> parameters)
