@@ -19,10 +19,6 @@ public class IosExistingDriver : IOSDriver<IOSElement>
             .GetField("sessionId", BindingFlags.Instance | BindingFlags.NonPublic);
         
         sessionIdBase.SetValue(this, new SessionId(sessionId));
-        
-        this.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
-        this.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(600);
-        this.Manage().Timeouts().AsynchronousJavaScript = TimeSpan.FromSeconds(10);
     }
 
     protected override Response Execute(string driverCommandToExecute, Dictionary<string, object> parameters)
