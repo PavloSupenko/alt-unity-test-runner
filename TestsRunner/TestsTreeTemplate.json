@@ -1,4 +1,25 @@
 {
   "TestsRootNamespace": "TestsClient",
-  "Tests": [{"Test": "AnalyticsTest", "SubTests": []}]
+  "Tests": [
+    {"Test": "AnalyticsTest", "SubTests": []},
+    {"Test": "AnalyticsTest", "SubTests": []},
+    {"Test": "AnalyticsTest", "SubTests": []},
+    {"Test": "AnalyticsTest", "SubTests": []},
+    {"Test": "AnalyticsTest", "SubTests": []},
+    {"Test": "AnalyticsTest", "SubTests": []},
+    {"Test": "AnalyticsTest", "SubTests": []},
+    {"Test": "AnalyticsTest", "SubTests": []},
+    {"Test": "AnalyticsTest", "SubTests": []},
+    {"Test": "AnalyticsTest", "SubTests": []},
+    {"Test": "AnalyticsTest", "SubTests": []},
+    {"Test": "AnalyticsTest", "SubTests": []},
+    {"Test": "AnalyticsTest", "SubTests": []},
+    {"Test": "AnalyticsTest", "SubTests": []},
+    {"Test": "AnalyticsTest", "SubTests": []},
+    {"Test": "AnalyticsTest", "SubTests": []},
+    {"Test": "AnalyticsTest", "SubTests": []},
+    {"Test": "AnalyticsTest", "SubTests": []},
+    {"Test": "AnalyticsTest", "SubTests": []},
+    {"Test": "AnalyticsTest", "SubTests": []}
+  ]
 }

@@ -17,17 +17,14 @@ public class AnalyticsTest : TestBase
     [Test]
     public override void Enter()
     {
-        for (var i = 1; i <= 20; i++)
+        for (var j = 1; j <= 3; j++)
         {
-            for (var j = 1; j <= 3; j++)
-            {
-                Console.WriteLine($"Executing session:{i}/20, run:{j}/3.");
-                OpenAndCloseApplication(j <= 2);
-            }
-            
-            Console.WriteLine("Reinstalling application.");
-            RemoveApplication();
+            Console.WriteLine($"Executing run:{j}/3.");
+            OpenAndCloseApplication(j <= 2);
         }
+
+        Console.WriteLine("Reinstalling application.");
+        RemoveApplication();
     }
 
     private void OpenAndCloseApplication(bool isPushMessageAllowed)
