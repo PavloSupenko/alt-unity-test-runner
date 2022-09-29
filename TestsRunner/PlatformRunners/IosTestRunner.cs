@@ -140,7 +140,7 @@ public class IosTestRunner : ITestsRunner<IosArguments>
         capabilities.AddAdditionalCapability(CustomCapabilityType.TargetDeviceId, deviceId);
         
         capabilities.AddAdditionalCapability("appium:noReset", true);
-        capabilities.AddAdditionalCapability("appium:wdaLocalPort", 8110);
+        capabilities.AddAdditionalCapability("appium:wdaLocalPort", 8115);
         
         driver = new IOSDriver<IOSElement>(new Uri("http://127.0.0.1:4723/wd/hub"), capabilities, TimeSpan.FromSeconds(800));
         driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
