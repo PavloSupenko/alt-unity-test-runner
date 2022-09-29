@@ -58,6 +58,8 @@ public class AnalyticsTest : TestBase
     private void CloseApplication()
     {
         var driver = (IOSDriver<IOSElement>) AppiumDriver.GetAppiumDriver();
+        driver.BackgroundApp();
+        Thread.Sleep(TimeSpan.FromSeconds(2));
         driver.TerminateApp("biz.arrowstar.acad.funnyfood");
     }
 
