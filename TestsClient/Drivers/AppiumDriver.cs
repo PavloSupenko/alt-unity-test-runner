@@ -66,7 +66,7 @@ public class AppiumDriver : IAppiumDriver
         {
             case "Android":
                 platform = DriverPlatform.Android;
-                androidDriver = new AndroidExistingDriver(new Uri("http://127.0.0.1:4723/wd/hub"), requiredSessionId, TimeSpan.FromSeconds(800));
+                androidDriver = new AndroidExistingDriver(new Uri("http://127.0.0.1:4723/wd/hub"), requiredSessionId, TimeSpan.FromSeconds(1000));
 
                 // todo: what to do with this ???
                 //androidDriver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
@@ -75,7 +75,7 @@ public class AppiumDriver : IAppiumDriver
                 break;
             case "iOS":
                 platform = DriverPlatform.Ios;
-                iosDriver = new IosExistingDriver(new Uri("http://127.0.0.1:4723/wd/hub"), requiredSessionId, TimeSpan.FromSeconds(800));
+                iosDriver = new IosExistingDriver(new Uri("http://127.0.0.1:4723/wd/hub"), requiredSessionId, TimeSpan.FromSeconds(1000));
                 
                 //iosDriver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
                 //iosDriver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(600);
