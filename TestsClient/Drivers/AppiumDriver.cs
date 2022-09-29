@@ -31,6 +31,8 @@ public class AppiumDriver : IAppiumDriver
             Console.WriteLine("No Appium sessions found.");
             return;
         }
+        
+        Console.WriteLine($"Sessions request content: {content}");
 
         var sessionsData = Newtonsoft.Json.JsonConvert.DeserializeObject<AppiumSessionsListData>(content);
         if (sessionsData == null)
@@ -44,6 +46,11 @@ public class AppiumDriver : IAppiumDriver
             .ToDictionary(
                 deviceSession => deviceSession.DeviceNumber, 
                 deviceSession => deviceSession.Data);
+
+        foreach (var sessionId in sessionIds)
+        {
+            Console.WriteLine($"Session id found: {sessionId}");
+        }
 
         var targetDeviceNumber = Environment.GetEnvironmentVariable(CustomCapabilityType.TargetDeviceId);
         if (targetDeviceNumber == null)
@@ -76,7 +83,7 @@ public class AppiumDriver : IAppiumDriver
             case "iOS":
                 platform = DriverPlatform.Ios;
                 iosDriver = new IosExistingDriver(new Uri("http://127.0.0.1:4723/wd/hub"), requiredSessionId, TimeSpan.FromSeconds(1000));
-                
+
                 //iosDriver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
                 //iosDriver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(600);
                 //iosDriver.Manage().Timeouts().AsynchronousJavaScript = TimeSpan.FromSeconds(10);
