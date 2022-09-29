@@ -38,7 +38,7 @@ public class IosTestRunner : ITestsRunner<IosArguments>
     public void RunAppiumServer(string hostPlatform)
     {
         var process = "appium";
-        var arguments = $"--address 127.0.0.1 --port 4723 --base-path /wd/hub";
+        var arguments = $"--address 127.0.0.1 --port 4723 --base-path /wd/hub >> /Volumes/SSD2/Drawings-MBP-M1-BA1/work/wow-acad-funny-food/Apple-Unit-Tests/CI/appiumlog.log";
         Console.WriteLine($"Executing command: {process} {arguments}");
         processRunner.StartProcess(process, arguments);
         Thread.Sleep(TimeSpan.FromSeconds(15));
