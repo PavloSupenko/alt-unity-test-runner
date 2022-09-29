@@ -11,10 +11,9 @@ public class AnalyticsTest : TestBase
     [Test]
     public override void Exit()
     {
-        
     }
 
-    [Test]
+    [Test, Timeout(1_000_000)]
     public override void Enter()
     {
         for (var j = 1; j <= 3; j++)
