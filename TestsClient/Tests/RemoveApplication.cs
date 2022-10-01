@@ -9,7 +9,7 @@ public class RemoveApplication : TestBase
     public override void Enter()
     {
         var driver = (IOSDriver<IOSElement>)AppiumDriver.GetAppiumDriver();
-        driver.RemoveApp("biz.arrowstar.acad.funnyfood");
+        driver.RemoveApp("com.mage-app.a.FunnyFoodsLite");
     }
 
     [Test]

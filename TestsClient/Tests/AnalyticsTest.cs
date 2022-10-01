@@ -56,13 +56,13 @@ public class AnalyticsTest : TestBase
         var driver = (IOSDriver<IOSElement>) AppiumDriver.GetAppiumDriver();
         driver.BackgroundApp();
         Thread.Sleep(TimeSpan.FromSeconds(2));
-        driver.TerminateApp("biz.arrowstar.acad.funnyfood");
+        driver.TerminateApp("com.mage-app.a.FunnyFoodsLite");
     }
 
     private void RemoveApplication()
     {
         var driver = (IOSDriver<IOSElement>)AppiumDriver.GetAppiumDriver();
-        driver.RemoveApp("biz.arrowstar.acad.funnyfood");
+        driver.RemoveApp("com.mage-app.a.FunnyFoodsLite");
     }
 
     private void SkipPushMessage()

@@ -12,7 +12,7 @@ public class CloseApplication : TestBase
     public override void Enter()
     {
         var driver = (IOSDriver<IOSElement>) AppiumDriver.GetAppiumDriver();
-        driver.TerminateApp("biz.arrowstar.acad.funnyfood");
+        driver.TerminateApp("com.mage-app.a.FunnyFoodsLite");
     }
 
     [Test]
