@@ -1,4 +1,4 @@
-﻿namespace TestsRunner.Arguments;
+﻿namespace Shared.Arguments;
 
 public class ArgumentsReader<TArgsEnum> where TArgsEnum : Enum
 {

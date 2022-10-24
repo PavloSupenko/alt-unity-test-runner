@@ -1,4 +1,5 @@
-﻿using TestsRunner.Arguments;
+﻿using Shared.Arguments;
+using TestsRunner.Arguments;
 
 
 namespace TestsRunner.PlatformRunners;

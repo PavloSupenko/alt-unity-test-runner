@@ -2,6 +2,7 @@
 using OpenQA.Selenium.Appium;
 using OpenQA.Selenium.Appium.Android;
 using OpenQA.Selenium.Appium.Enums;
+using Shared.Arguments;
 using Shared.Processes;
 using Shared.Serialization;
 using TestsRunner.Arguments;
