@@ -44,23 +44,9 @@ public static class Program
             return false;
 
         var showDefaults = true;
-        ShowHelp(argumentsReader, "==== Parameters: ====", showDefaults);
+        ArgumentsReader<DeviceFarmArgument>.ShowHelp(argumentsReader, "==== Parameters: ====", showDefaults);
         Console.WriteLine();
 
         return true;
-    }
-    
-    private static void ShowHelp<TArgsEnum>(ArgumentsReader<TArgsEnum> argumentsReader, string header, bool showDefaults) 
-        where TArgsEnum : Enum
-    {
-        Console.WriteLine(header);
-        foreach (TArgsEnum argumentValue in Enum.GetValues(typeof(TArgsEnum)))
-        {
-            var argumentHelp = argumentsReader.GetHelp(argumentValue);
-            Console.WriteLine($"    [{argumentHelp.switchName}]  —  {argumentHelp.description}");
-            
-            if (showDefaults)
-                Console.WriteLine($"        default value:{argumentsReader[argumentValue]}");
-        }
     }
 }
