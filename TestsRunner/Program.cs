@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Shared.Arguments;
 using Shared.Processes;
 using Shared.Serialization;
 using TestsRunner.Arguments;
@@ -73,7 +74,6 @@ class Program
         Console.WriteLine();
 
         return true;
-
     }
 
     private static void StopSession()

@@ -1,4 +1,4 @@
-﻿namespace TestsRunner.Arguments;
+﻿namespace Shared.Arguments;
 
 public class ArgumentsReader<TArgsEnum> where TArgsEnum : Enum
 {
@@ -48,6 +48,19 @@ public class ArgumentsReader<TArgsEnum> where TArgsEnum : Enum
             : "*no description for this parameter*";
 
         return (switchName, description);
+    }
+    
+    public static void ShowHelp(ArgumentsReader<TArgsEnum> argumentsReader, string header, bool showDefaults)
+    {
+        Console.WriteLine(header);
+        foreach (TArgsEnum argumentValue in Enum.GetValues(typeof(TArgsEnum)))
+        {
+            var argumentHelp = argumentsReader.GetHelp(argumentValue);
+            Console.WriteLine($"    [{argumentHelp.switchName}]  —  {argumentHelp.description}");
+            
+            if (showDefaults)
+                Console.WriteLine($"        default value:{argumentsReader[argumentValue]}");
+        }
     }
 
     private Dictionary<TArgsEnum, string> ParseCommandLineArguments(IEnumerable<string> commandLineArguments, 
