@@ -1,5 +1,6 @@
 ﻿using Shared.Arguments;
 using TestSpecificationParser.Arguments;
+using TestSpecificationParser.PlatformInfos;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -28,13 +29,19 @@ public static class Program
         TestSpecification specification = deserializer.Deserialize<TestSpecification>(specFileContent);
         BashScriptBuilder bashScriptBuilder = new BashScriptBuilder(specification);
 
+        string deviceNumber = argumentsReader[BashScriptBuilderArgument.DeviceNumber];
+        string devicePlatformName = argumentsReader[BashScriptBuilderArgument.DevicePlatformName];
+        IDeviceInfo deviceInfo = devicePlatformName.Equals("iOS") ? new IosDeviceInfo() : new AndroidDeviceInfo();
+        deviceInfo.IsDeviceConnected(deviceNumber, out var udid, out var platformVersion);
+
         string bashExecutionScript = bashScriptBuilder.Build
         (
-            deviceName: argumentsReader[BashScriptBuilderArgument.DeviceName],
-            devicePlatform: argumentsReader[BashScriptBuilderArgument.DevicePlatformName],
+            // We will be using udid as a device name like AWS does.
+            deviceName: udid,
+            devicePlatform: devicePlatformName,
             artifactsDirectory: argumentsReader[BashScriptBuilderArgument.ArtifactsDirectory],
-            deviceId: argumentsReader[BashScriptBuilderArgument.DeviceId],
-            devicePlatformVersion: argumentsReader[BashScriptBuilderArgument.DevicePlatformVersion],
+            deviceId: udid,
+            devicePlatformVersion: platformVersion,
             testPackagePath: argumentsReader[BashScriptBuilderArgument.TestPackageDirectory],
             applicationPath: argumentsReader[BashScriptBuilderArgument.ApplicationPath]
         );

@@ -4,10 +4,8 @@ public class BashScriptBuilderArgumentValues
 {
     public static readonly Dictionary<string, BashScriptBuilderArgument> Keys = new()
     {
-        ["--device-name"] = BashScriptBuilderArgument.DeviceName, ["-dn"] = BashScriptBuilderArgument.DeviceName,
-        ["--device-udid"] = BashScriptBuilderArgument.DeviceId, ["-udid"] = BashScriptBuilderArgument.DeviceId,
+        ["--device-number"] = BashScriptBuilderArgument.DeviceNumber, ["-dn"] = BashScriptBuilderArgument.DeviceNumber,
         ["--device-platform"] = BashScriptBuilderArgument.DevicePlatformName, ["-pn"] = BashScriptBuilderArgument.DevicePlatformName,
-        ["--device-platform-version"] = BashScriptBuilderArgument.DevicePlatformVersion, ["-pv"] = BashScriptBuilderArgument.DevicePlatformVersion,
         ["--artifacts"] = BashScriptBuilderArgument.ArtifactsDirectory, ["-a"] = BashScriptBuilderArgument.ArtifactsDirectory,
         ["--test-package"] = BashScriptBuilderArgument.TestPackageDirectory, ["-tp"] = BashScriptBuilderArgument.TestPackageDirectory,
         ["--application"] = BashScriptBuilderArgument.ApplicationPath, ["-app"] = BashScriptBuilderArgument.ApplicationPath,
@@ -20,10 +18,8 @@ public class BashScriptBuilderArgumentValues
 
     public static readonly Dictionary<BashScriptBuilderArgument, string> Descriptions = new()
     {
-        [BashScriptBuilderArgument.DeviceName] = "*Required. UDID for iOS device and any name for Android.",
-        [BashScriptBuilderArgument.DeviceId] = "*Required. UDID for iOS device and ADB ID for Android.",
+        [BashScriptBuilderArgument.DeviceNumber] = "*Required. Number of device within target platform to run tests.",
         [BashScriptBuilderArgument.DevicePlatformName] = "*Required. Platform name. Android or iOS.",
-        [BashScriptBuilderArgument.DevicePlatformVersion] = "*Required. Device Platform version. 11, 14.2 etc.",
         [BashScriptBuilderArgument.ArtifactsDirectory] = "*Required. Directory to save screenshots, logs and report.",
         [BashScriptBuilderArgument.TestPackageDirectory] = "*Required. Unpacked test package directory. tests folder and requirements.txt file are required.",
         [BashScriptBuilderArgument.ApplicationPath] = "*Required. apk or ipa path.",
