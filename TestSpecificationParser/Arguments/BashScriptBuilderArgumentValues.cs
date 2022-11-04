@@ -11,10 +11,14 @@ public class BashScriptBuilderArgumentValues
         ["--application"] = BashScriptBuilderArgument.ApplicationPath, ["-app"] = BashScriptBuilderArgument.ApplicationPath,
         ["--yaml"] = BashScriptBuilderArgument.YamlFilePath, ["-y"] = BashScriptBuilderArgument.YamlFilePath,
         ["--bash"] = BashScriptBuilderArgument.ShellFilePath, ["-b"] = BashScriptBuilderArgument.ShellFilePath,
+        ["--cloud"] = BashScriptBuilderArgument.ShellFilePath, ["-c"] = BashScriptBuilderArgument.IsCloudRun,
         ["--help"] = BashScriptBuilderArgument.Help, ["-h"] = BashScriptBuilderArgument.Help,
     };
 
-    public static readonly Dictionary<BashScriptBuilderArgument, string> Defaults = new();
+    public static readonly Dictionary<BashScriptBuilderArgument, string> Defaults = new()
+    {
+        [BashScriptBuilderArgument.IsCloudRun] = "false",
+    };
 
     public static readonly Dictionary<BashScriptBuilderArgument, string> Descriptions = new()
     {
@@ -22,8 +26,9 @@ public class BashScriptBuilderArgumentValues
         [BashScriptBuilderArgument.DevicePlatformName] = "*Required. Platform name. Android or iOS.",
         [BashScriptBuilderArgument.ArtifactsDirectory] = "*Required. Directory to save screenshots, logs and report.",
         [BashScriptBuilderArgument.TestPackageDirectory] = "*Required. Unpacked test package directory. tests folder and requirements.txt file are required.",
-        [BashScriptBuilderArgument.ApplicationPath] = "*Required. apk or ipa path.",
-        [BashScriptBuilderArgument.YamlFilePath] = "*Required. yaml file to regenerate into bash script.",
-        [BashScriptBuilderArgument.ShellFilePath] = "*Required. bash result file.",
+        [BashScriptBuilderArgument.ApplicationPath] = "*Required. Apk or ipa path.",
+        [BashScriptBuilderArgument.YamlFilePath] = "*Required. Yaml file to regenerate into bash script.",
+        [BashScriptBuilderArgument.IsCloudRun] = "*Required. Should run starts on AWS cloud platform.",
+        [BashScriptBuilderArgument.ShellFilePath] = "*Required. Bash result file.",
     };
 }

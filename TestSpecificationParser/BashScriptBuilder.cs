@@ -15,7 +15,7 @@ public class BashScriptBuilder
     private readonly string[] notAllowedLocallyCommands = {
         "avm",
         "nvm",
-        "export APPIUM_VERSION"
+        "export APPIUM_VERSION",
     };
 
     public BashScriptBuilder(TestSpecification specification)
@@ -23,13 +23,13 @@ public class BashScriptBuilder
         this.specification = specification;
     }
 
-    public string Build(string deviceName, string devicePlatform, string artifactsDirectory, string deviceId, 
-        string devicePlatformVersion, string testPackagePath, string applicationPath)
+    public string Build(string deviceName, string devicePlatform, string artifactsDirectory, string deviceId,
+        string devicePlatformVersion, string testPackagePath, string applicationPath, bool isCloudRun)
     {
         StringBuilder scriptContent = new StringBuilder();
         AddBashHeader(scriptContent);
         AddExports(scriptContent, deviceName, devicePlatform, artifactsDirectory, deviceId, devicePlatformVersion, 
-            testPackagePath, applicationPath);
+            testPackagePath, applicationPath, isCloudRun);
         AddPhases(scriptContent, specification.Phases);
 
         return scriptContent.ToString();
@@ -40,14 +40,25 @@ public class BashScriptBuilder
         scriptContent.AppendLine("#!/bin/bash");
     }
 
+    /// <remark>
+    /// Strange thing is that XCUITest on AWS device farm log into appiumlog.log file that device id contains no dashes
+    /// But local machine works fine with dashes. Local Appium version is 1.22.3 and AWS is 1.22.2
+    /// </remark>
     private void AddExports(StringBuilder scriptContent, string deviceName, string devicePlatform, 
         string artifactsDirectory, string deviceId, string devicePlatformVersion, string testPackagePath,
-        string applicationPath)
+        string applicationPath, bool isCloudRun)
     {
+        // For users of Appium versions 1.15.0 and higher, your Appium version requires that the UDID of the device not contain any "-" characters
+        // So, we will create a new environment variable of the UDID specifically for Appium based on your Appium version
+        AddEnvironmentVariable(scriptContent, "DEVICEFARM_DEVICE_UDID_FOR_APPIUM", isCloudRun 
+            ? deviceId.Replace("-", "") 
+            : deviceId);
+        
+        AddEnvironmentVariable(scriptContent, "DEVICEFARM_DEVICE_UDID", deviceId);
+
         AddEnvironmentVariable(scriptContent, "DEVICEFARM_DEVICE_NAME", deviceName);
         AddEnvironmentVariable(scriptContent, "DEVICEFARM_DEVICE_PLATFORM_NAME", devicePlatform);
         AddEnvironmentVariable(scriptContent, "DEVICEFARM_LOG_DIR", artifactsDirectory);
-        AddEnvironmentVariable(scriptContent, "DEVICEFARM_DEVICE_UDID", deviceId);
         AddEnvironmentVariable(scriptContent, "DEVICEFARM_DEVICE_OS_VERSION", devicePlatformVersion);
         AddEnvironmentVariable(scriptContent, "DEVICEFARM_TEST_PACKAGE_PATH", testPackagePath);
         AddEnvironmentVariable(scriptContent, "DEVICEFARM_APP_PATH", applicationPath);

@@ -29,6 +29,7 @@ public static class Program
         TestSpecification specification = deserializer.Deserialize<TestSpecification>(specFileContent);
         BashScriptBuilder bashScriptBuilder = new BashScriptBuilder(specification);
 
+        bool isCloudRun = bool.Parse(argumentsReader[BashScriptBuilderArgument.IsCloudRun]);
         string deviceNumber = argumentsReader[BashScriptBuilderArgument.DeviceNumber];
         string devicePlatformName = argumentsReader[BashScriptBuilderArgument.DevicePlatformName];
         IDeviceInfo deviceInfo = devicePlatformName.Equals("iOS") ? new IosDeviceInfo() : new AndroidDeviceInfo();
@@ -43,8 +44,8 @@ public static class Program
             deviceId: udid,
             devicePlatformVersion: platformVersion,
             testPackagePath: argumentsReader[BashScriptBuilderArgument.TestPackageDirectory],
-            applicationPath: argumentsReader[BashScriptBuilderArgument.ApplicationPath]
-        );
+            applicationPath: argumentsReader[BashScriptBuilderArgument.ApplicationPath], 
+            isCloudRun: isCloudRun);
 
         using StreamWriter writer = new StreamWriter(argumentsReader[BashScriptBuilderArgument.ShellFilePath]);
         writer.Write(bashExecutionScript);

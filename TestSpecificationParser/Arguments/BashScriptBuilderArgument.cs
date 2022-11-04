@@ -2,12 +2,13 @@
 
 public enum BashScriptBuilderArgument
 {
-    DeviceNumber = 1,
-    DevicePlatformName = 2,
-    ArtifactsDirectory = 3,
-    TestPackageDirectory = 4,
-    ApplicationPath = 5,
-    YamlFilePath = 6,
-    ShellFilePath = 7,
-    Help = 8,
+    DeviceNumber,
+    DevicePlatformName,
+    ArtifactsDirectory,
+    TestPackageDirectory,
+    ApplicationPath,
+    YamlFilePath,
+    ShellFilePath,
+    IsCloudRun,
+    Help,
 }
