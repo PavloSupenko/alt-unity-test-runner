@@ -58,7 +58,7 @@ public class IosDeviceInfo : IDeviceInfo
         udid = requiredDeviceInfo.Udid;
         platformVersion = requiredDeviceInfo.PlatformVersion;
         
-        Console.WriteLine($"Found device by number: {deviceNumberString} with udid: {udid} and Android version: {platformVersion}");
+        Console.WriteLine($"Found device by number: {deviceNumberString} with udid: {udid} and iOS version: {platformVersion}");
         
         return true;
     }
