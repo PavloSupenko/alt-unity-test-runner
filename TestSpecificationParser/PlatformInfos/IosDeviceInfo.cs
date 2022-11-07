@@ -58,17 +58,18 @@ public class IosDeviceInfo : IDeviceInfo
         foreach (var id in devices)
             Console.WriteLine(id);
 
-        devices = devices
+        var freeDevices = devices
             .Where(deviceData => !appiumProcessesData
                 .Any(processData => processData.Contains(deviceData.Udid)))
             .ToList();
         
         Console.WriteLine("Free device ID's found:");
-        foreach (var id in devices)
+        foreach (var id in freeDevices)
             Console.WriteLine(id);
 
-        var firstFreeDevice = devices.First();
-        var deviceNumber = devices.IndexOf(firstFreeDevice);
+        var firstFreeDevice = freeDevices.First();
+        var deviceIndex = devices.IndexOf(firstFreeDevice);
+        var deviceNumber = deviceIndex + 1;
         deviceNumberString = deviceNumber.ToString();
         
         Console.WriteLine($"Device ID: {firstFreeDevice} will be using as a first free.");
