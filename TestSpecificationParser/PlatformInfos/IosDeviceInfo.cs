@@ -7,7 +7,7 @@ public class IosDeviceInfo : IDeviceInfo
 {
     private readonly ProcessRunner processRunner = new();
     
-    public bool IsDeviceConnected(string deviceNumberString, out string udid, out string platformVersion)
+    public bool FindFirstConnectedDevice(out string deviceNumberString, out string udid, out string platformVersion)
     {
         var xcrunPath = "xcrun";
         var arguments = $"xctrace list devices";
@@ -37,14 +37,41 @@ public class IosDeviceInfo : IDeviceInfo
             Console.WriteLine("No devices connected to execute tests.");
             udid = string.Empty;
             platformVersion = string.Empty;
+            deviceNumberString = string.Empty;
             return false;
         }
 
-        var deviceNumber = int.Parse(deviceNumberString);
+        var appiumProcessesIds = processRunner
+            .GetProcessOutput(processRunner.StartProcess("pgrep", "node")).ToList();
+        Console.WriteLine($"Found NodeJs processes: {string.Join(',', appiumProcessesIds)}.");
 
+        var appiumProcessesData = appiumProcessesIds.Select(id =>
+        {
+            var processData = processRunner
+                .GetProcessOutput(processRunner.StartProcess("ps", $"-fp {id}"));
+
+            var processDataString = string.Join(' ', processData);
+            return processDataString;
+        });
+        
         Console.WriteLine("Device ID's found:");
         foreach (var id in devices)
             Console.WriteLine(id);
+
+        devices = devices
+            .Where(deviceData => !appiumProcessesData
+                .Any(processData => processData.Contains(deviceData.Udid)))
+            .ToList();
+        
+        Console.WriteLine("Free device ID's found:");
+        foreach (var id in devices)
+            Console.WriteLine(id);
+
+        var firstFreeDevice = devices.First();
+        var deviceNumber = devices.IndexOf(firstFreeDevice);
+        deviceNumberString = deviceNumber.ToString();
+        
+        Console.WriteLine($"Device ID: {firstFreeDevice} will be using as a first free.");
 
         if (devices.Count < deviceNumber)
         {

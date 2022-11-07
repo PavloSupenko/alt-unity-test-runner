@@ -34,19 +34,15 @@ public static class Program
         BashScriptBuilder bashScriptBuilder = new BashScriptBuilder(specification);
 
         bool isCloudRun = bool.Parse(argumentsReader[BashScriptBuilderArgument.IsCloudRun]);
-        
-        string deviceNumber = isCloudRun 
-            ? "0" 
-            : argumentsReader[BashScriptBuilderArgument.DeviceNumber];
+
+        string devicePlatformName = argumentsReader[BashScriptBuilderArgument.DevicePlatformName];
+        IDeviceInfo deviceInfo = devicePlatformName.Equals("iOS") ? new IosDeviceInfo() : new AndroidDeviceInfo();
+        deviceInfo.FindFirstConnectedDevice(out var deviceNumber, out var realUdid, out var platformVersion);
         
         int deviceNumberDecimal = int.Parse(deviceNumber);
         int appiumPort = DefaultAppiumPort + deviceNumberDecimal;
         int altUnityPort = DefaultAltUnityPort + deviceNumberDecimal;
         int wdaIosPort = DefaultWdaIosPort + deviceNumberDecimal;
-
-        string devicePlatformName = argumentsReader[BashScriptBuilderArgument.DevicePlatformName];
-        IDeviceInfo deviceInfo = devicePlatformName.Equals("iOS") ? new IosDeviceInfo() : new AndroidDeviceInfo();
-        deviceInfo.IsDeviceConnected(deviceNumber, out var realUdid, out var platformVersion);
 
         string appiumUdid = isCloudRun
             ? realUdid.Replace("-", "")
@@ -56,7 +52,6 @@ public static class Program
         (
             // We will be using udid as a device name like AWS does.
             deviceName: realUdid,
-            deviceNumber: deviceNumber,
             devicePlatform: devicePlatformName,
             artifactsDirectory: argumentsReader[BashScriptBuilderArgument.ArtifactsDirectory],
             realDeviceId: realUdid,

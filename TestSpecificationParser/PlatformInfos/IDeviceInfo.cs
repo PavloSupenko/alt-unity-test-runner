@@ -2,5 +2,5 @@
 
 public interface IDeviceInfo
 {
-    bool IsDeviceConnected(string deviceNumberString, out string udid, out string platformVersion);
+    bool FindFirstConnectedDevice(out string deviceNumberString, out string udid, out string platformVersion);
 }

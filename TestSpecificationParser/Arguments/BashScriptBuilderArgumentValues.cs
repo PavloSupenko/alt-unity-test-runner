@@ -4,7 +4,6 @@ public class BashScriptBuilderArgumentValues
 {
     public static readonly Dictionary<string, BashScriptBuilderArgument> Keys = new()
     {
-        ["--device-number"] = BashScriptBuilderArgument.DeviceNumber, ["-dn"] = BashScriptBuilderArgument.DeviceNumber,
         ["--device-platform"] = BashScriptBuilderArgument.DevicePlatformName, ["-pn"] = BashScriptBuilderArgument.DevicePlatformName,
         ["--artifacts"] = BashScriptBuilderArgument.ArtifactsDirectory, ["-a"] = BashScriptBuilderArgument.ArtifactsDirectory,
         ["--test-package"] = BashScriptBuilderArgument.TestPackageDirectory, ["-tp"] = BashScriptBuilderArgument.TestPackageDirectory,
@@ -22,7 +21,6 @@ public class BashScriptBuilderArgumentValues
 
     public static readonly Dictionary<BashScriptBuilderArgument, string> Descriptions = new()
     {
-        [BashScriptBuilderArgument.DeviceNumber] = "*Required. Number of device within target platform to run tests.",
         [BashScriptBuilderArgument.DevicePlatformName] = "*Required. Platform name. Android or iOS.",
         [BashScriptBuilderArgument.ArtifactsDirectory] = "*Required. Directory to save screenshots, logs and report.",
         [BashScriptBuilderArgument.TestPackageDirectory] = "*Required. Unpacked test package directory. tests folder and requirements.txt file are required.",

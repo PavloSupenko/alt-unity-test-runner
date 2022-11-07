@@ -23,7 +23,7 @@ public class BashScriptBuilder
         this.specification = specification;
     }
 
-    public string Build(string deviceNumber, string deviceName, string devicePlatform, 
+    public string Build(string deviceName, string devicePlatform, 
         string artifactsDirectory, string realDeviceId, string appiumDeviceId, string devicePlatformVersion, string testPackagePath,
         string applicationPath, string appiumPort, string altUnityPort, string wdaIosPort)
     {
@@ -33,7 +33,6 @@ public class BashScriptBuilder
         AddExports
         (
             scriptContent: scriptContent,
-            deviceNumber: deviceNumber,
             deviceName: deviceName,
             devicePlatform: devicePlatform,
             artifactsDirectory: artifactsDirectory,
@@ -61,11 +60,10 @@ public class BashScriptBuilder
     /// XCUITest driver on AWS device farm does not support device id with dashes (it can be found in appiumlog.log)
     /// But local machine works fine with dashes. Tested with local Appium version 1.22.3+ and AWS 1.22.2
     /// </remark>
-    private void AddExports(StringBuilder scriptContent, string deviceNumber, string deviceName, string devicePlatform, 
+    private void AddExports(StringBuilder scriptContent, string deviceName, string devicePlatform, 
         string artifactsDirectory, string realDeviceId, string appiumDeviceId, string devicePlatformVersion, string testPackagePath,
         string applicationPath, string appiumPort, string altUnityPort, string wdaIosPort)
     {
-        AddEnvironmentVariable(scriptContent, "DEVICE_NUMBER", deviceNumber);
         AddEnvironmentVariable(scriptContent, "APPIUM_PORT", appiumPort);
         AddEnvironmentVariable(scriptContent, "ALT_UNITY_PORT", altUnityPort);
         AddEnvironmentVariable(scriptContent, "WDA_PORT", wdaIosPort);
