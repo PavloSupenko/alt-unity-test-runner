@@ -42,10 +42,10 @@ phases:
       - adb devices
       - echo "Start appium server"
       - >-
-        appium --log-timestamp
+        appium --log-timestamp --port $APPIUM_PORT
         --default-capabilities "{\"deviceName\": \"$DEVICEFARM_DEVICE_NAME\", \"platformName\":\"$DEVICEFARM_DEVICE_PLATFORM_NAME\", \"newCommandTimeout\": \"600\",
         \"app\":\"$DEVICEFARM_APP_PATH\", \"udid\":\"$DEVICEFARM_DEVICE_UDID\", \"platformVersion\":\"$DEVICEFARM_DEVICE_OS_VERSION\",
-        \"chromedriverExecutable\":\"$DEVICEFARM_CHROMEDRIVER_EXECUTABLE\", \"appium:appPushTimeout\":\"1000000\"}"
+        \"chromedriverExecutable\":\"$DEVICEFARM_CHROMEDRIVER_EXECUTABLE\", \"appium:appPushTimeout\":\"1000000\", \"appium:autoLaunch\": \"false\"}"
         >> $DEVICEFARM_LOG_DIR/appiumlog.txt 2>&1 &
 
       - >-
@@ -57,10 +57,10 @@ phases:
                 echo "appium server never started in 60 seconds. Exiting";
                 exit 1;
             fi;
-            grep -i "Appium REST http interface listener started on 0.0.0.0:4723" $DEVICEFARM_LOG_DIR/appiumlog.txt >> /dev/null 2>&1;
+            grep -i "Appium REST http interface listener started on 0.0.0.0:$APPIUM_PORT" $DEVICEFARM_LOG_DIR/appiumlog.txt >> /dev/null 2>&1;
             if [ $? -eq 0 ];
             then
-                echo "Appium REST http interface listener started on 0.0.0.0:4723";
+                echo "Appium REST http interface listener started on 0.0.0.0:$APPIUM_PORT";
                 break;
             else
                 echo "Waiting for appium server to start. Sleeping for 1 second";
@@ -79,7 +79,7 @@ phases:
       - cd $DEVICEFARM_TEST_PACKAGE_PATH
       - echo "Setup port forwarding for Android"
       - adb forward --remove-all
-      - adb forward tcp:13000 tcp:13000
+      - adb forward tcp:$ALT_UNITY_PORT tcp:13000
       - sleep 5
       - echo "Start Appium Python test"
       # By default, the following command is used by Device Farm to run your Appium Python test.

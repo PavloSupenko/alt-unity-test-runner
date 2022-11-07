@@ -36,10 +36,6 @@ phases:
       - avm $APPIUM_VERSION
       - ln -s /usr/local/avm/versions/$APPIUM_VERSION/node_modules/.bin/appium  /usr/local/avm/versions/$APPIUM_VERSION/node_modules/appium/bin/appium.js
 
-      # For users of Appium versions 1.15.0 and higher, your Appium version requires that the UDID of the device not contain any "-" characters
-      # So, we will create a new environment variable of the UDID specifically for Appium based on your Appium version
-      - DEVICEFARM_DEVICE_UDID_FOR_APPIUM=$(echo $DEVICEFARM_DEVICE_UDID | tr -d "-");
-
   # The pre-test phase includes commands that set up your test environment.
   pre_test:
     commands:
@@ -48,8 +44,8 @@ phases:
       # The environment variables below will be auto-populated during run time.
       - echo "Start appium server"
       - >-
-        appium --log-timestamp
-        --default-capabilities "{\"newCommandTimeout\": \"600\",
+        appium --log-timestamp --port $APPIUM_PORT
+        --default-capabilities "{\"newCommandTimeout\": \"600\", \"appium:autoLaunch\": \"false\", \"appium:wdaLocalPort\":\"$WDA_PORT\",
         \"deviceName\": \"$DEVICEFARM_DEVICE_NAME\", \"platformName\":\"$DEVICEFARM_DEVICE_PLATFORM_NAME\", \"app\":\"$DEVICEFARM_APP_PATH\",
         \"automationName\":\"XCUITest\", \"udid\":\"$DEVICEFARM_DEVICE_UDID_FOR_APPIUM\", \"platformVersion\":\"$DEVICEFARM_DEVICE_OS_VERSION\", \"appium:appPushTimeout\":\"1000000\"}"
         >> $DEVICEFARM_LOG_DIR/appiumlog.txt 2>&1 &
@@ -63,10 +59,10 @@ phases:
                 echo "appium server never started in 60 seconds. Exiting";
                 exit 1;
             fi;
-            grep -i "Appium REST http interface listener started on 0.0.0.0:4723" $DEVICEFARM_LOG_DIR/appiumlog.txt >> /dev/null 2>&1;
+            grep -i "Appium REST http interface listener started on 0.0.0.0:$APPIUM_PORT" $DEVICEFARM_LOG_DIR/appiumlog.txt >> /dev/null 2>&1;
             if [ $? -eq 0 ];
             then
-                echo "Appium REST http interface listener started on 0.0.0.0:4723";
+                echo "Appium REST http interface listener started on 0.0.0.0:$APPIUM_PORT";
                 break;
             else
                 echo "Waiting for appium server to start. Sleeping for 1 second";
@@ -95,7 +91,7 @@ phases:
       - echo "Device UDID - \"$DEVICEFARM_DEVICE_UDID\""
       - echo "Device NAME - \"$DEVICEFARM_DEVICE_NAME\""
       - >-
-        iproxy -u "$DEVICEFARM_DEVICE_UDID" 13000:13000
+        iproxy -u "$DEVICEFARM_DEVICE_UDID" $ALT_UNITY_PORT:13000
         >> $DEVICEFARM_LOG_DIR/proxylog.txt &
       - sleep 2
       - echo "Start Appium Python test"

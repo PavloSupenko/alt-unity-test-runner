@@ -23,13 +23,30 @@ public class BashScriptBuilder
         this.specification = specification;
     }
 
-    public string Build(string deviceName, string devicePlatform, string artifactsDirectory, string deviceId,
-        string devicePlatformVersion, string testPackagePath, string applicationPath, bool isCloudRun)
+    public string Build(string deviceNumber, string deviceName, string devicePlatform, 
+        string artifactsDirectory, string realDeviceId, string appiumDeviceId, string devicePlatformVersion, string testPackagePath,
+        string applicationPath, string appiumPort, string altUnityPort, string wdaIosPort)
     {
         StringBuilder scriptContent = new StringBuilder();
         AddBashHeader(scriptContent);
-        AddExports(scriptContent, deviceName, devicePlatform, artifactsDirectory, deviceId, devicePlatformVersion, 
-            testPackagePath, applicationPath, isCloudRun);
+
+        AddExports
+        (
+            scriptContent: scriptContent,
+            deviceNumber: deviceNumber,
+            deviceName: deviceName,
+            devicePlatform: devicePlatform,
+            artifactsDirectory: artifactsDirectory,
+            realDeviceId: realDeviceId,
+            appiumDeviceId: appiumDeviceId,
+            devicePlatformVersion: devicePlatformVersion,
+            testPackagePath: testPackagePath,
+            applicationPath: applicationPath,
+            appiumPort: appiumPort,
+            altUnityPort: altUnityPort,
+            wdaIosPort: wdaIosPort
+        );
+        
         AddPhases(scriptContent, specification.Phases);
 
         return scriptContent.ToString();
@@ -41,20 +58,20 @@ public class BashScriptBuilder
     }
 
     /// <remark>
-    /// Strange thing is that XCUITest on AWS device farm log into appiumlog.log file that device id contains no dashes
-    /// But local machine works fine with dashes. Local Appium version is 1.22.3 and AWS is 1.22.2
+    /// XCUITest driver on AWS device farm does not support device id with dashes (it can be found in appiumlog.log)
+    /// But local machine works fine with dashes. Tested with local Appium version 1.22.3+ and AWS 1.22.2
     /// </remark>
-    private void AddExports(StringBuilder scriptContent, string deviceName, string devicePlatform, 
-        string artifactsDirectory, string deviceId, string devicePlatformVersion, string testPackagePath,
-        string applicationPath, bool isCloudRun)
+    private void AddExports(StringBuilder scriptContent, string deviceNumber, string deviceName, string devicePlatform, 
+        string artifactsDirectory, string realDeviceId, string appiumDeviceId, string devicePlatformVersion, string testPackagePath,
+        string applicationPath, string appiumPort, string altUnityPort, string wdaIosPort)
     {
-        // For users of Appium versions 1.15.0 and higher, your Appium version requires that the UDID of the device not contain any "-" characters
-        // So, we will create a new environment variable of the UDID specifically for Appium based on your Appium version
-        AddEnvironmentVariable(scriptContent, "DEVICEFARM_DEVICE_UDID_FOR_APPIUM", isCloudRun 
-            ? deviceId.Replace("-", "") 
-            : deviceId);
+        AddEnvironmentVariable(scriptContent, "DEVICE_NUMBER", deviceNumber);
+        AddEnvironmentVariable(scriptContent, "APPIUM_PORT", appiumPort);
+        AddEnvironmentVariable(scriptContent, "ALT_UNITY_PORT", altUnityPort);
+        AddEnvironmentVariable(scriptContent, "WDA_PORT", wdaIosPort);
         
-        AddEnvironmentVariable(scriptContent, "DEVICEFARM_DEVICE_UDID", deviceId);
+        AddEnvironmentVariable(scriptContent, "DEVICEFARM_DEVICE_UDID_FOR_APPIUM", appiumDeviceId);
+        AddEnvironmentVariable(scriptContent, "DEVICEFARM_DEVICE_UDID", realDeviceId);
 
         AddEnvironmentVariable(scriptContent, "DEVICEFARM_DEVICE_NAME", deviceName);
         AddEnvironmentVariable(scriptContent, "DEVICEFARM_DEVICE_PLATFORM_NAME", devicePlatform);

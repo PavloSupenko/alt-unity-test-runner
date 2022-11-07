@@ -9,8 +9,12 @@ namespace TestSpecificationParser;
 
 public static class Program
 {
-    private static ArgumentsReader<BashScriptBuilderArgument> argumentsReader;
+    private const int DefaultAltUnityPort = 13000;
+    private const int DefaultAppiumPort = 4723;
+    private const int DefaultWdaIosPort = 8100;
     
+    private static ArgumentsReader<BashScriptBuilderArgument> argumentsReader;
+
     private static void Main(string[] args)
     {
         argumentsReader = new ArgumentsReader<BashScriptBuilderArgument>(args, BashScriptBuilderArgumentValues.Keys,
@@ -30,22 +34,40 @@ public static class Program
         BashScriptBuilder bashScriptBuilder = new BashScriptBuilder(specification);
 
         bool isCloudRun = bool.Parse(argumentsReader[BashScriptBuilderArgument.IsCloudRun]);
-        string deviceNumber = argumentsReader[BashScriptBuilderArgument.DeviceNumber];
+        
+        string deviceNumber = isCloudRun 
+            ? "0" 
+            : argumentsReader[BashScriptBuilderArgument.DeviceNumber];
+        
+        int deviceNumberDecimal = int.Parse(deviceNumber);
+        int appiumPort = DefaultAppiumPort + deviceNumberDecimal;
+        int altUnityPort = DefaultAltUnityPort + deviceNumberDecimal;
+        int wdaIosPort = DefaultWdaIosPort + deviceNumberDecimal;
+
         string devicePlatformName = argumentsReader[BashScriptBuilderArgument.DevicePlatformName];
         IDeviceInfo deviceInfo = devicePlatformName.Equals("iOS") ? new IosDeviceInfo() : new AndroidDeviceInfo();
-        deviceInfo.IsDeviceConnected(deviceNumber, out var udid, out var platformVersion);
+        deviceInfo.IsDeviceConnected(deviceNumber, out var realUdid, out var platformVersion);
+
+        string appiumUdid = isCloudRun
+            ? realUdid.Replace("-", "")
+            : realUdid;
 
         string bashExecutionScript = bashScriptBuilder.Build
         (
             // We will be using udid as a device name like AWS does.
-            deviceName: udid,
+            deviceName: realUdid,
+            deviceNumber: deviceNumber,
             devicePlatform: devicePlatformName,
             artifactsDirectory: argumentsReader[BashScriptBuilderArgument.ArtifactsDirectory],
-            deviceId: udid,
+            realDeviceId: realUdid,
+            appiumDeviceId: appiumUdid,
             devicePlatformVersion: platformVersion,
             testPackagePath: argumentsReader[BashScriptBuilderArgument.TestPackageDirectory],
-            applicationPath: argumentsReader[BashScriptBuilderArgument.ApplicationPath], 
-            isCloudRun: isCloudRun);
+            applicationPath: argumentsReader[BashScriptBuilderArgument.ApplicationPath],
+            appiumPort: appiumPort.ToString(),
+            altUnityPort: altUnityPort.ToString(),
+            wdaIosPort: wdaIosPort.ToString()
+        );
 
         using StreamWriter writer = new StreamWriter(argumentsReader[BashScriptBuilderArgument.ShellFilePath]);
         writer.Write(bashExecutionScript);
