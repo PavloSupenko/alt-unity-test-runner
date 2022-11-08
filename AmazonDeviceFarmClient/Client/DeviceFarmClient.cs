@@ -177,7 +177,7 @@ public class DeviceFarmClient
 
     private static async Task UploadFileToFarm(string filePath, string loadingUrl)
     {
-        using (var httpClient = new HttpClient())
+        using (var httpClient = new HttpClient() { Timeout = TimeSpan.FromMinutes(15) })
         {
             using (var request = new HttpRequestMessage(new HttpMethod("PUT"), loadingUrl))
             {
