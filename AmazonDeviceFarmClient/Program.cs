@@ -1,4 +1,5 @@
-﻿using Shared.Arguments;
+﻿using Amazon.DeviceFarm.Model;
+using Shared.Arguments;
 using AmazonDeviceFarmClient.Client;
 using AmazonDeviceFarmClient.Arguments;
 
@@ -21,16 +22,18 @@ public static class Program
             argumentsReader[DeviceFarmArgument.UserKey],
             argumentsReader[DeviceFarmArgument.UserSecret]);
 
+        var projectName = argumentsReader[DeviceFarmArgument.ProjectName];
+
         if (argumentsReader.IsExist(DeviceFarmArgument.UploadTestPackage))
             await deviceFarmClient.UploadTestPackage(
                 argumentsReader[DeviceFarmArgument.TestPackageName],
-                argumentsReader[DeviceFarmArgument.ProjectName],
+                projectName,
                 argumentsReader[DeviceFarmArgument.UploadTestPackage]);
         
         if (argumentsReader.IsExist(DeviceFarmArgument.UploadTestSpecs))
             await deviceFarmClient.UploadTestSpec(
                 argumentsReader[DeviceFarmArgument.TestSpecsName],
-                argumentsReader[DeviceFarmArgument.ProjectName],
+                projectName,
                 argumentsReader[DeviceFarmArgument.UploadTestSpecs]);
 
         bool isAndroid = argumentsReader[DeviceFarmArgument.ApplicationPlatform].Equals("Android");
@@ -39,22 +42,26 @@ public static class Program
         if (isAndroid)
             await deviceFarmClient.UploadAndroidApplication(
                 argumentsReader[DeviceFarmArgument.ApplicationName],
-                argumentsReader[DeviceFarmArgument.ProjectName],
+                projectName,
                 argumentsReader[DeviceFarmArgument.UploadApplication]);
         else
             await deviceFarmClient.UploadIosApplication(
                 argumentsReader[DeviceFarmArgument.ApplicationName],
-                argumentsReader[DeviceFarmArgument.ProjectName],
+                projectName,
                 argumentsReader[DeviceFarmArgument.UploadApplication]);
-        
+
+        var runName = argumentsReader[DeviceFarmArgument.RunName];
+        var timeout = int.Parse(argumentsReader[DeviceFarmArgument.Timeout]);
 
         await deviceFarmClient.ScheduleTestRun(
-            argumentsReader[DeviceFarmArgument.RunName],
+            runName,
             platform,
-            argumentsReader[DeviceFarmArgument.ProjectName],
+            projectName,
             argumentsReader[DeviceFarmArgument.DevicePoolName],
             argumentsReader[DeviceFarmArgument.TestSpecsName],
-            int.Parse(argumentsReader[DeviceFarmArgument.Timeout]));
+            timeout);
+
+        await deviceFarmClient.WaitTestRun(runName, projectName, TimeSpan.FromSeconds(10));
     }
 
     private static bool TryShowHelp(ArgumentsReader<DeviceFarmArgument> argumentsReader)

@@ -42,7 +42,7 @@ public class DeviceFarmClient
         await UploadFileToFarm(filePath, uploadData.Url);
     }
 
-    public async Task<ScheduleRunResponse> ScheduleTestRun(string runName, ApplicationPlatform platform, 
+    public async Task ScheduleTestRun(string name, ApplicationPlatform platform, 
         string projectName, string devicePoolName, string testSpecName, int timeout)
     {
         string projectArn = (await GetProjectByName(projectName)).Arn;
@@ -53,9 +53,9 @@ public class DeviceFarmClient
             ? (await GetLastAndroidApplication(projectName))
             : (await GetLastIosApplication(projectName))).Arn;
         
-        return await client.ScheduleRunAsync(new ScheduleRunRequest()
+        await client.ScheduleRunAsync(new ScheduleRunRequest()
         {
-            Name = runName,
+            Name = name,
             ProjectArn = projectArn,
             AppArn = applicationArn,
             DevicePoolArn = devicePoolArn,
@@ -70,22 +70,38 @@ public class DeviceFarmClient
         });
     }
 
-    private Task<ScheduleRunResponse> ScheduleRun(Project project, Upload application, DevicePool devicePool, Upload testPackage, Upload testSpec) =>
-        client.ScheduleRunAsync(new ScheduleRunRequest()
+    public async Task WaitTestRun(string name, string projectName, TimeSpan interval)
+    {
+        Run runFoundByName = await GetRunByName(projectName, name);
+        string runArn = runFoundByName.Arn;
+        
+        GetRunResponse runResponse = await client.GetRunAsync(runArn);
+        Run run = runResponse.Run;
+        ExecutionStatus status = run.Status;
+        ExecutionStatus previousStatus = status;
+
+        while (status != ExecutionStatus.STOPPING && status != ExecutionStatus.COMPLETED)
         {
-            Name = "[Android] testing-running-from-dotnet",
-            ProjectArn = project.Arn,
-            AppArn = application.Arn,
-            DevicePoolArn = devicePool.Arn,
-            ExecutionConfiguration = new ExecutionConfiguration()
+            await Task.Delay(interval);
+            
+            runResponse = await client.GetRunAsync(runArn);
+            run = runResponse.Run;
+            status = run.Status;
+
+            if (previousStatus != status)
             {
-                VideoCapture = true, JobTimeoutMinutes = 15
-            },
-            Test = new ScheduleRunTest()
-            {
-                Type = TestType.APPIUM_PYTHON, TestPackageArn = testPackage.Arn, TestSpecArn = testSpec.Arn
+                Console.WriteLine($"Test run: {run.Name} changed status from: {previousStatus} to: {status}");
+                previousStatus = status;
             }
-        });
+        }
+    }
+    
+    public async Task DownloadArtifacts(ScheduleRunResponse scheduleResponse, string path)
+    {
+        string runArn = scheduleResponse.Run.Arn;
+        
+        GetRunResponse runResponse = await client.GetRunAsync(runArn);
+    }
 
     private async Task<DevicePool?> GetDevicePoolByName(string name, string projectName, bool getCustomPools)
     {
@@ -93,10 +109,6 @@ public class DeviceFarmClient
         DevicePool? targetPool = pools.First(pool => pool.Name.Equals(name));
         return targetPool;
     }
-
-    private async Task<List<DevicePool>?> GetDevicePools(string projectName, bool getCustomPools) =>
-        (await GetDevicePoolsResponse(projectName, getCustomPools))
-        .DevicePools;
 
     private async Task<ListDevicePoolsResponse> GetDevicePoolsResponse(string projectName, bool getCustomPools)
     {
@@ -144,11 +156,26 @@ public class DeviceFarmClient
         var sortedUploads = uploads.OrderByDescending(upload => upload.Created);
         return sortedUploads.First();
     }
+    
+    private async Task<Run?> GetRunByName(string projectName, string runName)
+    {
+        var runs = await GetRuns(projectName);
+        if (runs == null || !runs.Any())
+            return null;
+
+        return runs.First(run => run.Name.Equals(runName));
+    }
 
     private async Task<List<Upload>?> GetUploads(string projectName, UploadType uploadType)
     {
         string projectArn = (await GetProjectByName(projectName)).Arn;
         return (await GetUploadsResponse(projectArn, uploadType)).Uploads;
+    }
+    
+    private async Task<List<Run>?> GetRuns(string projectName)
+    {
+        string projectArn = (await GetProjectByName(projectName)).Arn;
+        return (await GetRunsResponse(projectArn)).Runs;
     }
 
     private Task<ListUploadsResponse> GetUploadsResponse(string projectArn, UploadType uploadType) => 
@@ -156,6 +183,12 @@ public class DeviceFarmClient
         {
             Arn = projectArn, 
             Type = uploadType
+        });
+    
+    private Task<ListRunsResponse> GetRunsResponse(string projectArn) => 
+        client.ListRunsAsync(new ListRunsRequest()
+        {
+            Arn = projectArn
         });
 
     private async Task<Project> GetProjectByName(string projectName)
