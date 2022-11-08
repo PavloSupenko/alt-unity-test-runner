@@ -10,6 +10,7 @@ phases:
       - export APPIUM_PORT=4723
       - export ALT_UNITY_PORT=13000
       - export WDA_PORT=8100
+      - export IS_CLOUD_RUN=true
 
       # Device Farm support two major versions of Python, each with one minor version: 2 (minor version 2.7), and 3 (minor version 3.7).
       # The default Python version is 3, but you can switch to 2 by setting the following variable to 2:

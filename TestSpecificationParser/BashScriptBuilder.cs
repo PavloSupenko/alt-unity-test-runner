@@ -6,6 +6,7 @@ namespace TestSpecificationParser;
 public class BashScriptBuilder
 {
     // This is custom variables we should define in spec file
+    private const string IsCloudRun = "IS_CLOUD_RUN";
     private const string AppiumPort = "APPIUM_PORT";
     private const string AltUnityPort = "ALT_UNITY_PORT";
     private const string WdaPort = "WDA_PORT";
@@ -37,6 +38,7 @@ public class BashScriptBuilder
         $"{WdaPort}=",
         $"{DeviceIdForAppium}=",
         $"{WdaDerivedPath}=",
+        $"{IsCloudRun}=",
     };
 
     public BashScriptBuilder(TestSpecification specification)
@@ -47,7 +49,7 @@ public class BashScriptBuilder
     public string Build(string deviceName, string devicePlatform,
         string artifactsDirectory, string realDeviceId, string appiumDeviceId, string devicePlatformVersion,
         string testPackagePath, string applicationPath, string appiumPort, string altUnityPort, string wdaIosPort, 
-        string wdaDerivedPath)
+        string wdaDerivedPath, string isCloud)
     {
         StringBuilder scriptContent = new StringBuilder();
         AddBashHeader(scriptContent);
@@ -66,7 +68,8 @@ public class BashScriptBuilder
             appiumPort: appiumPort,
             altUnityPort: altUnityPort,
             wdaIosPort: wdaIosPort, 
-            wdaDerivedPath: wdaDerivedPath);
+            wdaDerivedPath: wdaDerivedPath, 
+            isCloud: isCloud);
         
         AddPhases(scriptContent, specification.Phases);
 
@@ -85,13 +88,14 @@ public class BashScriptBuilder
     private void AddExports(StringBuilder scriptContent, string deviceName, string devicePlatform,
         string artifactsDirectory, string realDeviceId, string appiumDeviceId, string devicePlatformVersion,
         string testPackagePath, string applicationPath, string appiumPort, string altUnityPort, string wdaIosPort, 
-        string wdaDerivedPath)
+        string wdaDerivedPath, string isCloud)
     {
         AddEnvironmentVariable(scriptContent, AppiumPort, appiumPort);
         AddEnvironmentVariable(scriptContent, AltUnityPort, altUnityPort);
         AddEnvironmentVariable(scriptContent, WdaPort, wdaIosPort);
         AddEnvironmentVariable(scriptContent, DeviceIdForAppium, appiumDeviceId);
         AddEnvironmentVariable(scriptContent, WdaDerivedPath, wdaDerivedPath);
+        AddEnvironmentVariable(scriptContent, IsCloudRun, isCloud);
         
         AddEnvironmentVariable(scriptContent, DeviceId, realDeviceId);
         AddEnvironmentVariable(scriptContent, DeviceName, deviceName);
