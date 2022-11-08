@@ -61,8 +61,8 @@ public static class Program
             applicationPath: argumentsReader[BashScriptBuilderArgument.ApplicationPath],
             appiumPort: appiumPort.ToString(),
             altUnityPort: altUnityPort.ToString(),
-            wdaIosPort: wdaIosPort.ToString()
-        );
+            wdaIosPort: wdaIosPort.ToString(),
+            wdaDerivedPath: argumentsReader[BashScriptBuilderArgument.WdaDerivedDataPath]);
 
         using StreamWriter writer = new StreamWriter(argumentsReader[BashScriptBuilderArgument.ShellFilePath]);
         writer.Write(bashExecutionScript);

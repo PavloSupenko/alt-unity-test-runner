@@ -11,6 +11,7 @@ public class BashScriptBuilderArgumentValues
         ["--yaml"] = BashScriptBuilderArgument.YamlFilePath, ["-y"] = BashScriptBuilderArgument.YamlFilePath,
         ["--bash"] = BashScriptBuilderArgument.ShellFilePath, ["-b"] = BashScriptBuilderArgument.ShellFilePath,
         ["--cloud"] = BashScriptBuilderArgument.ShellFilePath, ["-c"] = BashScriptBuilderArgument.IsCloudRun,
+        ["--wda-derived-data-path"] = BashScriptBuilderArgument.ShellFilePath, ["-wda"] = BashScriptBuilderArgument.WdaDerivedDataPath,
         ["--help"] = BashScriptBuilderArgument.Help, ["-h"] = BashScriptBuilderArgument.Help,
     };
 
@@ -28,5 +29,6 @@ public class BashScriptBuilderArgumentValues
         [BashScriptBuilderArgument.YamlFilePath] = "*Required. Yaml file to regenerate into bash script.",
         [BashScriptBuilderArgument.IsCloudRun] = "*Required. Should run starts on AWS cloud platform.",
         [BashScriptBuilderArgument.ShellFilePath] = "*Required. Bash result file.",
+        [BashScriptBuilderArgument.WdaDerivedDataPath] = "*Required. Path to WebDriverAgent prebuilt derived data.",
     };
 }

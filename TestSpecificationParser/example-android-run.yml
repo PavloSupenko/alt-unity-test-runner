@@ -78,8 +78,8 @@ phases:
       - echo "Navigate to test package directory"
       - cd $DEVICEFARM_TEST_PACKAGE_PATH
       - echo "Setup port forwarding for Android"
-      - adb forward --remove-all
-      - adb forward tcp:$ALT_UNITY_PORT tcp:13000
+      - adb -s $DEVICEFARM_DEVICE_UDID forward --remove-all
+      - adb -s $DEVICEFARM_DEVICE_UDID forward tcp:$ALT_UNITY_PORT tcp:13000
       - sleep 5
       - echo "Start Appium Python test"
       # By default, the following command is used by Device Farm to run your Appium Python test.
@@ -92,8 +92,41 @@ phases:
   # The post test phase includes are commands that are run after your tests are executed.
   post_test:
     commands:
-      - adb forward --remove-all
-      - killall node &
+      # We can't use killall because multiple devices can be tested. We should find the right process to end.
+      - >-
+        echo "Killing device-dependant adb process";
+        process_name="adb";
+        containing_target="$DEVICEFARM_DEVICE_UDID";
+        PROCESSES_IDS=$(pgrep $process_name);
+        echo "Found $process_name process ids: $PROCESSES_IDS";
+
+        for PROCESS_ID in $PROCESSES_IDS;
+        do
+            PROCESS_DATA=$(ps -fp $PROCESS_ID);
+            echo "Process data for $PROCESS_ID found: $PROCESS_DATA";
+            if [[ $PROCESS_DATA == *"$containing_target"* ]]; then
+                echo "Killing instance of process: $process_name by id: $PROCESS_ID";
+                kill $PROCESS_ID;
+                break;
+            fi;
+        done;
+      - >-
+        echo "Killing device-dependant nodeJs process (Appium server)";
+        process_name="node";
+        containing_target="$DEVICEFARM_DEVICE_UDID";
+        PROCESSES_IDS=$(pgrep $process_name);
+        echo "Found $process_name process ids: $PROCESSES_IDS";
+
+        for PROCESS_ID in $PROCESSES_IDS;
+        do
+            PROCESS_DATA=$(ps -fp $PROCESS_ID);
+            echo "Process data for $PROCESS_ID found: $PROCESS_DATA";
+            if [[ $PROCESS_DATA == *"$containing_target"* ]]; then
+                echo "Killing instance of process: $process_name by id: $PROCESS_ID";
+                kill $PROCESS_ID;
+                break;
+            fi;
+        done;
 
 # The artifacts phase lets you specify the location where your tests logs, device logs will be stored.
 # And also let you specify the location of your test logs and artifacts which you want to be collected by Device Farm.

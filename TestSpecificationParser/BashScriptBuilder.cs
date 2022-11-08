@@ -5,6 +5,22 @@ namespace TestSpecificationParser;
 
 public class BashScriptBuilder
 {
+    // This is custom variables we should define in spec file
+    private const string AppiumPort = "APPIUM_PORT";
+    private const string AltUnityPort = "ALT_UNITY_PORT";
+    private const string WdaPort = "WDA_PORT";
+    private const string DeviceIdForAppium = "DEVICEFARM_DEVICE_UDID_FOR_APPIUM";
+    private const string WdaDerivedPath = "DEVICEFARM_WDA_DERIVED_DATA_PATH";
+    
+    // This variables are provided from environment of AWS device farm
+    private const string DeviceId = "DEVICEFARM_DEVICE_UDID";
+    private const string DeviceName = "DEVICEFARM_DEVICE_NAME";
+    private const string DevicePlatformName = "DEVICEFARM_DEVICE_PLATFORM_NAME";
+    private const string LogDirectory = "DEVICEFARM_LOG_DIR";
+    private const string DevicePlatformVersionVariable = "DEVICEFARM_DEVICE_OS_VERSION";
+    private const string TestPackagePath = "DEVICEFARM_TEST_PACKAGE_PATH";
+    private const string ApplicationPath = "DEVICEFARM_APP_PATH";
+
     private readonly TestSpecification specification;
     
     /// <summary>
@@ -16,6 +32,11 @@ public class BashScriptBuilder
         "avm",
         "nvm",
         "export APPIUM_VERSION",
+        $"{AppiumPort}=",
+        $"{AltUnityPort}=",
+        $"{WdaPort}=",
+        $"{DeviceIdForAppium}=",
+        $"{WdaDerivedPath}=",
     };
 
     public BashScriptBuilder(TestSpecification specification)
@@ -23,9 +44,10 @@ public class BashScriptBuilder
         this.specification = specification;
     }
 
-    public string Build(string deviceName, string devicePlatform, 
-        string artifactsDirectory, string realDeviceId, string appiumDeviceId, string devicePlatformVersion, string testPackagePath,
-        string applicationPath, string appiumPort, string altUnityPort, string wdaIosPort)
+    public string Build(string deviceName, string devicePlatform,
+        string artifactsDirectory, string realDeviceId, string appiumDeviceId, string devicePlatformVersion,
+        string testPackagePath, string applicationPath, string appiumPort, string altUnityPort, string wdaIosPort, 
+        string wdaDerivedPath)
     {
         StringBuilder scriptContent = new StringBuilder();
         AddBashHeader(scriptContent);
@@ -43,8 +65,8 @@ public class BashScriptBuilder
             applicationPath: applicationPath,
             appiumPort: appiumPort,
             altUnityPort: altUnityPort,
-            wdaIosPort: wdaIosPort
-        );
+            wdaIosPort: wdaIosPort, 
+            wdaDerivedPath: wdaDerivedPath);
         
         AddPhases(scriptContent, specification.Phases);
 
@@ -60,23 +82,24 @@ public class BashScriptBuilder
     /// XCUITest driver on AWS device farm does not support device id with dashes (it can be found in appiumlog.log)
     /// But local machine works fine with dashes. Tested with local Appium version 1.22.3+ and AWS 1.22.2
     /// </remark>
-    private void AddExports(StringBuilder scriptContent, string deviceName, string devicePlatform, 
-        string artifactsDirectory, string realDeviceId, string appiumDeviceId, string devicePlatformVersion, string testPackagePath,
-        string applicationPath, string appiumPort, string altUnityPort, string wdaIosPort)
+    private void AddExports(StringBuilder scriptContent, string deviceName, string devicePlatform,
+        string artifactsDirectory, string realDeviceId, string appiumDeviceId, string devicePlatformVersion,
+        string testPackagePath, string applicationPath, string appiumPort, string altUnityPort, string wdaIosPort, 
+        string wdaDerivedPath)
     {
-        AddEnvironmentVariable(scriptContent, "APPIUM_PORT", appiumPort);
-        AddEnvironmentVariable(scriptContent, "ALT_UNITY_PORT", altUnityPort);
-        AddEnvironmentVariable(scriptContent, "WDA_PORT", wdaIosPort);
+        AddEnvironmentVariable(scriptContent, AppiumPort, appiumPort);
+        AddEnvironmentVariable(scriptContent, AltUnityPort, altUnityPort);
+        AddEnvironmentVariable(scriptContent, WdaPort, wdaIosPort);
+        AddEnvironmentVariable(scriptContent, DeviceIdForAppium, appiumDeviceId);
+        AddEnvironmentVariable(scriptContent, WdaDerivedPath, wdaDerivedPath);
         
-        AddEnvironmentVariable(scriptContent, "DEVICEFARM_DEVICE_UDID_FOR_APPIUM", appiumDeviceId);
-        AddEnvironmentVariable(scriptContent, "DEVICEFARM_DEVICE_UDID", realDeviceId);
-
-        AddEnvironmentVariable(scriptContent, "DEVICEFARM_DEVICE_NAME", deviceName);
-        AddEnvironmentVariable(scriptContent, "DEVICEFARM_DEVICE_PLATFORM_NAME", devicePlatform);
-        AddEnvironmentVariable(scriptContent, "DEVICEFARM_LOG_DIR", artifactsDirectory);
-        AddEnvironmentVariable(scriptContent, "DEVICEFARM_DEVICE_OS_VERSION", devicePlatformVersion);
-        AddEnvironmentVariable(scriptContent, "DEVICEFARM_TEST_PACKAGE_PATH", testPackagePath);
-        AddEnvironmentVariable(scriptContent, "DEVICEFARM_APP_PATH", applicationPath);
+        AddEnvironmentVariable(scriptContent, DeviceId, realDeviceId);
+        AddEnvironmentVariable(scriptContent, DeviceName, deviceName);
+        AddEnvironmentVariable(scriptContent, DevicePlatformName, devicePlatform);
+        AddEnvironmentVariable(scriptContent, LogDirectory, artifactsDirectory);
+        AddEnvironmentVariable(scriptContent, DevicePlatformVersionVariable, devicePlatformVersion);
+        AddEnvironmentVariable(scriptContent, TestPackagePath, testPackagePath);
+        AddEnvironmentVariable(scriptContent, ApplicationPath, applicationPath);
     }
 
     private void AddEnvironmentVariable(StringBuilder scriptContent, string name, string value)
