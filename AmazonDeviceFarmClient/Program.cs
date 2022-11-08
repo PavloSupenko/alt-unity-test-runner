@@ -7,9 +7,6 @@ namespace AmazonDeviceFarmClient;
 
 public static class Program
 {
-    private const string AndroidSpecName = "android-custom-config.yml";
-    private const string IosSpecName = "ios-custom-config.yml";
-    
     private static ArgumentsReader<DeviceFarmArgument> argumentsReader;
 
     private static async Task Main(string[] args)
@@ -24,18 +21,40 @@ public static class Program
             argumentsReader[DeviceFarmArgument.UserKey],
             argumentsReader[DeviceFarmArgument.UserSecret]);
 
-        await deviceFarmClient.UploadTestPackage(
-            "markers-from-sdk.zip",
-            argumentsReader[DeviceFarmArgument.ProjectName],
-            @"D:\Tests\_prj\test-package\more-skippables-2.zip");
+        if (argumentsReader.IsExist(DeviceFarmArgument.UploadTestPackage))
+            await deviceFarmClient.UploadTestPackage(
+                argumentsReader[DeviceFarmArgument.TestPackageName],
+                argumentsReader[DeviceFarmArgument.ProjectName],
+                argumentsReader[DeviceFarmArgument.UploadTestPackage]);
+        
+        if (argumentsReader.IsExist(DeviceFarmArgument.UploadTestSpecs))
+            await deviceFarmClient.UploadTestSpec(
+                argumentsReader[DeviceFarmArgument.TestSpecsName],
+                argumentsReader[DeviceFarmArgument.ProjectName],
+                argumentsReader[DeviceFarmArgument.UploadTestSpecs]);
+
+        bool isAndroid = argumentsReader[DeviceFarmArgument.ApplicationPlatform].Equals("Android");
+        ApplicationPlatform platform = isAndroid ? ApplicationPlatform.Android : ApplicationPlatform.Ios;
+        
+        if (isAndroid)
+            await deviceFarmClient.UploadAndroidApplication(
+                argumentsReader[DeviceFarmArgument.ApplicationName],
+                argumentsReader[DeviceFarmArgument.ProjectName],
+                argumentsReader[DeviceFarmArgument.UploadApplication]);
+        else
+            await deviceFarmClient.UploadIosApplication(
+                argumentsReader[DeviceFarmArgument.ApplicationName],
+                argumentsReader[DeviceFarmArgument.ProjectName],
+                argumentsReader[DeviceFarmArgument.UploadApplication]);
+        
 
         await deviceFarmClient.ScheduleTestRun(
-            "[Android] test-run-from-sdk",
-            ApplicationPlatform.Android,
+            argumentsReader[DeviceFarmArgument.RunName],
+            platform,
             argumentsReader[DeviceFarmArgument.ProjectName],
-            "[Android] random-device",
-            AndroidSpecName,
-            10);
+            argumentsReader[DeviceFarmArgument.DevicePoolName],
+            argumentsReader[DeviceFarmArgument.TestSpecsName],
+            int.Parse(argumentsReader[DeviceFarmArgument.Timeout]));
     }
 
     private static bool TryShowHelp(ArgumentsReader<DeviceFarmArgument> argumentsReader)

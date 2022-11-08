@@ -19,6 +19,11 @@ public static class DeviceFarmArgumentValues
         ["--upload-test-package"] = DeviceFarmArgument.UploadTestPackage, ["-utp"] = DeviceFarmArgument.UploadTestPackage,
         ["--test-package-name"] = DeviceFarmArgument.TestPackageName, ["-tpn"] = DeviceFarmArgument.TestPackageName,
         
+        ["--run-name"] = DeviceFarmArgument.RunName, ["-r"] = DeviceFarmArgument.RunName,
+        ["--device-pool-name"] = DeviceFarmArgument.DevicePoolName, ["-dp"] = DeviceFarmArgument.DevicePoolName,
+        ["--timeout"] = DeviceFarmArgument.Timeout, ["-t"] = DeviceFarmArgument.Timeout,
+        ["--artifacts-path"] = DeviceFarmArgument.ArtifactsPath, ["-a"] = DeviceFarmArgument.ArtifactsPath,
+        
         ["--help"] = DeviceFarmArgument.Help, ["-h"] = DeviceFarmArgument.Help,
     };
 
@@ -31,6 +36,7 @@ public static class DeviceFarmArgumentValues
         [DeviceFarmArgument.ApplicationPlatform] = "None",
         [DeviceFarmArgument.UploadTestPackage] = "false",
         [DeviceFarmArgument.UploadTestSpecs] = "false",
+        [DeviceFarmArgument.Timeout] = "15",
     };
 
     public static readonly Dictionary<DeviceFarmArgument, string> Descriptions = new()
@@ -52,5 +58,11 @@ public static class DeviceFarmArgumentValues
         [DeviceFarmArgument.UploadTestSpecs] = "*Optional. Path to test spec to upload. It will be used as default " +
                                                "if test spec name parameter is not set.",
         [DeviceFarmArgument.TestSpecsName] = "*Optional. Test spec name ('android.yml', for example) to use in test",
+        
+        [DeviceFarmArgument.RunName] = "*Required. Test run name.",
+        [DeviceFarmArgument.DevicePoolName] = "*Required. Device pool name to run on.",
+        [DeviceFarmArgument.Timeout] = "*Optional. Run timeout in minutes for each device from pool.",
+        
+        [DeviceFarmArgument.ArtifactsPath] = "*Required. Path to download run artifacts.",
     };
 }

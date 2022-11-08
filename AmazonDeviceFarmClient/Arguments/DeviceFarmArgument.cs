@@ -12,5 +12,9 @@ public enum DeviceFarmArgument
     ApplicationName,
     TestSpecsName,
     TestPackageName,
+    RunName,
+    DevicePoolName,
+    Timeout,
+    ArtifactsPath,
     Help
 }
