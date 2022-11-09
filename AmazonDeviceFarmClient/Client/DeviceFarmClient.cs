@@ -256,24 +256,29 @@ public class DeviceFarmClient
 
     private static async Task UploadFileToFarm(string filePath, string loadingUrl)
     {
-        using var httpClient = new HttpClient() { Timeout = TimeSpan.FromMinutes(30) };
+        using var httpClient = new HttpClient();
         using var request = new HttpRequestMessage(new HttpMethod("PUT"), loadingUrl);
 
         request.Content = new ByteArrayContent(File.ReadAllBytes(filePath));
-        var response = await httpClient.SendAsync(request);
+        
+        var responseCancellationTokenSource = new CancellationTokenSource();
+        responseCancellationTokenSource.CancelAfter(TimeSpan.FromMinutes(15));
+        var response = await httpClient.SendAsync(request, responseCancellationTokenSource.Token);
     }
 
     private static async Task DownloadFileFromFarm(string downloadingUrl, string filePath)
     {
         try
         {
-            using HttpClient client = new HttpClient() { Timeout = TimeSpan.FromMinutes(5) };
+            using HttpClient client = new HttpClient();
 
-            using HttpResponseMessage response =
-                await client.GetAsync(downloadingUrl, HttpCompletionOption.ResponseHeadersRead);
+            var responseCancellationTokenSource = new CancellationTokenSource();
+            responseCancellationTokenSource.CancelAfter(TimeSpan.FromMinutes(5));
+            using HttpResponseMessage response = await client.GetAsync(downloadingUrl, 
+                HttpCompletionOption.ResponseHeadersRead, responseCancellationTokenSource.Token);
 
             await using Stream streamToReadFrom = await response.Content.ReadAsStreamAsync();
-            await using FileStream streamToWriteTo = new FileStream(filePath, System.IO.FileMode.Create);
+            await using FileStream streamToWriteTo = new FileStream(filePath, FileMode.Create);
 
             await streamToReadFrom.CopyToAsync(streamToWriteTo);
         }
