@@ -85,8 +85,8 @@ public class IosDeviceInfo : IDeviceInfo
 
         var firstFreeDevice = freeDevices.First();
         var deviceIndex = devices.IndexOf(firstFreeDevice);
-        var deviceNumber = deviceIndex + 1 + deviceNumberShift;
-        deviceNumberString = deviceNumber.ToString();
+        var deviceNumber = deviceIndex + 1;
+        deviceNumberString = (deviceNumber + deviceNumberShift).ToString();
         
         Console.WriteLine($"Device ID: {firstFreeDevice} will be using as a first free.");
 
@@ -94,7 +94,7 @@ public class IosDeviceInfo : IDeviceInfo
         udid = requiredDeviceInfo.Udid;
         platformVersion = requiredDeviceInfo.PlatformVersion;
         
-        Console.WriteLine($"Found device by number: {deviceNumberString} with udid: {udid} and iOS version: {platformVersion}");
+        Console.WriteLine($"Found device by number: {deviceNumber} with udid: {udid} and iOS version: {platformVersion}");
         
         return true;
     }

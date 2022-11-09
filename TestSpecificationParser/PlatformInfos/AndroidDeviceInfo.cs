@@ -74,8 +74,8 @@ public class AndroidDeviceInfo : IDeviceInfo
 
         var firstFreeDevice = freeDevices.First();
         var deviceIndex = devices.IndexOf(firstFreeDevice);
-        var deviceNumber = deviceIndex + 1 + deviceNumberShift;
-        deviceNumberString = deviceNumber.ToString();
+        var deviceNumber = deviceIndex + 1;
+        deviceNumberString = (deviceNumber + deviceNumberShift).ToString();
         
         Console.WriteLine($"Device ID: {firstFreeDevice} will be using as a first free.");
         udid = devices[deviceNumber - 1];
@@ -84,7 +84,7 @@ public class AndroidDeviceInfo : IDeviceInfo
         Console.WriteLine($"Executing command: {adbPath} {versionArguments}");
         platformVersion = processRunner.GetProcessOutput(processRunner.StartProcess(adbPath, arguments)).First();
         
-        Console.WriteLine($"Found device by number: {deviceNumberString} with udid: {udid} and Android version: {platformVersion}");
+        Console.WriteLine($"Found device by number: {deviceNumber} with udid: {udid} and Android version: {platformVersion}");
         
         return true;
     }
