@@ -59,6 +59,15 @@ public class AndroidDeviceInfo : IDeviceInfo
                 .Any(processData => processData.Contains(deviceData)))
             .ToList();
         
+        if (!freeDevices.Any())
+        {
+            Console.WriteLine("No free devices to execute tests.");
+            udid = string.Empty;
+            platformVersion = string.Empty;
+            deviceNumberString = string.Empty;
+            return false;
+        }
+        
         Console.WriteLine("Free device ID's found:");
         foreach (var id in freeDevices)
             Console.WriteLine(id);
@@ -69,15 +78,6 @@ public class AndroidDeviceInfo : IDeviceInfo
         deviceNumberString = deviceNumber.ToString();
         
         Console.WriteLine($"Device ID: {firstFreeDevice} will be using as a first free.");
-
-        if (devices.Count < deviceNumber)
-        {
-            Console.WriteLine("Not enough devices to execute with target device number: {0}.", deviceNumber);
-            udid = string.Empty;
-            platformVersion = string.Empty;
-            return false;
-        }
-
         udid = devices[deviceNumber - 1];
 
         var versionArguments = $"-s {udid} shell getprop ro.build.version.release";

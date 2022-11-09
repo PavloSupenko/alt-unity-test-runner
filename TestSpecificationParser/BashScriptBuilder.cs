@@ -108,6 +108,9 @@ public class BashScriptBuilder
 
     private void AddEnvironmentVariable(StringBuilder scriptContent, string name, string value)
     {
+        if (string.IsNullOrEmpty(value))
+            value = "\"Unknown\"";
+        
         scriptContent.AppendLine($"export {name}={value}");
     }
 
