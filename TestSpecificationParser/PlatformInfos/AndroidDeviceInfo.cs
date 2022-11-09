@@ -82,7 +82,7 @@ public class AndroidDeviceInfo : IDeviceInfo
 
         var versionArguments = $"-s {udid} shell getprop ro.build.version.release";
         Console.WriteLine($"Executing command: {adbPath} {versionArguments}");
-        platformVersion = processRunner.GetProcessOutput(processRunner.StartProcess(adbPath, arguments)).First();
+        platformVersion = processRunner.GetProcessOutput(processRunner.StartProcess(adbPath, versionArguments)).First();
         
         Console.WriteLine($"Found device by number: {deviceNumber} with udid: {udid} and Android version: {platformVersion}");
         
