@@ -258,7 +258,7 @@ public class DeviceFarmClient
 
     private static async Task UploadFileToFarm(string filePath, string loadingUrl)
     {
-        using var httpClient = new HttpClient() { Timeout = TimeSpan.FromMinutes(5) };
+        using var httpClient = new HttpClient() { Timeout = TimeSpan.FromMinutes(30) };
         using var request = new HttpRequestMessage(new HttpMethod("PUT"), loadingUrl);
 
         request.Content = new ByteArrayContent(File.ReadAllBytes(filePath));
@@ -272,7 +272,7 @@ public class DeviceFarmClient
     {
         try
         {
-            using HttpClient client = new HttpClient() { Timeout = TimeSpan.FromMinutes(5) };
+            using HttpClient client = new HttpClient() { Timeout = TimeSpan.FromMinutes(30) };
 
             var responseCancellationTokenSource = new CancellationTokenSource();
             responseCancellationTokenSource.CancelAfter(TimeSpan.FromMinutes(5));
