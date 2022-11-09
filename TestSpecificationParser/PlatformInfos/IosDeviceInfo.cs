@@ -6,6 +6,13 @@ namespace TestSpecificationParser.PlatformInfos;
 public class IosDeviceInfo : IDeviceInfo
 {
     private readonly ProcessRunner processRunner = new();
+    private int deviceNumberShift;
+
+    
+    public IosDeviceInfo(int deviceNumberShift)
+    {
+        this.deviceNumberShift = deviceNumberShift;
+    }
     
     public bool FindFirstConnectedDevice(out string deviceNumberString, out string udid, out string platformVersion)
     {
@@ -69,7 +76,7 @@ public class IosDeviceInfo : IDeviceInfo
 
         var firstFreeDevice = freeDevices.First();
         var deviceIndex = devices.IndexOf(firstFreeDevice);
-        var deviceNumber = deviceIndex + 1;
+        var deviceNumber = deviceIndex + 1 + deviceNumberShift;
         deviceNumberString = deviceNumber.ToString();
         
         Console.WriteLine($"Device ID: {firstFreeDevice} will be using as a first free.");

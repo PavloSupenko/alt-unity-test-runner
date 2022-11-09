@@ -36,7 +36,7 @@ public static class Program
         bool isCloudRun = bool.Parse(argumentsReader[BashScriptBuilderArgument.IsCloudRun]);
 
         string devicePlatformName = argumentsReader[BashScriptBuilderArgument.DevicePlatformName];
-        IDeviceInfo deviceInfo = devicePlatformName.Equals("iOS") ? new IosDeviceInfo() : new AndroidDeviceInfo();
+        IDeviceInfo deviceInfo = devicePlatformName.Equals("iOS") ? new IosDeviceInfo(0) : new AndroidDeviceInfo(5);
         deviceInfo.FindFirstConnectedDevice(out var deviceNumber, out var realUdid, out var platformVersion);
         
         int deviceNumberDecimal = int.Parse(deviceNumber);
