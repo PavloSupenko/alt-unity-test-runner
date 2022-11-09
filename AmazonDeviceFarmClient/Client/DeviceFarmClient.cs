@@ -103,7 +103,7 @@ public class DeviceFarmClient
         string runArn = runFoundByName.Arn;
         
         List<Job>? jobs = (await client.ListJobsAsync(new ListJobsRequest() { Arn = runArn })).Jobs;
-        List<Artifact> artifacts = new List<Artifact>();
+        List<(Job, Artifact)> artifacts = new List<(Job, Artifact)>();
 
         foreach (var job in jobs)
         {
@@ -118,17 +118,23 @@ public class DeviceFarmClient
                 Arn = job.Arn,
                 Type = ArtifactCategory.FILE
             })).Artifacts;
+
+            List<(Job, Artifact)> jobFiles = files.Select(file => (job, file)).ToList();
+            List<(Job, Artifact)> jobLogs = logs.Select(log => (job, log)).ToList();
             
-            artifacts.AddRange(logs);
-            artifacts.AddRange(files);
+            artifacts.AddRange(jobFiles);
+            artifacts.AddRange(jobLogs);
         }
 
-        foreach (var artifact in artifacts)
+        foreach (var artifactInfo in artifacts)
         {
+            Artifact artifact = artifactInfo.Item2;
+            Job job = artifactInfo.Item1;
+            
             string url = artifact.Url;
             string extension = artifact.Extension;
             
-            string name = artifact.Name;
+            string name = $"[{job.Name}] {artifact.Name}";
             string filePath = Path.Combine(path, $"{name}.{extension}");
 
             if (extension.Equals("json"))
@@ -139,7 +145,7 @@ public class DeviceFarmClient
             {
                 while (File.Exists(filePath))
                 {
-                    name = artifact.Name + ".another.suite";
+                    name += ".another.suite";
                     filePath = Path.Combine(path, $"{name}.{extension}");
                 }
                 
@@ -243,11 +249,7 @@ public class DeviceFarmClient
         Project targetProject = projects.First(project => project.Name.Equals(projectName));
         return targetProject;
     }
-
-    private async Task<Project> GetProjectByArn(string projectArn) =>
-        (await GetProjectResponse(projectArn))
-        .Project;
-
+    
     private Task<GetProjectResponse> GetProjectResponse(string projectArn) => 
         client.GetProjectAsync(new GetProjectRequest()
         {
