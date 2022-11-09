@@ -1,4 +1,5 @@
-﻿using Amazon;
+﻿using System.Net;
+using Amazon;
 using Amazon.DeviceFarm;
 using Amazon.DeviceFarm.Model;
 using Amazon.Runtime;
@@ -96,11 +97,56 @@ public class DeviceFarmClient
         }
     }
     
-    public async Task DownloadArtifacts(ScheduleRunResponse scheduleResponse, string path)
+    public async Task DownloadArtifacts(string runName, string projectName, string path)
     {
-        string runArn = scheduleResponse.Run.Arn;
+        Run runFoundByName = await GetRunByName(projectName, runName);
+        string runArn = runFoundByName.Arn;
         
-        GetRunResponse runResponse = await client.GetRunAsync(runArn);
+        List<Job>? jobs = (await client.ListJobsAsync(new ListJobsRequest() { Arn = runArn })).Jobs;
+        List<Artifact> artifacts = new List<Artifact>();
+
+        foreach (var job in jobs)
+        {
+            List<Artifact>? logs = (await client.ListArtifactsAsync(new ListArtifactsRequest()
+            {
+                Arn = job.Arn,
+                Type = ArtifactCategory.LOG
+            })).Artifacts;
+            
+            List<Artifact>? files = (await client.ListArtifactsAsync(new ListArtifactsRequest()
+            {
+                Arn = job.Arn,
+                Type = ArtifactCategory.FILE
+            })).Artifacts;
+            
+            artifacts.AddRange(logs);
+            artifacts.AddRange(files);
+        }
+
+        foreach (var artifact in artifacts)
+        {
+            string url = artifact.Url;
+            string extension = artifact.Extension;
+            
+            string name = artifact.Name;
+            string filePath = Path.Combine(path, $"{name}.{extension}");
+
+            if (extension.Equals("json"))
+            {
+                Console.WriteLine($"File {name} has extension json and will be ignored because it's mapping file");
+            }
+            else
+            {
+                while (File.Exists(filePath))
+                {
+                    name = artifact.Name + ".another.suite";
+                    filePath = Path.Combine(path, $"{name}.{extension}");
+                }
+                
+                Console.WriteLine($"Downloading artifact to path: {filePath}");
+                await DownloadFileFromFarm(url, filePath);
+            }
+        }
     }
 
     private async Task<DevicePool?> GetDevicePoolByName(string name, string projectName, bool getCustomPools)
@@ -210,13 +256,30 @@ public class DeviceFarmClient
 
     private static async Task UploadFileToFarm(string filePath, string loadingUrl)
     {
-        using (var httpClient = new HttpClient() { Timeout = TimeSpan.FromMinutes(15) })
+        using var httpClient = new HttpClient() { Timeout = TimeSpan.FromMinutes(30) };
+        using var request = new HttpRequestMessage(new HttpMethod("PUT"), loadingUrl);
+
+        request.Content = new ByteArrayContent(File.ReadAllBytes(filePath));
+        var response = await httpClient.SendAsync(request);
+    }
+
+    private static async Task DownloadFileFromFarm(string downloadingUrl, string filePath)
+    {
+        try
         {
-            using (var request = new HttpRequestMessage(new HttpMethod("PUT"), loadingUrl))
-            {
-                request.Content = new ByteArrayContent(File.ReadAllBytes(filePath));
-                var response = await httpClient.SendAsync(request);
-            }
+            using HttpClient client = new HttpClient() { Timeout = TimeSpan.FromMinutes(5) };
+
+            using HttpResponseMessage response =
+                await client.GetAsync(downloadingUrl, HttpCompletionOption.ResponseHeadersRead);
+
+            await using Stream streamToReadFrom = await response.Content.ReadAsStreamAsync();
+            await using FileStream streamToWriteTo = new FileStream(filePath, System.IO.FileMode.Create);
+
+            await streamToReadFrom.CopyToAsync(streamToWriteTo);
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine($"Can't download file to path: {filePath}. Exception: {exception.ToString()}");
         }
     }
 }

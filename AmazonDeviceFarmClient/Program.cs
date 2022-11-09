@@ -35,7 +35,7 @@ public static class Program
                 argumentsReader[DeviceFarmArgument.TestSpecsName],
                 projectName,
                 argumentsReader[DeviceFarmArgument.UploadTestSpecs]);
-
+        
         bool isAndroid = argumentsReader[DeviceFarmArgument.ApplicationPlatform].Equals("Android");
         ApplicationPlatform platform = isAndroid ? ApplicationPlatform.Android : ApplicationPlatform.Ios;
         
@@ -52,7 +52,7 @@ public static class Program
 
         var runName = argumentsReader[DeviceFarmArgument.RunName];
         var timeout = int.Parse(argumentsReader[DeviceFarmArgument.Timeout]);
-
+        
         await deviceFarmClient.ScheduleTestRun(
             runName,
             platform,
@@ -60,8 +60,12 @@ public static class Program
             argumentsReader[DeviceFarmArgument.DevicePoolName],
             argumentsReader[DeviceFarmArgument.TestSpecsName],
             timeout);
-
+        
         await deviceFarmClient.WaitTestRun(runName, projectName, TimeSpan.FromSeconds(10));
+
+        var artifactsDirectory = argumentsReader[DeviceFarmArgument.ArtifactsPath];
+
+        await deviceFarmClient.DownloadArtifacts(runName, projectName, artifactsDirectory);
     }
 
     private static bool TryShowHelp(ArgumentsReader<DeviceFarmArgument> argumentsReader)
