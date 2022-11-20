@@ -10,5 +10,6 @@ public enum BashScriptBuilderArgument
     ShellFilePath,
     IsCloudRun,
     Help,
-    WdaDerivedDataPath
+    WdaDerivedDataPath,
+    TestsFilter,
 }

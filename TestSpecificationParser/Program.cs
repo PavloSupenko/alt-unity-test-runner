@@ -63,7 +63,8 @@ public static class Program
             altUnityPort: altUnityPort.ToString(),
             wdaIosPort: wdaIosPort.ToString(),
             wdaDerivedPath: argumentsReader[BashScriptBuilderArgument.WdaDerivedDataPath], 
-            isCloud: "false");
+            isCloud: "false", 
+            testsFilter: argumentsReader[BashScriptBuilderArgument.TestsFilter]);
 
         using StreamWriter writer = new StreamWriter(argumentsReader[BashScriptBuilderArgument.ShellFilePath]);
         writer.Write(bashExecutionScript);

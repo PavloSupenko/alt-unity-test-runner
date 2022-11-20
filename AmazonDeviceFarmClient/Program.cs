@@ -1,5 +1,4 @@
-﻿using Amazon.DeviceFarm.Model;
-using Shared.Arguments;
+﻿using Shared.Arguments;
 using AmazonDeviceFarmClient.Client;
 using AmazonDeviceFarmClient.Arguments;
 
@@ -8,8 +7,10 @@ namespace AmazonDeviceFarmClient;
 
 public static class Program
 {
+    private const string TestsFilterVariable = "TESTS_FILTER";
     private static ArgumentsReader<DeviceFarmArgument> argumentsReader;
 
+    
     private static async Task Main(string[] args)
     {
         argumentsReader = new ArgumentsReader<DeviceFarmArgument>(args, DeviceFarmArgumentValues.Keys,
@@ -18,28 +19,49 @@ public static class Program
         if (TryShowHelp(argumentsReader))
             return;
 
-        DeviceFarmClient deviceFarmClient = new DeviceFarmClient(
-            argumentsReader[DeviceFarmArgument.UserKey],
-            argumentsReader[DeviceFarmArgument.UserSecret]);
+        DeviceFarmClient deviceFarmClient = CreateDeviceFarmClient
+        (
+            accessKey: argumentsReader[DeviceFarmArgument.UserKey],
+            secretKey: argumentsReader[DeviceFarmArgument.UserSecret]
+        );
 
-        var projectName = argumentsReader[DeviceFarmArgument.ProjectName];
+        string projectName = argumentsReader[DeviceFarmArgument.ProjectName];
 
-        if (argumentsReader.IsExist(DeviceFarmArgument.UploadTestPackage))
-            await deviceFarmClient.UploadTestPackage(
-                argumentsReader[DeviceFarmArgument.TestPackageName],
-                projectName,
-                argumentsReader[DeviceFarmArgument.UploadTestPackage]);
+        await TryUploadTestPackage(deviceFarmClient, projectName);
+        await TryUploadTestSpec(deviceFarmClient, projectName, argumentsReader[DeviceFarmArgument.TestsFilter]);
+
+        ApplicationPlatform platform = 
+            argumentsReader[DeviceFarmArgument.ApplicationPlatform].Equals("Android") 
+            ? ApplicationPlatform.Android 
+            : ApplicationPlatform.Ios;
+
+        await TryUploadApplication(platform, deviceFarmClient, projectName);
+
+        string runName = argumentsReader[DeviceFarmArgument.RunName];
+        int timeout = int.Parse(argumentsReader[DeviceFarmArgument.Timeout]);
         
-        if (argumentsReader.IsExist(DeviceFarmArgument.UploadTestSpecs))
-            await deviceFarmClient.UploadTestSpec(
-                argumentsReader[DeviceFarmArgument.TestSpecsName],
-                projectName,
-                argumentsReader[DeviceFarmArgument.UploadTestSpecs]);
-        
-        bool isAndroid = argumentsReader[DeviceFarmArgument.ApplicationPlatform].Equals("Android");
-        ApplicationPlatform platform = isAndroid ? ApplicationPlatform.Android : ApplicationPlatform.Ios;
-        
-        if (isAndroid)
+        await ScheduleTestRun(deviceFarmClient, runName, platform, projectName, timeout);
+        await deviceFarmClient.WaitTestRun(runName, projectName, TimeSpan.FromSeconds(10));
+
+        var artifactsDirectory = argumentsReader[DeviceFarmArgument.ArtifactsPath];
+        await deviceFarmClient.DownloadArtifacts(runName, projectName, artifactsDirectory);
+    }
+
+    private static async Task ScheduleTestRun(DeviceFarmClient deviceFarmClient, string runName,
+        ApplicationPlatform platform, string projectName, int timeout)
+    {
+        await deviceFarmClient.ScheduleTestRun(
+            runName,
+            platform,
+            projectName,
+            argumentsReader[DeviceFarmArgument.DevicePoolName],
+            argumentsReader[DeviceFarmArgument.TestSpecsName],
+            timeout);
+    }
+
+    private static async Task TryUploadApplication(ApplicationPlatform platform, DeviceFarmClient deviceFarmClient, string projectName)
+    {
+        if (platform == ApplicationPlatform.Android)
             await deviceFarmClient.UploadAndroidApplication(
                 argumentsReader[DeviceFarmArgument.ApplicationName],
                 projectName,
@@ -49,23 +71,49 @@ public static class Program
                 argumentsReader[DeviceFarmArgument.ApplicationName],
                 projectName,
                 argumentsReader[DeviceFarmArgument.UploadApplication]);
+    }
 
-        var runName = argumentsReader[DeviceFarmArgument.RunName];
-        var timeout = int.Parse(argumentsReader[DeviceFarmArgument.Timeout]);
+    private static async Task TryUploadTestSpec(DeviceFarmClient deviceFarmClient, string projectName, string testsFilter)
+    {
+        if (!argumentsReader.IsExist(DeviceFarmArgument.UploadTestSpecs))
+            return;
+
+        string testSpecName = argumentsReader[DeviceFarmArgument.TestSpecsName];
+        string testSpecPath = argumentsReader[DeviceFarmArgument.UploadTestSpecs];
+
+        List<string> testSpecLines = (await File.ReadAllLinesAsync(testSpecPath)).ToList();
+        string testFilterLine = testSpecLines.First(line => line.Contains($"{TestsFilterVariable}="));
+        int testFilerLineIndex = testSpecLines.IndexOf(testFilterLine);
+
+        string[] testFilterVariableData = testFilterLine.Split('=');
+        string testFilterVariableName = testFilterVariableData[0];
+        string newTestFilterVariableValue = $"\"{testsFilter}\"";
         
-        await deviceFarmClient.ScheduleTestRun(
-            runName,
-            platform,
+        string newTestFilterLine = $"{testFilterVariableName}={newTestFilterVariableValue}";
+        testSpecLines[testFilerLineIndex] = newTestFilterLine;
+
+        await File.WriteAllLinesAsync(testSpecPath, testSpecLines);
+
+        await deviceFarmClient.UploadTestSpec(
+            testSpecName,
             projectName,
-            argumentsReader[DeviceFarmArgument.DevicePoolName],
-            argumentsReader[DeviceFarmArgument.TestSpecsName],
-            timeout);
-        
-        await deviceFarmClient.WaitTestRun(runName, projectName, TimeSpan.FromSeconds(10));
+            testSpecPath);
+    }
 
-        var artifactsDirectory = argumentsReader[DeviceFarmArgument.ArtifactsPath];
+    private static async Task TryUploadTestPackage(DeviceFarmClient deviceFarmClient, string projectName)
+    {
+        if (!argumentsReader.IsExist(DeviceFarmArgument.UploadTestPackage))
+            return;
 
-        await deviceFarmClient.DownloadArtifacts(runName, projectName, artifactsDirectory);
+        await deviceFarmClient.UploadTestPackage(
+            argumentsReader[DeviceFarmArgument.TestPackageName],
+            projectName,
+            argumentsReader[DeviceFarmArgument.UploadTestPackage]);
+    }
+
+    private static DeviceFarmClient CreateDeviceFarmClient(string accessKey, string secretKey)
+    {
+        return new DeviceFarmClient(accessKey, secretKey);
     }
 
     private static bool TryShowHelp(ArgumentsReader<DeviceFarmArgument> argumentsReader)

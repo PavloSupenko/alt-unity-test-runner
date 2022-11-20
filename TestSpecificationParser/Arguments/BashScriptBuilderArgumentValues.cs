@@ -12,6 +12,7 @@ public class BashScriptBuilderArgumentValues
         ["--bash"] = BashScriptBuilderArgument.ShellFilePath, ["-b"] = BashScriptBuilderArgument.ShellFilePath,
         ["--cloud"] = BashScriptBuilderArgument.ShellFilePath, ["-c"] = BashScriptBuilderArgument.IsCloudRun,
         ["--wda-derived-data-path"] = BashScriptBuilderArgument.ShellFilePath, ["-wda"] = BashScriptBuilderArgument.WdaDerivedDataPath,
+        ["--tests-filter"] = BashScriptBuilderArgument.TestsFilter, ["-f"] = BashScriptBuilderArgument.TestsFilter,
         ["--help"] = BashScriptBuilderArgument.Help, ["-h"] = BashScriptBuilderArgument.Help,
     };
 
@@ -30,5 +31,6 @@ public class BashScriptBuilderArgumentValues
         [BashScriptBuilderArgument.IsCloudRun] = "*Required. Should run starts on AWS cloud platform.",
         [BashScriptBuilderArgument.ShellFilePath] = "*Required. Bash result file.",
         [BashScriptBuilderArgument.WdaDerivedDataPath] = "*Required. Path to WebDriverAgent prebuilt derived data.",
+        [BashScriptBuilderArgument.TestsFilter] = "*Required. Tests filter according to pytest rules.",
     };
 }

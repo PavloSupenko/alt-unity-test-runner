@@ -24,6 +24,8 @@ public static class DeviceFarmArgumentValues
         ["--timeout"] = DeviceFarmArgument.Timeout, ["-t"] = DeviceFarmArgument.Timeout,
         ["--artifacts-path"] = DeviceFarmArgument.ArtifactsPath, ["-a"] = DeviceFarmArgument.ArtifactsPath,
         
+        ["--tests-filter"] = DeviceFarmArgument.TestsFilter, ["-f"] = DeviceFarmArgument.TestsFilter,
+        
         ["--help"] = DeviceFarmArgument.Help, ["-h"] = DeviceFarmArgument.Help,
     };
 
@@ -37,6 +39,7 @@ public static class DeviceFarmArgumentValues
         [DeviceFarmArgument.UploadTestPackage] = "false",
         [DeviceFarmArgument.UploadTestSpecs] = "false",
         [DeviceFarmArgument.Timeout] = "15",
+        [DeviceFarmArgument.TestsFilter] = "tests/",
     };
 
     public static readonly Dictionary<DeviceFarmArgument, string> Descriptions = new()

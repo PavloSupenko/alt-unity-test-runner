@@ -16,5 +16,6 @@ public enum DeviceFarmArgument
     DevicePoolName,
     Timeout,
     ArtifactsPath,
+    TestsFilter,
     Help
 }
