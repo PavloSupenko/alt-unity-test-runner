@@ -1,6 +1,6 @@
-﻿namespace AmazonDeviceFarmClient.Arguments;
+﻿namespace AmazonDeviceFarmRunStarter.Arguments;
 
-public enum DeviceFarmArgument
+public enum Argument
 {
     ProjectName,
     UserKey,
@@ -15,7 +15,6 @@ public enum DeviceFarmArgument
     RunName,
     DevicePoolName,
     Timeout,
-    ArtifactsPath,
     TestsFilter,
     Help
 }
