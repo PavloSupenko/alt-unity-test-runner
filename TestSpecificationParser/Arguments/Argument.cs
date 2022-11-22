@@ -1,6 +1,6 @@
 ﻿namespace TestSpecificationParser.Arguments;
 
-public enum BashScriptBuilderArgument
+public enum Argument
 {
     DevicePlatformName,
     ArtifactsDirectory,

@@ -13,17 +13,17 @@ public static class Program
     private const int DefaultAppiumPort = 4723;
     private const int DefaultWdaIosPort = 8100;
     
-    private static ArgumentsReader<BashScriptBuilderArgument> argumentsReader;
+    private static ArgumentsReader<Argument> argumentsReader;
 
     private static void Main(string[] args)
     {
-        argumentsReader = new ArgumentsReader<BashScriptBuilderArgument>(args, BashScriptBuilderArgumentValues.Keys,
-            BashScriptBuilderArgumentValues.Defaults, BashScriptBuilderArgumentValues.Descriptions);
+        argumentsReader = new ArgumentsReader<Argument>(args, ArgumentValues.Keys,
+            ArgumentValues.Defaults, ArgumentValues.Descriptions);
         
         if (TryShowHelp(argumentsReader))
             return;
         
-        using StreamReader reader = new StreamReader(argumentsReader[BashScriptBuilderArgument.YamlFilePath]);
+        using StreamReader reader = new StreamReader(argumentsReader[Argument.YamlFilePath]);
         string specFileContent = reader.ReadToEnd();
         
         var deserializer = new DeserializerBuilder()
@@ -33,9 +33,9 @@ public static class Program
         TestSpecification specification = deserializer.Deserialize<TestSpecification>(specFileContent);
         BashScriptBuilder bashScriptBuilder = new BashScriptBuilder(specification);
 
-        bool isCloudRun = bool.Parse(argumentsReader[BashScriptBuilderArgument.IsCloudRun]);
+        bool isCloudRun = bool.Parse(argumentsReader[Argument.IsCloudRun]);
 
-        string devicePlatformName = argumentsReader[BashScriptBuilderArgument.DevicePlatformName];
+        string devicePlatformName = argumentsReader[Argument.DevicePlatformName];
         IDeviceInfo deviceInfo = devicePlatformName.Equals("iOS") ? new IosDeviceInfo(0) : new AndroidDeviceInfo(5);
         deviceInfo.FindFirstConnectedDevice(out var deviceNumber, out var realUdid, out var platformVersion);
         
@@ -53,30 +53,30 @@ public static class Program
             // We will be using udid as a device name like AWS does.
             deviceName: realUdid,
             devicePlatform: devicePlatformName,
-            artifactsDirectory: argumentsReader[BashScriptBuilderArgument.ArtifactsDirectory],
+            artifactsDirectory: argumentsReader[Argument.ArtifactsDirectory],
             realDeviceId: realUdid,
             appiumDeviceId: appiumUdid,
             devicePlatformVersion: platformVersion,
-            testPackagePath: argumentsReader[BashScriptBuilderArgument.TestPackageDirectory],
-            applicationPath: argumentsReader[BashScriptBuilderArgument.ApplicationPath],
+            testPackagePath: argumentsReader[Argument.TestPackageDirectory],
+            applicationPath: argumentsReader[Argument.ApplicationPath],
             appiumPort: appiumPort.ToString(),
             altUnityPort: altUnityPort.ToString(),
             wdaIosPort: wdaIosPort.ToString(),
-            wdaDerivedPath: argumentsReader[BashScriptBuilderArgument.WdaDerivedDataPath], 
+            wdaDerivedPath: argumentsReader[Argument.WdaDerivedDataPath], 
             isCloud: "false", 
-            testsFilter: argumentsReader[BashScriptBuilderArgument.TestsFilter]);
+            testsFilter: argumentsReader[Argument.TestsFilter]);
 
-        using StreamWriter writer = new StreamWriter(argumentsReader[BashScriptBuilderArgument.ShellFilePath]);
+        using StreamWriter writer = new StreamWriter(argumentsReader[Argument.ShellFilePath]);
         writer.Write(bashExecutionScript);
     }
     
-    private static bool TryShowHelp(ArgumentsReader<BashScriptBuilderArgument> argumentsReader)
+    private static bool TryShowHelp(ArgumentsReader<Argument> argumentsReader)
     {
-        if (!argumentsReader.IsTrue(BashScriptBuilderArgument.Help)) 
+        if (!argumentsReader.IsTrue(Argument.Help)) 
             return false;
 
         var showDefaults = true;
-        ArgumentsReader<BashScriptBuilderArgument>.ShowHelp(argumentsReader, "==== Parameters: ====", showDefaults);
+        ArgumentsReader<Argument>.ShowHelp(argumentsReader, "==== Parameters: ====", showDefaults);
         Console.WriteLine();
 
         return true;
