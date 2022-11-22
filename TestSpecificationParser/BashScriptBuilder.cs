@@ -34,6 +34,7 @@ public class BashScriptBuilder
         "avm",
         "nvm",
         "export APPIUM_VERSION",
+        ". bin/activate",
         $"{AppiumPort}=",
         $"{AltUnityPort}=",
         $"{WdaPort}=",
