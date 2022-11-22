@@ -22,6 +22,8 @@ public class IosDeviceInfo : IDeviceInfo
 
         var resultStrings = processRunner
             .GetProcessOutput(processRunner.StartProcess(xcrunPath, arguments)).ToList();
+        
+        Console.WriteLine($"Device listing returns: \n{string.Join('\n', resultStrings)}");
 
         var devices = resultStrings
             .Skip(2)

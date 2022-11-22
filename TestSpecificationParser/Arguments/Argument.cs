@@ -1,6 +1,6 @@
 ﻿namespace TestSpecificationParser.Arguments;
 
-public enum BashScriptBuilderArgument
+public enum Argument
 {
     DevicePlatformName,
     ArtifactsDirectory,
@@ -10,5 +10,6 @@ public enum BashScriptBuilderArgument
     ShellFilePath,
     IsCloudRun,
     Help,
-    WdaDerivedDataPath
+    WdaDerivedDataPath,
+    TestsFilter,
 }

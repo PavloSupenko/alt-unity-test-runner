@@ -12,6 +12,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmazonDeviceFarmClient", "A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSpecificationParser", "TestSpecificationParser\TestSpecificationParser.csproj", "{96F0E366-5F38-4032-907F-CDAB14F9670F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmazonDeviceFarmRunAwaiter", "AmazonDeviceFarmRunAwaiter\AmazonDeviceFarmRunAwaiter.csproj", "{5573E59C-270C-47CA-8979-10FB7679A6C5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmazonDeviceFarmRunStarter", "AmazonDeviceFarmRunStarter\AmazonDeviceFarmRunStarter.csproj", "{C4E880F0-E81E-438D-92AF-061E4B0884E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestsHtmlReportCreator", "TestsHtmlReportCreator\TestsHtmlReportCreator.csproj", "{65462022-FA84-4F71-8318-A326CC9D9232}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +48,17 @@ Global
 		{96F0E366-5F38-4032-907F-CDAB14F9670F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{96F0E366-5F38-4032-907F-CDAB14F9670F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{96F0E366-5F38-4032-907F-CDAB14F9670F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5573E59C-270C-47CA-8979-10FB7679A6C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5573E59C-270C-47CA-8979-10FB7679A6C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5573E59C-270C-47CA-8979-10FB7679A6C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5573E59C-270C-47CA-8979-10FB7679A6C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4E880F0-E81E-438D-92AF-061E4B0884E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4E880F0-E81E-438D-92AF-061E4B0884E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4E880F0-E81E-438D-92AF-061E4B0884E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4E880F0-E81E-438D-92AF-061E4B0884E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65462022-FA84-4F71-8318-A326CC9D9232}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65462022-FA84-4F71-8318-A326CC9D9232}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65462022-FA84-4F71-8318-A326CC9D9232}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65462022-FA84-4F71-8318-A326CC9D9232}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
