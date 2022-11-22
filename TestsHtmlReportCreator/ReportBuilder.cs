@@ -13,11 +13,12 @@ public class ReportBuilder
     private readonly string remoteAndroid;
     private readonly string localIos;
     private readonly string localAndroid;
-    private readonly string path;
+    private readonly string reportPath;
 
-    public ReportBuilder(string localAndroid, string localIos, string remoteAndroid, string remoteIos, string path)
+    
+    public ReportBuilder(string localAndroid, string localIos, string remoteAndroid, string remoteIos, string reportPath)
     {
-        this.path = path;
+        this.reportPath = reportPath;
         this.localAndroid = localAndroid;
         this.localIos = localIos;
         this.remoteAndroid = remoteAndroid;
@@ -54,13 +55,13 @@ public class ReportBuilder
         SaveDocumentToFile(document);
     }
 
-    private void AddDirectoryInfo(HtmlTag parent, string htmlTitle, string directoryPath, int deepLevel)
+    private void AddDirectoryInfo(HtmlTag parent, string directoryName, string directoryPath, int deepLevel)
     {
         string passStatus = true ? "passed" : "failed";
         HtmlTag buttonContent = AddCollapsibleButton(
             parent: parent, 
             padding: deepLevel * PaddingMultiplier, 
-            buttonContent: GetButtonContentForDirectory(htmlTitle, passStatus));
+            buttonContent: GetButtonContentForDirectory(directoryName, passStatus));
 
         string[] subDirectories = Directory.GetDirectories(directoryPath);
         string[] subFiles = Directory.GetFiles(directoryPath);
@@ -81,24 +82,27 @@ public class ReportBuilder
             AddFileInfo(buttonContent, info.Name, info.FullName, deepLevel + 1);
     }
     
-    private void AddFileInfo(HtmlTag parent, string htmlTitle, string filePath, int deepLevel)
+    private void AddFileInfo(HtmlTag parent, string fileName, string filePath, int deepLevel)
     {
-        var padding = deepLevel * PaddingMultiplier;
+        int padding = deepLevel * PaddingMultiplier;
+        string relativeFilePath = Path.GetRelativePath(reportPath, filePath)
+            .Replace("..\\", string.Empty)
+            .Replace("../", string.Empty);
 
         HtmlTag buttonContent = AddCollapsibleButton(
             parent: parent, 
             padding: padding, 
-            buttonContent: GetButtonContentForFile(htmlTitle, Color.Olive));
+            buttonContent: GetButtonContentForFile(fileName, Color.Olive));
 
-        if (filePath.Contains(".png"))
+        if (relativeFilePath.Contains(".png"))
             buttonContent
                 .Append(new HtmlTag("img")
-                    .Attr("src", filePath)
+                    .Attr("src", relativeFilePath)
                     .Attr("style", $"max-width: 500px; max-height: 500px; height: auto; padding-left: {padding}px;"));
         else
             buttonContent
                 .Append(new HtmlTag("a")
-                    .Attr("href", filePath)
+                    .Attr("href", relativeFilePath)
                     .Attr("rel", "noopener noreferrer")
                     .Attr("style", $"padding-left: {padding}px")
                     .Attr("target", "_blank")
@@ -154,7 +158,7 @@ public class ReportBuilder
 
     private void WriteDocumentToFile(string text)
     {
-        using StreamWriter sw = new StreamWriter(path, false);
+        using StreamWriter sw = new StreamWriter(reportPath, false);
         sw.Write(text);
     }
 

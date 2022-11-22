@@ -22,7 +22,7 @@ public static class Program
             localIos: argumentsReader[Argument.LocalIosPath],
             remoteAndroid: argumentsReader[Argument.RemoteAndroidPath],
             remoteIos: argumentsReader[Argument.RemoteIosPath],
-            path: argumentsReader[Argument.ReportPath]
+            reportPath: argumentsReader[Argument.ReportPath]
         );
         
         reportBuilder.Build();
