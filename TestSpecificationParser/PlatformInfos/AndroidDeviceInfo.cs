@@ -23,6 +23,8 @@ public class AndroidDeviceInfo : IDeviceInfo
         var resultsStrings = processRunner
             .GetProcessOutput(processRunner.StartProcess(adbPath, arguments)).ToList();
 
+        Console.WriteLine($"Device listing returns: \n{string.Join('\n', resultsStrings)}");
+
         var devices = resultsStrings
             .Where(line => !string.IsNullOrEmpty(line) && !line.StartsWith("List ") && !line.Contains("deamon"))
             .Select(line => line.Split('\t')[0])
